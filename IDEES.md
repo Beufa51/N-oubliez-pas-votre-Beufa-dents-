@@ -93,6 +93,6 @@ Pas de publication sur le Play Store.
 ## Avancement
 - [x] Mascotte : 7 poses générées avec Gemini, détourées (`assets/mascotte/png/`).
 - [x] Étape 1 : mode Classique (minuteur 1/2 min, zones, pauses 3 s, mascotte).
-- [ ] Étape 2 : caméra frontale en miroir.
+- [x] Étape 2 : caméra frontale en miroir (option « Miroir » à l'accueil, petite vue schéma/caméra échangeable d'un appui, repli sans caméra si refus).
 - [ ] Étape 3 : mode Beufa dents (poses, photos, montage avec le créateur).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).

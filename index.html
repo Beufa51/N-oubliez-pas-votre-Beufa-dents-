@@ -35,6 +35,12 @@
         <button class="option actif" data-duree="120" type="button"><strong>2 min</strong><small>Recommandé</small></button>
       </div>
 
+      <h2>Caméra</h2>
+      <div class="choix" id="choix-camera">
+        <button class="option actif" data-camera="0" type="button"><strong>Sans</strong><small>Schéma seul</small></button>
+        <button class="option" data-camera="1" type="button"><strong>Miroir</strong><small>Je me vois brosser</small></button>
+      </div>
+
       <button id="btn-demarrer" class="gros-bouton" type="button">C'est parti !</button>
     </div>
   </section>
@@ -56,9 +62,11 @@
       </div>
     </header>
 
-    <div class="scene">
+    <div class="scene" id="scene">
+      <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
       <div id="astuce" class="astuce"></div>
+      <div id="toast" class="toast" hidden></div>
       <img id="mascotte" class="mascotte" src="assets/mascotte/png/pose-mains-hanches.png" alt="">
     </div>
 

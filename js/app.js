@@ -70,6 +70,53 @@
   });
 
 
+  /* ---------- caméra miroir ---------- */
+  const elScene = $("#scene"), elCamera = $("#camera"), elToast = $("#toast");
+  let cameraVoulue = false, flux = null, toastT = 0;
+
+  $("#choix-camera").addEventListener("click", e => {
+    const b = e.target.closest(".option"); if (!b) return;
+    choisir($("#choix-camera"), b); cameraVoulue = b.dataset.camera === "1";
+  });
+
+  function toast(msg) {
+    elToast.textContent = msg; elToast.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => { elToast.hidden = true; }, 5000);
+  }
+
+  async function lancerCamera() {
+    elToast.hidden = true;
+    if (!cameraVoulue) return;
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("indisponible");
+      flux = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false
+      });
+      elCamera.srcObject = flux;
+      await elCamera.play().catch(() => {});
+      elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
+    } catch (e) {
+      stopperCamera();
+      toast("Caméra indisponible ou refusée : on brosse sans caméra.");
+    }
+  }
+
+  function stopperCamera() {
+    if (flux) flux.getTracks().forEach(t => t.stop());
+    flux = null; elCamera.srcObject = null;
+    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
+  }
+
+  // appui sur la petite vue = on l'agrandit
+  function echanger(e) {
+    if (!elScene.classList.contains("avec-camera")) return;
+    const petite = elScene.classList.contains("vue-miroir") ? elBouche : elCamera;
+    if (e.currentTarget !== petite) return;
+    elScene.classList.toggle("vue-miroir"); elScene.classList.toggle("vue-schema");
+  }
+  elBouche.addEventListener("click", echanger);
+  elCamera.addEventListener("click", echanger);
+
   /* ---------- dessin de la bouche ---------- */
   const NS = "http://www.w3.org/2000/svg";
   const el = (tag, attrs = {}, parent) => {
@@ -143,7 +190,10 @@
   dessinerBouche();
 
   /* ---------- brossage ---------- */
-  function demarrer() {
+  async function demarrer() {
+    $("#btn-demarrer").disabled = true;
+    stopperCamera(); await lancerCamera();
+    $("#btn-demarrer").disabled = false;
     ecoule = 0; tPause = 0; prochainePause = PAUSE_TOUTES_LES; derniereZone = -1; dernierPoint = -1; poseIdx = 0;
     elMascotte.src = IMG("mains-hanches");
     elPause.hidden = true;
@@ -157,7 +207,7 @@
   }
 
   function arreter() {
-    cancelAnimationFrame(raf); lacherEcran(); phase = "accueil"; elPause.hidden = true; montrer("accueil");
+    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil"; elPause.hidden = true; montrer("accueil");
   }
 
   function boucle(now) {
@@ -222,7 +272,7 @@
   }
 
   function terminer() {
-    cancelAnimationFrame(raf); lacherEcran(); phase = "fin";
+    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "fin";
     [523, 659, 784, 1047].forEach((f, i) => bip(f, .2, i * .13));
     vibrer([200, 100, 200, 100, 400]);
     confettis(); montrer("fin");
