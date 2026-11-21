@@ -20,6 +20,10 @@
     <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
 
     <div class="carte">
+      <label class="prenom"><span>Ton prénom</span>
+        <input id="prenom" type="text" maxlength="16" autocomplete="given-name" placeholder="Facultatif" enterkeyhint="done">
+      </label>
+
       <h2>Mode</h2>
       <div class="choix" id="choix-mode">
         <button class="option actif" data-mode="classique" type="button">
@@ -128,11 +132,12 @@
   <!-- FIN -->
   <section id="ecran-fin" class="ecran">
     <div class="confettis" id="confettis" aria-hidden="true"></div>
-    <h1 class="titre">Bravo&nbsp;!</h1>
-    <img class="mascotte-accueil" src="assets/mascotte/png/pose-pouce.png" alt="Beufa fait un pouce en l'air">
+    <h1 id="fin-titre" class="titre">Bravo&nbsp;!</h1>
+    <img id="fin-mascotte" class="mascotte-accueil fin-danse" src="assets/mascotte/png/pose-pouce.png" alt="Beufa danse de joie">
     <p class="fin-texte">Dents brillantes, sourire éclatant ✨</p>
+    <div id="fin-zones" class="fin-zones" aria-label="Zones brossées"></div>
     <div id="montages" class="montages" hidden>
-      <h2>Tes photos avec Beufa</h2>
+      <h2>Ta planche BD et tes photos</h2>
       <div id="galerie" class="galerie"></div>
       <small>Appuie sur une photo pour l'enregistrer ou la partager. Elles restent sur ton téléphone.</small>
     </div>

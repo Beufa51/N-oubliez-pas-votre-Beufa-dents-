@@ -15,7 +15,15 @@
     "Passe derrière les dents, tout doucement",
     "Petits va-et-vient sur le dessus des dents"
   ];
-  const POSES_PAUSE = ["pouce", "coeur", "main-levee", "pointe-du-doigt", "pensif", "bras-croises"];
+  const TOUTES_POSES = ["pouce", "coeur", "main-levee", "pointe-du-doigt", "pensif", "bras-croises", "mains-hanches"];
+  // mini-défis lancés à chaque changement de zone (faisables en brossant)
+  const DEFIS = [
+    "Brosse en faisant les gros yeux !", "Brosse sur un seul pied !", "Petits cercles comme un robot : bip, bip !",
+    "Brosse en dansant !", "Brosse en faisant un clin d'œil !", "Brosse au ralenti, tout doux !",
+    "Lève les sourcils en brossant !", "Brosse en marchant sur place !", "Brosse en faisant le dos rond comme un chat !"
+  ];
+  const BRAVOS = ["Super !", "Bien joué !", "Continue comme ça !", "Tu gères !", "Ça brille déjà !"];
+  const hasard = t => t[Math.floor(Math.random() * t.length)];
 
   /* ---------- mode Beufa dents : gabarits de montage ----------
      Chaque pose = image de la mascotte (le geste à faire) + photo détourée du créateur
@@ -127,6 +135,14 @@
     if (sonActif) { debloquerSon(); bip(660, .1); } else taire();
   });
   majBoutonsSon();
+
+  /* ---------- prénom (facultatif, gardé sur le téléphone) ---------- */
+  const elPrenom = $("#prenom");
+  let prenom = String(lireReglage("prenom", "") || "");
+  elPrenom.value = prenom;
+  elPrenom.addEventListener("input", () => { prenom = elPrenom.value.trim().slice(0, 16); ecrireReglage("prenom", prenom); });
+  elPrenom.addEventListener("keydown", e => { if (e.key === "Enter") elPrenom.blur(); });
+  const avecPrenom = (debut, fin = "") => prenom ? `${debut} ${prenom}${fin}` : `${debut}${fin}`;
 
   const ZONES_VOIX = ["en haut à gauche", "en haut à droite", "en bas à droite", "en bas à gauche"];
   const FACES_VOIX = ["le devant des dents", "derrière les dents", "le dessus des dents"];
@@ -309,7 +325,8 @@
     montrer("brossage");
     garderEcran();
     bip(523, .15); bip(784, .2, .16);
-    parler(`C'est parti ! On commence ${ZONES_VOIX[0]}, ${FACES_VOIX[0]}.`);
+    parler(`${avecPrenom("C'est parti", " !")} On commence ${ZONES_VOIX[0]}, ${FACES_VOIX[0]}.`);
+    defiJusqua = 0; elMascotte.classList.remove("saute");
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
     majAffichage();
@@ -368,8 +385,10 @@
     // en mode Beufa dents, on prévient avant chaque photo
     const avantPhoto = avecPhotos() && phase === "brosse" &&
       ((prochainePause < duree && prochainePause - ecoule < 5) || (!finale && duree - ecoule < 5));
-    elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : ASTUCES[p];
+    const enDefi = !avantPhoto && ecoule < defiJusqua;
+    elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p];
     elAstuce.classList.toggle("alerte", avantPhoto);
+    elAstuce.classList.toggle("defi", enDefi);
     if (avantPhoto && !alerteDite) { alerteDite = true; parler("Prépare-toi, photo avec moi dans 5 secondes !"); }
     if (!avantPhoto && phase === "brosse") alerteDite = false;
     majBouche(z, Math.max(0, Math.min(1, (ecoule - z * dureeZone) / dureeZone)), p);
@@ -377,11 +396,20 @@
     let zoneAnnoncee = false;
     if (z !== derniereZone) {
       zoneAnnoncee = derniereZone !== -1;
-      if (derniereZone !== -1 && phase === "brosse") { bip(740, .12); vibrer(120); parler(`Maintenant, ${ZONES_VOIX[z]} !`); }
+      if (derniereZone !== -1 && phase === "brosse") {
+        bip(740, .12); vibrer(120);
+        defiActuel = hasard(DEFIS); defiJusqua = ecoule + Math.min(8, duree / 12);
+        parler(`Maintenant, ${ZONES_VOIX[z]} ! Défi : ${defiActuel}`);
+        animerMascotte();
+      }
       derniereZone = z;
     }
     if (p !== dernierPoint) {
-      if (dernierPoint !== -1 && phase === "brosse" && z === derniereZone) { bip(520, .06); if (!zoneAnnoncee && !avantPhoto) parler(FACES_VOIX[p][0].toUpperCase() + FACES_VOIX[p].slice(1) + " !"); }
+      if (dernierPoint !== -1 && phase === "brosse" && z === derniereZone) {
+        bip(520, .06);
+        if (!zoneAnnoncee && !avantPhoto) parler(`${hasard(BRAVOS)} ${FACES_VOIX[p][0].toUpperCase() + FACES_VOIX[p].slice(1)} !`);
+        if (!zoneAnnoncee) animerMascotte();
+      }
       dernierPoint = p;
     }
     if (phase === "pause") {
@@ -402,7 +430,14 @@
       }
     }
   }
-  let dernierCompte = 0, alerteDite = false;
+  let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
+
+  // Beufa change de pose et saute
+  function animerMascotte() {
+    elMascotte.src = IMG(hasard(TOUTES_POSES.filter(x => !elMascotte.src.endsWith(`pose-${x}.png`))));
+    elMascotte.classList.remove("saute"); void elMascotte.offsetWidth; elMascotte.classList.add("saute");
+  }
+  elMascotte.addEventListener("animationend", e => { if (e.animationName === "saute-m") elMascotte.classList.remove("saute"); });
 
   function commencerPause() {
     phase = "pause"; tPause = 0;
@@ -414,10 +449,12 @@
     }
     elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
     const img = new Image(); img.alt = ""; img.className = "pause-img";
-    img.src = IMG(POSES_PAUSE[poseIdx++ % POSES_PAUSE.length]);
-    elPauseTitre.textContent = "Pause !";
-    elPauseSuite.textContent = `Prochaine zone : ${ZONES[indexZone()].toLowerCase()}`;
-    parler(`Pause ! Ensuite, ${ZONES_VOIX[indexZone()]}.`);
+    const pose = poses[poseIdx++ % poses.length];
+    img.src = IMG(pose.mascotte);
+    elPauseTitre.textContent = "Fais comme moi\u00a0!";
+    elPauseSuite.innerHTML = "";
+    elPauseSuite.append(pose.consigne, Object.assign(document.createElement("small"), { textContent: `Ensuite : ${ZONES[indexZone()].toLowerCase()}` }));
+    parler(`Pause ! Fais comme moi : ${pose.consigne}`);
     elPause.querySelector(".pause-boite").insertBefore(img, elPauseCompte);
     elPause.hidden = false;
   }
@@ -504,7 +541,7 @@
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
     elBulle.textContent = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
-    parler("Clic ! " + elBulle.textContent);
+    parler("Clic ! " + (Math.random() < .5 ? avecPrenom(elBulle.textContent.replace(/ !$/, ""), " !") : elBulle.textContent));
     elBulle.classList.add("reaction"); rejouer(elBulle, "pop");
     elPartenaire.className = "partenaire"; rejouer(elPartenaire, "saute");
     rejouer(elFlash, "go");
@@ -567,7 +604,7 @@
     x.fillStyle = "rgba(255,255,255,.88)"; x.fillRect(0, H - BANDE, W, BANDE);
     x.fillStyle = "#0b8f9a"; x.textBaseline = "middle";
     x.font = "800 46px ui-rounded, Nunito, system-ui, sans-serif";
-    x.fillText("Brossé avec Beufa ✨", 36, H - BANDE / 2);
+    x.fillText(prenom ? `${prenom} & Beufa ✨` : "Brossé avec Beufa ✨", 36, H - BANDE / 2);
     x.font = "700 34px ui-rounded, Nunito, system-ui, sans-serif"; x.textAlign = "right";
     x.fillText(new Date().toLocaleDateString("fr-FR"), W - 36, H - BANDE / 2);
     return new Promise(r => c.toBlob(b => r(b), "image/jpeg", .9));
@@ -583,20 +620,73 @@
     ecrans.fin.classList.remove("avec-photos"); elVision.hidden = true;
   }
 
+  function ajouterVignette(s, alt, classe = "") {
+    const b = document.createElement("button"); b.type = "button"; b.className = "vignette " + classe;
+    const im = new Image(); im.src = s.url; im.alt = alt;
+    b.appendChild(im); b.addEventListener("click", () => ouvrirVision(s));
+    elGalerie.appendChild(b);
+  }
+
+  // toutes les photos réunies en une planche de bande dessinée
+  async function planche(blobs) {
+    const imgs = [];
+    for (const b of blobs) { try { imgs.push(await createImageBitmap(b)); } catch (e) {} }
+    if (!imgs.length) return null;
+    const PW = 1080, M = 36, G = 26, HAUT = 190, BAS = 110;
+    const cols = imgs.length === 1 ? 1 : 2;
+    const cw = (PW - 2 * M - (cols - 1) * G) / cols, ch = cw * imgs[0].height / imgs[0].width;
+    const lignes = Math.ceil(imgs.length / cols);
+    const PH = Math.round(HAUT + lignes * ch + (lignes - 1) * G + BAS);
+    const c = document.createElement("canvas"); c.width = PW; c.height = PH;
+    const x = c.getContext("2d");
+    // fond jaune à petits points façon BD
+    x.fillStyle = "#ffd166"; x.fillRect(0, 0, PW, PH);
+    x.fillStyle = "rgba(255,122,162,.28)";
+    for (let yy = 0; yy < PH; yy += 22) for (let xx = (yy / 22) % 2 ? 11 : 0; xx < PW; xx += 22) { x.beginPath(); x.arc(xx, yy, 4, 0, 7); x.fill(); }
+    // titre
+    x.textAlign = "center"; x.textBaseline = "middle"; x.lineJoin = "round";
+    const titre = prenom ? `LES AVENTURES DE ${prenom.toUpperCase()} & BEUFA` : "LES AVENTURES DE BEUFA";
+    let taille = 66; x.font = `900 ${taille}px ui-rounded, Nunito, system-ui, sans-serif`;
+    while (x.measureText(titre).width > PW - 2 * M && taille > 30) { taille -= 2; x.font = `900 ${taille}px ui-rounded, Nunito, system-ui, sans-serif`; }
+    x.lineWidth = 14; x.strokeStyle = "#12343b"; x.strokeText(titre, PW / 2, HAUT / 2);
+    x.fillStyle = "#fff"; x.fillText(titre, PW / 2, HAUT / 2);
+    // cases
+    imgs.forEach((im, i) => {
+      const l = Math.floor(i / cols), k = i % cols;
+      const seule = cols === 2 && i === imgs.length - 1 && imgs.length % 2 === 1;
+      const cx = seule ? (PW - cw) / 2 : M + k * (cw + G), cy = HAUT + l * (ch + G);
+      x.save();
+      x.translate(cx + cw / 2, cy + ch / 2); x.rotate((i % 2 ? 1 : -1) * .012 * (1 + l));
+      x.fillStyle = "#12343b"; x.fillRect(-cw / 2 - 8, -ch / 2 - 8, cw + 16, ch + 16);
+      x.drawImage(im, -cw / 2, -ch / 2, cw, ch);
+      // numéro de case
+      x.fillStyle = "#ff5c8a"; x.beginPath(); x.arc(-cw / 2 + 34, -ch / 2 + 34, 26, 0, 7); x.fill();
+      x.lineWidth = 5; x.strokeStyle = "#fff"; x.stroke();
+      x.fillStyle = "#fff"; x.font = "900 32px ui-rounded, Nunito, system-ui, sans-serif"; x.fillText(String(i + 1), -cw / 2 + 34, -ch / 2 + 36);
+      x.restore();
+    });
+    // bas de page
+    x.fillStyle = "#12343b"; x.font = "800 38px ui-rounded, Nunito, system-ui, sans-serif";
+    x.fillText(`Dents brillantes ✨  ·  ${new Date().toLocaleDateString("fr-FR")}`, PW / 2, PH - BAS / 2);
+    return new Promise(r => c.toBlob(b => r(b), "image/jpeg", .9));
+  }
+
   async function afficherMontages() {
     if (!photos.length) return;
     elMontages.hidden = false; ecrans.fin.classList.add("avec-photos");
-    for (const [i, ph] of photos.entries()) {
-      const blob = await composer(ph);
-      if (!blob) continue;
-      const s = { blob, url: URL.createObjectURL(blob), nom: `beufa-dents-${Date.now()}-${i + 1}.jpg` };
-      souvenirs.push(s);
-      const b = document.createElement("button"); b.type = "button"; b.className = "vignette";
-      const im = new Image(); im.src = s.url; im.alt = `Photo souvenir ${i + 1} avec Beufa`;
-      b.appendChild(im); b.addEventListener("click", () => ouvrirVision(s));
-      elGalerie.appendChild(b);
-    }
+    const blobs = [];
+    for (const ph of photos) { const b = await composer(ph); if (b) blobs.push(b); }
     photos = [];   // les canvas bruts ne servent plus
+    const t = Date.now();
+    const bd = await planche(blobs);
+    if (bd) {
+      const s = { blob: bd, url: URL.createObjectURL(bd), nom: `beufa-dents-bd-${t}.jpg` };
+      souvenirs.push(s); ajouterVignette(s, "Ta planche BD avec Beufa", "bd");
+    }
+    blobs.forEach((blob, i) => {
+      const s = { blob, url: URL.createObjectURL(blob), nom: `beufa-dents-${t}-${i + 1}.jpg` };
+      souvenirs.push(s); ajouterVignette(s, `Photo souvenir ${i + 1} avec Beufa`);
+    });
   }
 
   function ouvrirVision(s) {
@@ -622,11 +712,31 @@
     cancelAnimationFrame(raf); lacherEcran(); fermerPose(); elPause.hidden = true;
     pleinEcran(false);
     stopperCamera(); phase = "fin";
-    [523, 659, 784, 1047].forEach((f, i) => bip(f, .2, i * .13));
     vibrer([200, 100, 200, 100, 400]);
-    parler(photos.length ? "Bravo ! Tes dents brillent. Viens voir nos photos !" : "Bravo ! Tes dents sont toutes propres !");
+    $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
+    feter(photos.length > 0);
     confettis(); montrer("fin");
     afficherMontages();
+  }
+
+  // petite fanfare, Beufa qui danse, les 4 zones validées une à une
+  let danseT = 0;
+  function feter(avecPhotos) {
+    const air = [[523, 0], [659, .14], [784, .28], [1047, .42], [784, .62], [1047, .76], [1319, .9]];
+    air.forEach(([f, t]) => bip(f, .18, t));
+    const elZ = $("#fin-zones"); elZ.innerHTML = "";
+    ZONES.forEach((z, i) => {
+      const d = document.createElement("span"); d.textContent = "✓ " + z; d.style.animationDelay = (1.1 + i * .35) + "s";
+      elZ.appendChild(d); bip(880 + i * 110, .1, 1.1 + i * .35);
+    });
+    setTimeout(() => parler(avecPrenom("Bravo", " !") + (avecPhotos
+      ? " Tes dents brillent. Regarde notre bande dessinée !" : " Tes quatre zones sont toutes propres !")), 900);
+    const el = $("#fin-mascotte"), danse = ["pouce", "main-levee", "coeur", "mains-hanches"];
+    let k = 0; clearInterval(danseT);
+    danseT = setInterval(() => {
+      if (phase !== "fin") return clearInterval(danseT);
+      el.src = IMG(danse[k++ % danse.length]);
+    }, 650);
   }
 
   function confettis() {

@@ -115,6 +115,12 @@ Pas de publication sur le Play Store.
   - croix **✕** pour quitter pendant l'installation et les poses ;
   - bouton **🔊 / 🔇** (accueil, brossage, studio), mémorisé sur le téléphone ;
   - pauses du mode Classique gardées (choix du créateur).
+- [x] Audit « fun » n°1 (session 6), points 1 à 5 faits :
+  - **prénom** facultatif (gardé sur le téléphone) : « C'est parti Léo ! », « Bravo Léo ! », sur les photos ;
+  - **Beufa vivant** : change de pose et saute à chaque zone/face, **mini-défi** à chaque zone (« Brosse sur un seul pied ! »), encouragements ;
+  - **pauses Classique** = « Fais comme moi ! » (pose de Beufa, sans photo) ;
+  - **planche BD** « Les aventures de Léo & Beufa » qui réunit toutes les photos ;
+  - **fête de fin** : fanfare, Beufa qui danse, les 4 zones validées une à une.
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
   accueil trop long sur petit écran ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des boutons de choix.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
