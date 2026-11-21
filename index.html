@@ -121,11 +121,11 @@
       <video id="studio-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
       <div id="cadre" class="cadre" aria-hidden="true">
         <div class="cadre-tete"><span>Ta tête ici</span></div>
-        <img id="partenaire" class="partenaire" alt="">
+        <div id="partenaire" class="zone-surprise"><span>✨</span>Place gardée<br>pour une surprise</div>
         <div id="bulle" class="bulle"></div>
         <img id="apercu" class="apercu" alt="" hidden>
       </div>
-      <div id="studio-haut" class="studio-haut"></div>
+      <div class="studio-haut"><img id="studio-guide" alt=""><span id="studio-haut"></span></div>
       <div id="studio-compte" class="studio-compte"></div>
       <div class="studio-demo">
         <div class="demo-brosse">✋ Pose ta brosse</div>
@@ -170,6 +170,18 @@
       <small>Appuie sur une photo pour l'enregistrer ou la partager. Elles restent sur ton téléphone.</small>
     </div>
     <button id="btn-recommencer" class="gros-bouton" type="button">Recommencer</button>
+    <!-- après le brossage : la photo du créateur vient compléter celle de l'utilisateur -->
+    <div id="revelation" class="revelation" hidden>
+      <div id="rev-titre" class="rev-titre">Surprise&nbsp;!</div>
+      <div id="rev-sous" class="rev-sous"></div>
+      <div id="rev-scene" class="rev-scene">
+        <img id="rev-user" class="rev-user" alt="Ta photo">
+        <img id="rev-part" class="rev-part" alt="">
+      </div>
+      <div id="rev-points" class="rev-points" aria-hidden="true"></div>
+      <button id="rev-suite" class="gros-bouton" type="button">Suivant</button>
+    </div>
+
     <div id="visionneuse" class="visionneuse" hidden>
       <img id="vision-img" alt="Photo souvenir avec Beufa">
       <div class="vision-actions">

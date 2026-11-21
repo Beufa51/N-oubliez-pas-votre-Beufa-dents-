@@ -128,6 +128,11 @@ Pas de publication sur le Play Store.
   - **calendrier** matin / soir (14 jours), **série de jours**, record, total de brossages et de microbes ; barre de suivi sur l'accueil.
   - Tout est enregistré sur le téléphone (rien sur un serveur). Une carte n'est gagnée que si le brossage va jusqu'au bout.
 - [x] Rappels par notification : **abandonnés** (décision du créateur, peu fiables dans une appli web).
+- [x] Concept photo précisé (session 7) : la **mascotte guide** (elle montre le geste), le **créateur est la surprise**.
+  - Pendant la photo : Beufa en petit dans la consigne en haut, et une **place gardée** en pointillés (« Place gardée pour une surprise ») là où le créateur apparaîtra ; sa photo n'est jamais montrée avant.
+  - Après le brossage : écran **« Surprise ! »** pour chaque photo : la photo de l'utilisateur, roulement de tambour, puis la photo du créateur glisse et vient la compléter. Ensuite seulement : carte gagnée, planche BD.
+  - Tant que les photos du créateur ne sont pas déposées dans `assets/createur/`, c'est Beufa qui arrive à leur place.
+  - L'utilisateur peut être un **adulte** (le premier en sera un).
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

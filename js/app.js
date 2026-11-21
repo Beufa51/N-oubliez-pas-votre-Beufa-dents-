@@ -467,7 +467,7 @@
           if (n > 0) {
             bip(600, .08); vibrer(40); parler(String(n));
             elStudioCompte.classList.remove("pop"); void elStudioCompte.offsetWidth; elStudioCompte.classList.add("pop");
-            elPartenaire.className = "partenaire danse";
+            rejouer(elPartenaire, "battement");
           }
         }
       } else {
@@ -561,13 +561,15 @@
     elDemoImg.src = IMG(p.mascotte);
     elDemoConsigne.textContent = p.consigne;
     elStudioHaut.textContent = p.consigne;
+    $("#studio-guide").src = IMG(p.mascotte);
     elStudioCompte.textContent = "";
+    // la place du partenaire reste vide : sa photo n'apparaîtra qu'après le brossage (surprise)
     const partenaire = p.createur || p.imgMascotte;
-    elPartenaire.src = partenaire.src;
     elPartenaire.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
     elPartenaire.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
-    elPartenaire.className = "partenaire";
-    elBulle.textContent = "À toi !"; elBulle.classList.remove("reaction");
+    elPartenaire.style.aspectRatio = partenaire.naturalWidth ? `${partenaire.naturalWidth} / ${partenaire.naturalHeight}` : "305 / 738";
+    elPartenaire.className = "zone-surprise";
+    elBulle.textContent = "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
     etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
@@ -604,7 +606,7 @@
     elBulle.textContent = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
     parler("Clic ! " + (Math.random() < .5 ? avecPrenom(elBulle.textContent.replace(/ !$/, ""), " !") : elBulle.textContent));
     elBulle.classList.add("reaction"); rejouer(elBulle, "pop");
-    elPartenaire.className = "partenaire"; rejouer(elPartenaire, "saute");
+    elPartenaire.classList.remove("battement");
     rejouer(elFlash, "go");
     bip(1200, .05); bip(900, .08, .05); vibrer(60);
   }
@@ -678,6 +680,7 @@
   function viderGalerie() {
     souvenirs.forEach(s => URL.revokeObjectURL(s.url));
     souvenirs = []; elGalerie.innerHTML = ""; elMontages.hidden = true;
+    if (typeof elRev !== "undefined") { elRev.hidden = true; clearTimeout(revT); revFin = null; }
     ecrans.fin.classList.remove("avec-photos"); elVision.hidden = true;
   }
 
@@ -777,14 +780,55 @@
     vibrer([200, 100, 200, 100, 400]);
     $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
-    montrerCarteGagnee(res);
-    feter(photos.length > 0, res);
-    confettis(); montrer("fin");
+    const avecPh = photos.length > 0;
+    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose }));
+    const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
+    montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
+    montrer("fin");
     afficherMontages();
+    if (avecPh) lancerRevelation(revs, recompense); else recompense();
   }
 
   // petite fanfare, Beufa qui danse, les 4 zones validées une à une
   let danseT = 0;
+  /* ---------- révélation : la photo du créateur complète celle de l'utilisateur ---------- */
+  const elRev = $("#revelation"), elRevUser = $("#rev-user"), elRevPart = $("#rev-part"), elRevScene = $("#rev-scene");
+  let revs = [], revI = 0, revT = 0, revFin = null;
+  function lancerRevelation(liste, fin) {
+    revs = liste; revI = 0; revFin = fin; elRev.hidden = false;
+    const pts = $("#rev-points"); pts.innerHTML = "";
+    liste.forEach(() => pts.appendChild(document.createElement("i")));
+    montrerRev();
+  }
+  function montrerRev() {
+    clearTimeout(revT);
+    const r = revs[revI], createur = !!r.pose.createur, part = r.pose.createur || r.pose.imgMascotte;
+    $("#rev-titre").textContent = revI === 0 ? "Surprise\u00a0!" : "Et là\u00a0?";
+    $("#rev-sous").textContent = revI === 0 ? "Quelqu'un a gardé ta photo pour la compléter…" : "Photo " + (revI + 1) + " sur " + revs.length;
+    document.querySelectorAll("#rev-points i").forEach((p, i) => p.classList.toggle("on", i <= revI));
+    elRevScene.style.aspectRatio = String(r.ratio);
+    elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
+    elRevUser.src = r.url;
+    elRevPart.src = part.src;
+    elRevPart.style.height = (createur ? PART.createurH : PART.mascotteH) * 100 + "%";
+    elRevPart.style.bottom = (createur ? 0 : PART.bas * 100) + "%";
+    elRevPart.className = `rev-part cote-${r.pose.cote}`;
+    elRevScene.className = "rev-scene"; rejouer(elRevScene, "apparait");
+    $("#rev-suite").textContent = revI < revs.length - 1 ? "Photo suivante" : "Voir ma récompense";
+    // roulement de tambour… puis le partenaire arrive
+    for (let k = 0; k < 8; k++) bip(180 + k * 12, .05, k * .11);
+    revT = setTimeout(() => {
+      elRevPart.classList.add("arrive");
+      bip(784, .12); bip(1047, .12, .12); bip(1319, .2, .24); vibrer([60, 40, 120]);
+      if (revI === 0) parler(createur ? "Surprise ! On s'est brossé les dents ensemble !" : "Surprise ! C'est moi, Beufa !");
+    }, 1100);
+  }
+  $("#rev-suite").addEventListener("click", () => {
+    if (++revI < revs.length) return montrerRev();
+    clearTimeout(revT); elRev.hidden = true; taire();
+    if (revFin) { const f = revFin; revFin = null; f(); }
+  });
+
   function montrerCarteGagnee(res) {
     const boite = $("#fin-carte-boite"), bloc = $("#fin-carte");
     boite.innerHTML = ""; bloc.hidden = !res;

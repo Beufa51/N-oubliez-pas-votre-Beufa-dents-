@@ -397,6 +397,49 @@ body {
 .fin-stats span { background: #fff; border-radius: 999px; padding: 5px 11px; font-weight: 800; font-size: .9rem; box-shadow: 0 2px 8px rgba(11,143,154,.2); animation: pop .45s cubic-bezier(.3,1.6,.5,1) both; }
 #ecran-fin .fin-texte { margin: 4px 0 6px; }
 
+/* ----- place gardée pour la surprise (pendant la photo) ----- */
+.zone-surprise {
+  position: absolute; width: auto; border: 4px dashed rgba(255,255,255,.95); border-radius: 28px; background: rgba(255,255,255,.16);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px;
+  color: #fff; font-weight: 900; font-size: .9rem; line-height: 1.15; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,.5);
+  box-shadow: 0 0 0 2px rgba(11,143,154,.35);
+}
+.zone-surprise span { font-size: 2rem; }
+.cadre.cote-droite .zone-surprise { right: 2%; }
+.cadre.cote-gauche .zone-surprise { left: 2%; }
+.cadre.avec-createur.cote-droite .zone-surprise { right: 0; }
+.cadre.avec-createur.cote-gauche .zone-surprise { left: 0; }
+.zone-surprise.battement { animation: battement .5s ease-out; }
+@keyframes battement { 40% { transform: scale(1.04); background: rgba(255,255,255,.32); } }
+.studio-haut { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.studio-haut img { height: 40px; width: auto; margin: -4px 0; }
+
+/* ----- révélation après le brossage ----- */
+.revelation {
+  position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #ffffff 0, #c9f4f7 38%, #14b8c4 100%);
+}
+.revelation[hidden] { display: none; }
+.revelation::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+  background: repeating-conic-gradient(rgba(255,255,255,.35) 0 10deg, transparent 10deg 20deg); animation: rayons 14s linear infinite;
+}
+.revelation > * { position: relative; }
+.rev-titre { font-size: clamp(2rem, 10vw, 3rem); font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 4px 0 #0b8f9a, 0 8px 18px rgba(0,0,0,.25); }
+.rev-sous { font-weight: 800; font-size: 1.05rem; color: var(--encre); text-align: center; }
+.rev-scene { position: relative; border: 6px solid #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.3); background: #0b3a40; }
+.rev-scene.apparait { animation: pop .5s cubic-bezier(.3,1.5,.5,1) both; }
+.rev-user { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rev-part { position: absolute; width: auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); transition: transform .75s cubic-bezier(.3,1.45,.5,1); }
+.rev-part.cote-droite { right: 0; transform: translateX(130%); }
+.rev-part.cote-gauche { left: 0; transform: translateX(-130%); }
+.rev-part.arrive { transform: none; }
+.rev-points { display: flex; gap: 6px; }
+.rev-points i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.6); }
+.rev-points i.on { background: #ff5c8a; }
+.revelation .gros-bouton { max-width: 340px; }
+
 /* ----- fin : galerie des montages ----- */
 #ecran-fin.avec-photos { justify-content: flex-start; }
 #ecran-fin.avec-photos .mascotte-accueil { height: min(16dvh, 140px); }
@@ -414,6 +457,7 @@ body {
 .vision-actions .lien { color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait { animation: none !important; }
+  .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
 }
