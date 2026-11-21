@@ -53,10 +53,29 @@ Pas de publication sur le Play Store.
 - Galerie des photos souvenirs « avec le créateur ».
 - Mode enfant avec voix et couleurs plus vives.
 
+## Précisions (session 2)
+
+### Mascotte = avatar + guide + modèle de pose
+- Mascotte en forme de brosse à dents, générée avec Gemini (PNG fond transparent, même style pour toutes les poses).
+- Pendant la pause de 3 s, la mascotte prend une pose à imiter, compte à rebours 3-2-1, puis photo de l'utilisateur.
+- Chaque pose = une image de mascotte + une photo du créateur dans la même pose.
+- Nombre de poses selon la durée : 2 min -> 3 ou 4 poses ; 1 min -> 1 ou 2 poses.
+- Poses bouche libre (l'utilisateur ne brosse pas pendant la pause).
+- Pas de vérification automatique de la pose : compte à rebours + photo, sans jamais bloquer.
+
+### Deux modes au démarrage
+- **Mode Classique** : minuteur, zones, pauses, mascotte. Sans pose ni photo, caméra facultative.
+- **Mode Beufa dents** : poses, photos et montage avec le créateur.
+- Parcours : choix du mode -> durée (1/2 min) -> avatar -> brossage.
+
+### Conseils de travail
+- /clear après chaque étape terminée et poussée ; mettre IDEES.md à jour avant.
+- Opus pour la conception et les parties difficiles (caméra, montage) ; Sonnet pour le courant.
+
 ## Ordre de développement suggéré
 
-1. Minuteur + choix 1/2 min + pauses + schéma des zones (sans caméra).
+1. Écran de choix du mode + minuteur 1/2 min + pauses + schéma des zones (mode Classique complet, sans caméra).
 2. Affichage caméra frontale en miroir + avatar sur le côté.
 3. Avatars Gemini intégrés.
-4. Capture photo + montage avec les photos du créateur.
+4. Mode Beufa dents : poses de la mascotte, capture photo, montage avec les photos du créateur.
 5. Suivi de la bouche (MediaPipe) et effets ludiques.
