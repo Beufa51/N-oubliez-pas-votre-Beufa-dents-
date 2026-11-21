@@ -94,5 +94,12 @@ Pas de publication sur le Play Store.
 - [x] Mascotte : 7 poses générées avec Gemini, détourées (`assets/mascotte/png/`).
 - [x] Étape 1 : mode Classique (minuteur 1/2 min, zones, pauses 3 s, mascotte).
 - [x] Étape 2 : caméra frontale en miroir (option « Miroir » à l'accueil, petite vue schéma/caméra échangeable d'un appui, repli sans caméra si refus).
-- [ ] Étape 3 : mode Beufa dents (poses, photos, montage avec le créateur).
+- [x] Étape 3 : mode Beufa dents (poses, photos, montage avec le créateur).
+  - Caméra obligatoire dans ce mode (repli sur le brossage sans photo si refus).
+  - À chaque pause (toutes les 30 s) + une **pose finale** : 2 min = 4 photos, 1 min = 2 photos. Poses tirées au hasard parmi 7.
+  - Pause photo de 4 s : carte en haut (mascotte + consigne), caméra en grand au format 3:4, cadre-guide « Ta tête ici » + partenaire en transparence, 3-2-1, flash, « Clic ! ».
+  - Montage 1080×1440 sur le téléphone : photo miroir + partenaire au bord (photo du créateur si présente dans `assets/createur/`, sinon la mascotte) + bandeau « Brossé avec Beufa » et date.
+  - Écran de fin : galerie, agrandissement, Enregistrer / Partager. Rien n'est envoyé sur un serveur.
+- [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
+- [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).

@@ -24,8 +24,8 @@
         <button class="option actif" data-mode="classique" type="button">
           <strong>Classique</strong><small>Minuteur + zones</small>
         </button>
-        <button class="option" data-mode="beufa" type="button" disabled>
-          <strong>Beufa dents</strong><small>Poses &amp; photos · bientôt</small>
+        <button class="option" data-mode="beufa" type="button">
+          <strong>Beufa dents</strong><small>Poses &amp; photos</small>
         </button>
       </div>
 
@@ -64,6 +64,11 @@
 
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <div id="cadre" class="cadre" hidden aria-hidden="true">
+        <div class="cadre-tete"><span>Ta tête ici</span></div>
+        <img id="fantome" class="fantome" alt="">
+      </div>
+      <div id="flash" class="flash" aria-hidden="true"></div>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
       <div id="astuce" class="astuce"></div>
       <div id="toast" class="toast" hidden></div>
@@ -74,7 +79,7 @@
 
     <div id="pause" class="pause" hidden>
       <div class="pause-boite">
-        <div class="pause-titre">Pause !</div>
+        <div id="pause-titre" class="pause-titre">Pause !</div>
         <div id="pause-compte" class="pause-compte">3</div>
         <div id="pause-suite" class="pause-suite"></div>
       </div>
@@ -87,7 +92,20 @@
     <h1 class="titre">Bravo&nbsp;!</h1>
     <img class="mascotte-accueil" src="assets/mascotte/png/pose-pouce.png" alt="Beufa fait un pouce en l'air">
     <p class="fin-texte">Dents brillantes, sourire éclatant ✨</p>
+    <div id="montages" class="montages" hidden>
+      <h2>Tes photos avec Beufa</h2>
+      <div id="galerie" class="galerie"></div>
+      <small>Appuie sur une photo pour l'enregistrer ou la partager. Elles restent sur ton téléphone.</small>
+    </div>
     <button id="btn-recommencer" class="gros-bouton" type="button">Recommencer</button>
+    <div id="visionneuse" class="visionneuse" hidden>
+      <img id="vision-img" alt="Photo souvenir avec Beufa">
+      <div class="vision-actions">
+        <a id="btn-enregistrer" class="gros-bouton" href="#" download>Enregistrer</a>
+        <button id="btn-partager" class="gros-bouton" type="button" hidden>Partager</button>
+        <button id="btn-fermer" class="lien" type="button">Fermer</button>
+      </div>
+    </div>
   </section>
 
 </main>

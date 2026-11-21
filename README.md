@@ -6,7 +6,7 @@ Voir `IDEES.md` pour le carnet d'idées et la feuille de route.
 ## État
 - ✅ Mode **Classique** : choix 1 ou 2 min, schéma des dents épuré (rose = à brosser, turquoise = propre, brosse qui balaie la zone), 4 zones, 3 faces par zone, pause de 3 s toutes les 30 s, mascotte, astuces, sons/vibrations, écran allumé.
 - ✅ **Caméra miroir** facultative (choix à l'accueil) : appuie sur la petite vignette pour échanger schéma et caméra.
-- ⏳ Mode **Beufa dents** (poses + photos + montage) : à venir.
+- ✅ Mode **Beufa dents** : à chaque pause, Beufa montre une pose, 3-2-1, photo ; à la fin, montages souvenirs à enregistrer ou partager (photos du créateur à déposer dans `assets/createur/`, la mascotte les remplace en attendant).
 
 ## Lancer en local
 ```
