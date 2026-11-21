@@ -68,6 +68,16 @@ Pas de publication sur le Play Store.
 - **Mode Beufa dents** : poses, photos et montage avec le créateur.
 - Parcours : choix du mode -> durée (1/2 min) -> avatar -> brossage.
 
+### Décisions (session 3)
+- **Une seule mascotte**, **6 à 8 poses** (pas de choix d'avatar pour l'instant).
+- La pose de la mascotte donne le geste de l'**utilisateur** ; les photos du créateur sont une **réponse complémentaire**, pas une copie.
+  Exemples : check de poing, oreilles de lapin avec les doigts derrière la tête de l'utilisateur, high five, main sur la tête, cornes.
+- Chaque pose = un **gabarit de montage** : image de la mascotte + photo du créateur détourée (faite une fois, en amont) + zone de placement de l'utilisateur (au bord pour un check de poing, en bas au centre pour des oreilles de lapin) + ordre des calques (créateur devant ou derrière l'utilisateur).
+- **Cadre-guide** affiché sur la caméra pendant le 3-2-1 pour aider l'utilisateur à se placer.
+- Prise de vue du créateur : même téléphone, distance, éclairage et fond uni pour un détourage propre.
+- Détourage de l'utilisateur sur son téléphone (MediaPipe) ; repli sur un simple côte à côte si ça échoue.
+- Les poses « au bord de l'image » sont les plus simples ; celles « derrière l'utilisateur » sont les plus drôles mais exigent le détourage.
+
 ### Conseils de travail
 - /clear après chaque étape terminée et poussée ; mettre IDEES.md à jour avant.
 - Opus pour la conception et les parties difficiles (caméra, montage) ; Sonnet pour le courant.
