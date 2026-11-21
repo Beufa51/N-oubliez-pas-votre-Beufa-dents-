@@ -104,6 +104,10 @@ Pas de publication sur le Play Store.
     alerte rose 5 s avant chaque photo, pause photo de 7,3 s (2,5 s pour voir la pose + 3-2-1 + 1,8 s d'aperçu),
     Beufa en grand et opaque qui arrive en sautant, danse pendant le compte, saute au clic, bulle avec la consigne
     puis une réaction (« Quelle star ! »), aperçu façon polaroïd ; sur le montage, Beufa plus grand avec étoiles et bulle.
+  - Retour du test (session 5) : caméra trop zoomée, Beufa trop petit, on ne comprend pas la pose. Corrigé par un **studio plein écran** :
+    1) 3 s de démonstration : Beufa en très grand sur fond de rayons, « Fais comme moi ! » + consigne ;
+    2) caméra plein écran au format réel de la caméra (image entière, plus de recadrage), Beufa grand à côté, gros 3-2-1 ;
+    3) aperçu + réaction. La photo n'est plus recadrée et le montage garde le format de la caméra. Vrai plein écran (sans barres du navigateur) en mode Beufa dents.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
 - [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).

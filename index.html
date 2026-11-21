@@ -64,13 +64,6 @@
 
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
-      <div id="cadre" class="cadre" hidden aria-hidden="true">
-        <div class="cadre-tete"><span>Ta tête ici</span></div>
-        <img id="partenaire" class="partenaire" alt="">
-        <div id="bulle" class="bulle"></div>
-        <img id="apercu" class="apercu" alt="" hidden>
-      </div>
-      <div id="flash" class="flash" aria-hidden="true"></div>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
       <div id="astuce" class="astuce"></div>
       <div id="toast" class="toast" hidden></div>
@@ -85,6 +78,25 @@
         <div id="pause-compte" class="pause-compte">3</div>
         <div id="pause-suite" class="pause-suite"></div>
       </div>
+    </div>
+
+    <!-- mode Beufa dents : studio photo plein écran -->
+    <div id="studio" class="studio" hidden>
+      <video id="studio-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <div id="cadre" class="cadre" aria-hidden="true">
+        <div class="cadre-tete"><span>Ta tête ici</span></div>
+        <img id="partenaire" class="partenaire" alt="">
+        <div id="bulle" class="bulle"></div>
+        <img id="apercu" class="apercu" alt="" hidden>
+      </div>
+      <div id="studio-haut" class="studio-haut"></div>
+      <div id="studio-compte" class="studio-compte"></div>
+      <div class="studio-demo">
+        <div id="demo-titre" class="demo-titre">Fais comme moi&nbsp;!</div>
+        <img id="demo-img" class="demo-img" alt="Beufa montre la pose">
+        <div id="demo-consigne" class="demo-consigne"></div>
+      </div>
+      <div id="flash" class="flash" aria-hidden="true"></div>
     </div>
   </section>
 

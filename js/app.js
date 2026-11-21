@@ -21,7 +21,7 @@
      Chaque pose = image de la mascotte (le geste à faire) + photo détourée du créateur
      (facultative : assets/createur/<id>.png, sinon la mascotte prend sa place)
      + côté où se tient le partenaire (l'utilisateur se place de l'autre côté). */
-  const POSE_PREP = 2.5;          // la mascotte arrive et montre la pose (s)
+  const POSE_PREP = 3;            // Beufa montre la pose en plein écran (s)
   const POSE_COMPTE = 3;          // 3-2-1 avant la photo (s)
   const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
   const POSE_CLIC = POSE_PREP + POSE_COMPTE;
@@ -38,7 +38,7 @@
     { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en super-héros !" }
   ];
   // proportions communes au cadre-guide (CSS) et au montage (canvas)
-  const PART = { mascotteH: .68, createurH: .9, bas: .046, marge: .02 };
+  const PART = { mascotteH: .76, createurH: .92, bas: .08, marge: .02 };
   POSES_BEUFA.forEach(p => {
     p.imgMascotte = new Image(); p.imgMascotte.src = IMG(p.mascotte);
     const c = new Image();
@@ -124,7 +124,7 @@
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("indisponible");
       flux = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false
+        video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 }, aspectRatio: { ideal: 3 / 4 } }, audio: false
       });
       elCamera.srcObject = flux;
       await elCamera.play().catch(() => {});
@@ -140,7 +140,7 @@
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
     flux = null; elCamera.srcObject = null;
-    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema", "en-pose");
+    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
   }
 
   // appui sur la petite vue = on l'agrandit
@@ -228,6 +228,7 @@
   /* ---------- brossage ---------- */
   async function demarrer() {
     $("#btn-demarrer").disabled = true;
+    if (mode === "beufa") pleinEcran(true);
     stopperCamera(); await lancerCamera();
     $("#btn-demarrer").disabled = false;
     ecoule = 0; tPause = 0; prochainePause = PAUSE_TOUTES_LES; derniereZone = -1; dernierPoint = -1; poseIdx = 0;
@@ -244,7 +245,16 @@
     majAffichage();
   }
 
+  function pleinEcran(oui) {
+    try {
+      const d = document, el = d.documentElement;
+      if (oui && !d.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+      if (!oui && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(() => {});
+    } catch (e) {}
+  }
+
   function arreter() {
+    pleinEcran(false);
     cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil";
     fermerPose(); elPause.hidden = true; montrer("accueil");
   }
@@ -302,13 +312,16 @@
     }
     if (phase === "pause") {
       if (poseActuelle) {
-        const enPrep = tPause < POSE_PREP;
-        const n = enPrep ? 99 : Math.ceil(POSE_CLIC - tPause);
-        elPauseCompte.textContent = enPrep ? "Prêt ?" : n > 0 ? String(n) : "Clic !";
-        elPauseCompte.classList.toggle("texte", enPrep || n <= 0);
+        if (tPause >= POSE_PREP && etapePose === "demo") passerEnPhoto();
+        const n = tPause < POSE_PREP ? 0 : Math.ceil(POSE_CLIC - tPause);
         if (n !== dernierCompte) {
           dernierCompte = n;
-          if (n > 0 && n < 99) { bip(600, .08); elPartenaire.className = "partenaire danse"; }
+          elStudioCompte.textContent = n > 0 ? String(n) : "";
+          if (n > 0) {
+            bip(600, .08); vibrer(40);
+            elStudioCompte.classList.remove("pop"); void elStudioCompte.offsetWidth; elStudioCompte.classList.add("pop");
+            elPartenaire.className = "partenaire danse";
+          }
         }
       } else {
         elPauseCompte.textContent = String(Math.max(1, Math.ceil(PAUSE_DUREE - tPause)));
@@ -320,24 +333,18 @@
   function commencerPause() {
     phase = "pause"; tPause = 0;
     if (!finale) prochainePause += PAUSE_TOUTES_LES;
-    const z = indexZone();
-    elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
-    const img = new Image(); img.alt = ""; img.className = "pause-img";
+    bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
-      img.src = IMG(poseActuelle.mascotte);
-      elPauseTitre.textContent = finale ? "Pose finale !" : "Imite Beufa !";
-      elPauseSuite.textContent = poseActuelle.consigne;
-      elBulle.textContent = poseActuelle.consigne;
-      ouvrirPose(poseActuelle);
-    } else {
-      img.src = IMG(POSES_PAUSE[poseIdx++ % POSES_PAUSE.length]);
-      elPauseTitre.textContent = "Pause !";
-      elPauseSuite.textContent = `Prochaine zone : ${ZONES[z].toLowerCase()}`;
+      return ouvrirPose(poseActuelle);
     }
+    elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
+    const img = new Image(); img.alt = ""; img.className = "pause-img";
+    img.src = IMG(POSES_PAUSE[poseIdx++ % POSES_PAUSE.length]);
+    elPauseTitre.textContent = "Pause !";
+    elPauseSuite.textContent = `Prochaine zone : ${ZONES[indexZone()].toLowerCase()}`;
     elPause.querySelector(".pause-boite").insertBefore(img, elPauseCompte);
     elPause.hidden = false;
-    bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
   }
 
   function finirPause() {
@@ -345,60 +352,84 @@
     bip(523, .1); bip(784, .15, .12);
   }
 
-  /* ---------- pose photo : cadre-guide, capture ---------- */
-  const elPauseTitre = $("#pause-titre"), elCadre = $("#cadre"), elPartenaire = $("#partenaire"), elFlash = $("#flash");
-  const elBulle = $("#bulle"), elApercu = $("#apercu");
-  let vueAvantPose = "";
+  /* ---------- studio photo plein écran ----------
+     1) Beufa montre la pose en très grand ; 2) caméra plein écran (image entière, sans zoom)
+     avec Beufa à côté, 3-2-1, photo ; 3) aperçu + réaction. */
+  const elPauseTitre = $("#pause-titre"), elStudio = $("#studio"), elStudioVideo = $("#studio-video");
+  const elCadre = $("#cadre"), elPartenaire = $("#partenaire"), elBulle = $("#bulle"), elApercu = $("#apercu"), elFlash = $("#flash");
+  const elStudioHaut = $("#studio-haut"), elStudioCompte = $("#studio-compte");
+  const elDemoTitre = $("#demo-titre"), elDemoImg = $("#demo-img"), elDemoConsigne = $("#demo-consigne");
+  let etapePose = "";
+
+  // la vidéo et le cadre prennent exactement le format de la caméra, le plus grand possible
+  function placerCadre() {
+    const vw = elStudioVideo.videoWidth || 3, vh = elStudioVideo.videoHeight || 4;
+    const sw = elStudio.clientWidth, sh = elStudio.clientHeight;
+    let w = sw, h = sw * vh / vw;
+    if (h > sh) { h = sh; w = sh * vw / vh; }
+    const st = `left:${(sw - w) / 2}px;top:${(sh - h) / 2}px;width:${w}px;height:${h}px`;
+    elStudioVideo.style.cssText = st; elCadre.style.cssText = st;
+  }
+  window.addEventListener("resize", () => { if (!elStudio.hidden) placerCadre(); });
+  elStudioVideo.addEventListener("loadedmetadata", placerCadre);
+
+  function rejouer(n, cls) { n.classList.remove(cls); void n.offsetWidth; n.classList.add(cls); }
 
   function ouvrirPose(p) {
-    // la caméra passe en grand, au format 3:4 du montage
-    vueAvantPose = elScene.classList.contains("vue-schema") ? "vue-schema" : "vue-miroir";
-    elScene.classList.remove("vue-schema"); elScene.classList.add("vue-miroir", "en-pose");
-    elPause.classList.add("pause-pose");
+    elStudioVideo.srcObject = flux; elStudioVideo.play().catch(() => {});
+    elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : "Fais comme moi\u00a0!";
+    elDemoImg.src = IMG(p.mascotte);
+    elDemoConsigne.textContent = p.consigne;
+    elStudioHaut.textContent = p.consigne;
+    elStudioCompte.textContent = "";
     const partenaire = p.createur || p.imgMascotte;
     elPartenaire.src = partenaire.src;
     elPartenaire.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
     elPartenaire.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
     elPartenaire.className = "partenaire";
-    elApercu.hidden = true; elBulle.classList.remove("reaction");
+    elBulle.textContent = "À toi !"; elBulle.classList.remove("reaction");
+    elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
-    elCadre.hidden = false;
-    void elPartenaire.offsetWidth; elPartenaire.classList.add("entre");   // Beufa arrive en sautant
+    etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
+    placerCadre();
+    rejouer(elDemoImg, "montre"); rejouer(elDemoTitre, "pop"); rejouer(elDemoConsigne, "pop");
     bip(392, .08, .25); bip(523, .08, .35); bip(659, .12, .45);
   }
 
+  function passerEnPhoto() {
+    etapePose = "photo"; elStudio.className = "studio etape-photo"; placerCadre();
+    rejouer(elPartenaire, "entre"); rejouer(elBulle, "pop");
+    bip(784, .1);
+  }
+
   function fermerPose() {
-    elCadre.hidden = true; elPause.classList.remove("pause-pose");
-    if (elScene.classList.contains("en-pose")) {
-      elScene.classList.remove("en-pose", "vue-miroir"); elScene.classList.add(vueAvantPose || "vue-miroir");
-    }
-    poseActuelle = null;
+    elStudio.hidden = true; elStudioVideo.srcObject = null; etapePose = ""; poseActuelle = null;
   }
 
   function prendrePhoto() {
     cliche = true;
-    const v = elCamera, vw = v.videoWidth, vh = v.videoHeight;
+    const v = elStudioVideo, vw = v.videoWidth, vh = v.videoHeight;
     if (!vw || !vh) return;
-    // recadrage 3:4 centré, en miroir (comme ce que l'utilisateur voit)
-    let cw = vw, ch = vh;
-    if (vw / vh > 3 / 4) cw = vh * 3 / 4; else ch = vw * 4 / 3;
+    // image entière de la caméra (pas de recadrage), en miroir comme à l'écran
+    const k = Math.min(1, 1280 / Math.max(vw, vh));
     const c = document.createElement("canvas");
-    c.width = Math.round(cw); c.height = Math.round(ch);
+    c.width = Math.round(vw * k); c.height = Math.round(vh * k);
     const x = c.getContext("2d");
     x.translate(c.width, 0); x.scale(-1, 1);
-    x.drawImage(v, (vw - cw) / 2, (vh - ch) / 2, cw, ch, 0, 0, c.width, c.height);
+    x.drawImage(v, 0, 0, c.width, c.height);
     photos.push({ pose: poseActuelle, img: c, bulle: BULLES_MONTAGE[Math.floor(Math.random() * BULLES_MONTAGE.length)] });
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
     elBulle.textContent = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
-    elBulle.classList.add("reaction");
-    elPartenaire.className = "partenaire"; void elPartenaire.offsetWidth; elPartenaire.classList.add("saute");
-    elFlash.classList.remove("go"); void elFlash.offsetWidth; elFlash.classList.add("go");
+    elBulle.classList.add("reaction"); rejouer(elBulle, "pop");
+    elPartenaire.className = "partenaire"; rejouer(elPartenaire, "saute");
+    rejouer(elFlash, "go");
     bip(1200, .05); bip(900, .08, .05); vibrer(60);
   }
 
   /* ---------- montage avec le créateur (ou la mascotte) ---------- */
-  const W = 1080, H = 1440, BANDE = 110;
+  let W = 1080, H = 1440;
+  const BANDE = 110;
 
   function bulleCanvas(x, texte, cx, cy, versCote) {
     x.save();
@@ -427,6 +458,7 @@
   }
 
   function composer({ pose, img, bulle }) {
+    W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
     x.drawImage(img, 0, 0, W, H);
@@ -436,7 +468,7 @@
       const w = h * part.naturalWidth / part.naturalHeight;
       const m = estCreateur ? 0 : W * PART.marge;
       const px = pose.cote === "droite" ? W - w - m : m;
-      const py = H - h - (estCreateur ? 0 : H * PART.bas);
+      const py = H - h - (estCreateur ? 0 : H * PART.bas);  // même place que dans le studio
       x.save();
       x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 10;
       x.drawImage(part, px, py, w, h);
@@ -504,6 +536,7 @@
 
   function terminer() {
     cancelAnimationFrame(raf); lacherEcran(); fermerPose(); elPause.hidden = true;
+    pleinEcran(false);
     stopperCamera(); phase = "fin";
     [523, 659, 784, 1047].forEach((f, i) => bip(f, .2, i * .13));
     vibrer([200, 100, 200, 100, 400]);
