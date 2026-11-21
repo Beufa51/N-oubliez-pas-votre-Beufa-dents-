@@ -73,24 +73,26 @@ body {
 .points i { width: 12px; height: 12px; border-radius: 50%; background: var(--dent-off); transition: background .2s; }
 .points i.on { background: var(--rose); }
 
-.scene { flex: 1; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 0; }
-#bouche { flex: 1 1 auto; min-width: 0; max-height: 100%; }
-#bouche path {
-  fill: none; stroke: #fff; stroke-width: 24; stroke-linecap: butt; stroke-dasharray: 9 3.5;
-  transition: stroke .2s; filter: drop-shadow(0 1px 1px rgba(11, 143, 154, .35));
-}
-#bouche .gencive { fill: rgba(255, 140, 170, .35); stroke: none; filter: none; }
-#bouche path.actif { stroke: var(--rose); filter: drop-shadow(0 0 7px var(--rose)); animation: pulse .8s ease-in-out infinite alternate; }
-#bouche path.fait { stroke: #7fdde5; }
-@keyframes pulse { to { stroke-width: 29; } }
-.bouche-txt { font-size: 12px; font-weight: 800; fill: var(--turquoise-fonce); opacity: .6; }
+.scene { position: relative; flex: 1; width: 100%; min-height: 0; display: flex; justify-content: center; align-items: flex-start; }
+#bouche { width: 100%; max-height: 100%; height: auto; position: relative; z-index: 1; overflow: visible; }
+#bouche .halo { fill: none; stroke: #fff; stroke-width: 50; stroke-linecap: round; opacity: 0; transition: opacity .25s; }
+#bouche .halo.actif { opacity: .5; animation: halo .8s ease-in-out infinite alternate; }
+@keyframes halo { to { opacity: .85; } }
+#bouche .dent rect { fill: #fff; stroke: #bcd9e2; stroke-width: 1.5; }
+#bouche .plaque circle { fill: #ead96f; opacity: .9; }
+#bouche .eclat { fill: #fff; stroke: #4fd2dd; stroke-width: .8; }
 
 .mascotte {
-  flex: 0 0 auto; height: min(52dvh, 420px); max-width: 38vw; width: auto; object-fit: contain;
+  position: absolute; right: -4px; bottom: 0; z-index: 3; height: min(27dvh, 240px); width: auto;
   filter: drop-shadow(0 6px 8px rgba(11, 143, 154, .25));
   transform-origin: 50% 100%; animation: vibre .18s linear infinite;
 }
 @keyframes vibre { 0% { transform: translateX(-1.5px) rotate(-.6deg); } 50% { transform: translateX(1.5px) rotate(.6deg); } 100% { transform: translateX(-1.5px) rotate(-.6deg); } }
+.astuce {
+  position: absolute; left: 0; bottom: 18px; z-index: 3; width: calc(100% - 110px); background: #fff; border-radius: 18px;
+  padding: 10px 14px; font-weight: 700; font-size: .95rem; box-shadow: 0 4px 12px rgba(11, 143, 154, .2);
+}
+.astuce::after { content: ""; position: absolute; right: -9px; bottom: 16px; border: 9px solid transparent; border-left-color: #fff; border-right: 0; }
 
 .lien { margin-top: 6px; background: none; border: 0; font: inherit; color: var(--turquoise-fonce); text-decoration: underline; padding: 8px; cursor: pointer; }
 
@@ -113,5 +115,5 @@ body {
 @keyframes tombe { to { transform: translateY(110dvh) rotate(720deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche path.actif, .pause-compte { animation: none; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .halo.actif, .pause-compte { animation: none; }
 }
