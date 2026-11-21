@@ -291,6 +291,112 @@ body {
 .vignette.bd { grid-column: 1 / -1; }
 .vignette.bd img { aspect-ratio: auto; }
 
+/* ----- accueil : suivi ----- */
+#ecran-accueil .mascotte-accueil { height: min(27dvh, 250px); }
+.suivi { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 2px 0 10px; }
+.serie, .moments i, .btn-album {
+  display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 7px 11px; font-weight: 800; font-size: .85rem;
+  font-style: normal; background: #fff; box-shadow: 0 2px 6px rgba(11,143,154,.18); white-space: nowrap;
+}
+.serie { color: #e8590c; }
+.serie.eteinte { color: #8aa; }
+.moments { display: flex; gap: 6px; }
+.moments i { opacity: .5; filter: grayscale(1); }
+.moments i.fait { opacity: 1; filter: none; background: var(--turquoise); color: #fff; }
+.btn-album { border: 0; font: inherit; font-weight: 800; font-size: .85rem; color: var(--encre); cursor: pointer; }
+
+/* ----- microbes ----- */
+.score { margin-top: 6px; font-weight: 900; font-size: 1.05rem; color: #2f7d1f; display: inline-block; }
+.score.bump { animation: bump .35s ease-out; }
+@keyframes bump { 40% { transform: scale(1.35); } }
+#bouche .microbe { transform-box: fill-box; transform-origin: center; animation: gigote .8s ease-in-out infinite alternate; }
+@keyframes gigote { from { transform: rotate(-12deg) scale(.94); } to { transform: rotate(12deg) scale(1.06); } }
+#bouche .m-corps, #bouche .m-pic { fill: #7bd85a; }
+#bouche .m-corps { stroke: #2f7d1f; stroke-width: 1.5; }
+#bouche .chef .m-corps, #bouche .chef .m-pic { fill: #a259ff; }
+#bouche .chef .m-corps { stroke: #5a189a; }
+#bouche .m-oeil { fill: #fff; }
+#bouche .m-pupille { fill: #12343b; }
+#bouche .m-bouche { fill: none; stroke: #12343b; stroke-width: 1.4; stroke-linecap: round; }
+#bouche .m-couronne { fill: #ffd166; stroke: #b8860b; stroke-width: 1; }
+#bouche .microbe.mort { animation: eclate .35s ease-in forwards; }
+@keyframes eclate { 0% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0) rotate(90deg); opacity: 0; } }
+#bouche .m-pop {
+  font-size: 11px; font-weight: 900; fill: #ff5c8a; stroke: #fff; stroke-width: 3; paint-order: stroke;
+  transform-box: fill-box; animation: monte .9s ease-out forwards; pointer-events: none;
+}
+#bouche .m-pop.chef { font-size: 14px; fill: #7c4dff; }
+@keyframes monte { from { transform: translateY(4px) scale(.6); opacity: 1; } 30% { transform: translateY(-4px) scale(1.15); } to { transform: translateY(-24px); opacity: 0; } }
+
+/* ----- cartes à collectionner ----- */
+.carte-beufa {
+  position: relative; width: var(--l, 120px); aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; flex: 0 0 auto;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.55), transparent 60%), linear-gradient(160deg, var(--c2), var(--c1));
+  border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,.2); container-type: inline-size;
+}
+.carte-beufa .beufa-fig { position: absolute; left: 50%; bottom: 15%; height: 72%; aspect-ratio: 305 / 738; transform: translateX(-50%); }
+.carte-beufa .beufa-fig img { height: 100%; width: 100%; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+.carte-beufa .chapeau { position: absolute; left: 63.6%; top: 0; transform: translate(-50%, -58%); font-size: 17cqw; line-height: 1; }
+.carte-beufa .objet { position: absolute; left: 5%; bottom: 17%; font-size: 22cqw; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+.carte-beufa .deco { position: absolute; right: 7%; top: 7%; font-size: 15cqw; line-height: 1; }
+.carte-beufa .carte-nom {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 3% 3% 4%; background: rgba(255,255,255,.92); color: var(--encre);
+  font-weight: 900; font-size: 8.5cqw; line-height: 1.1; text-align: center;
+}
+.carte-beufa .carte-rare { position: absolute; left: 5%; top: 5%; background: #ffd166; color: #7a4a00; font-weight: 900; font-size: 6.5cqw; border-radius: 999px; padding: 1% 5%; }
+.carte-beufa .carte-compte { position: absolute; right: 5%; top: 5%; background: #fff; color: var(--encre); font-weight: 900; font-size: 8cqw; border-radius: 999px; padding: 1% 5%; }
+.carte-beufa.rare { border-color: #ffd166; box-shadow: 0 0 0 2px #b8860b, 0 0 18px rgba(255,209,102,.8); }
+.carte-beufa.rare::after {
+  content: ""; position: absolute; inset: -50%; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+  animation: brille 2.6s ease-in-out infinite; pointer-events: none;
+}
+@keyframes brille { from { transform: translateX(-60%); } to { transform: translateX(60%); } }
+.carte-beufa.cachee { background: #dff3f5; border-style: dashed; border-color: #9fd7dd; box-shadow: none; }
+.carte-beufa.cachee .beufa-fig img { filter: brightness(0); opacity: .14; }
+.carte-beufa.cachee .carte-nom { background: transparent; color: #7fb6bd; }
+.carte-beufa.cachee.rare::after { display: none; }
+
+/* carte mystère pendant le brossage */
+.mystere { position: absolute; left: 2px; bottom: 98px; z-index: 3; --l: 76px; transform: rotate(-4deg); }
+.mystere:empty { display: none; }
+.mystere .carte-beufa { --l: 76px; }
+.tuiles { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 12px; overflow: hidden; }
+.tuiles i {
+  display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 1.1rem; color: #fff;
+  background: linear-gradient(135deg, #2fd0dc, #0b8f9a); border: 1px solid rgba(255,255,255,.5);
+  transition: transform .5s cubic-bezier(.5,-0.4,.6,1.4), opacity .5s;
+}
+.tuiles i.partie { transform: rotateY(90deg) scale(.4); opacity: 0; }
+
+/* ----- album ----- */
+#ecran-album { gap: 10px; }
+.album-haut { width: 100%; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
+.album-haut .titre { margin: 0; }
+.btn-rond-clair { width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; font-size: 1.3rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 10px rgba(11,143,154,.25); color: var(--encre); }
+.album-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.album-stats span { background: #fff; border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: .9rem; box-shadow: 0 2px 6px rgba(11,143,154,.18); }
+.album-cal { padding-bottom: 12px; }
+.calendrier { display: grid; grid-template-columns: repeat(14, 1fr); gap: 2px; }
+.jour { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 0; border-radius: 8px; }
+.jour small { font-size: .65rem; font-weight: 800; opacity: .6; }
+.jour i { font-style: normal; font-size: .8rem; opacity: .18; filter: grayscale(1); }
+.jour i.ok { opacity: 1; filter: none; }
+.jour.auj { background: #e3fafc; box-shadow: inset 0 0 0 2px var(--turquoise); }
+.album-grille { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; padding-bottom: 16px; }
+.album-grille .carte-beufa { width: 100%; }
+
+/* ----- fin : carte gagnée ----- */
+.fin-carte { text-align: center; margin: 4px 0 2px; }
+.fin-carte[hidden] { display: none; }
+.fin-carte-titre { font-size: 1.5rem; font-weight: 900; color: #e0457a; animation: pop .45s .2s cubic-bezier(.3,1.6,.5,1) both; }
+.fin-carte-boite { display: flex; justify-content: center; margin-top: 6px; perspective: 800px; }
+.fin-carte-boite .carte-beufa { --l: min(44vw, 190px); }
+.carte-beufa.retourne { animation: retourne .9s .3s cubic-bezier(.3,1.3,.5,1) both; }
+@keyframes retourne { from { transform: rotateY(180deg) scale(.3); opacity: 0; } 60% { opacity: 1; } to { transform: none; opacity: 1; } }
+.fin-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 8px; }
+.fin-stats span { background: #fff; border-radius: 999px; padding: 5px 11px; font-weight: 800; font-size: .9rem; box-shadow: 0 2px 8px rgba(11,143,154,.2); animation: pop .45s cubic-bezier(.3,1.6,.5,1) both; }
+#ecran-fin .fin-texte { margin: 4px 0 6px; }
+
 /* ----- fin : galerie des montages ----- */
 #ecran-fin.avec-photos { justify-content: flex-start; }
 #ecran-fin.avec-photos .mascotte-accueil { height: min(16dvh, 140px); }
@@ -308,5 +414,6 @@ body {
 .vision-actions .lien { color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span { animation: none !important; }
+  #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
 }

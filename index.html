@@ -19,6 +19,12 @@
     <h1 class="titre">N'oubliez pas votre <span>Beufa dents</span></h1>
     <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
 
+    <div class="suivi">
+      <span id="serie" class="serie">🔥 0</span>
+      <span class="moments"><i id="m-matin">☀️ Matin</i><i id="m-soir">🌙 Soir</i></span>
+      <button id="btn-album" class="btn-album" type="button">📒 <b id="album-compte">0/18</b></button>
+    </div>
+
     <div class="carte">
       <label class="prenom"><span>Ton prénom</span>
         <input id="prenom" type="text" maxlength="16" autocomplete="given-name" placeholder="Facultatif" enterkeyhint="done">
@@ -64,6 +70,7 @@
         <div id="zone-nom" class="zone-nom">Haut gauche</div>
         <div id="face-nom" class="face-nom">Face extérieure</div>
         <div class="points" id="points"><i></i><i></i><i></i></div>
+        <div id="score" class="score" aria-live="off">🦠 0</div>
       </div>
       <button class="btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     </header>
@@ -71,6 +78,7 @@
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
+      <div id="mystere" class="mystere" aria-label="Carte surprise : une partie se dévoile à chaque zone"></div>
       <div id="astuce" class="astuce"></div>
       <div id="toast" class="toast" hidden></div>
       <img id="mascotte" class="mascotte" src="assets/mascotte/png/pose-mains-hanches.png" alt="">
@@ -129,12 +137,32 @@
     </div>
   </section>
 
+  <!-- ALBUM -->
+  <section id="ecran-album" class="ecran">
+    <div class="album-haut">
+      <button id="btn-album-retour" class="btn-rond-clair" type="button" aria-label="Retour à l'accueil">←</button>
+      <h1 class="titre">Mon album</h1>
+      <span></span>
+    </div>
+    <div id="album-stats" class="album-stats"></div>
+    <div class="carte album-cal">
+      <h2>Mes 14 derniers jours</h2>
+      <div id="calendrier" class="calendrier"></div>
+    </div>
+    <div id="album-grille" class="album-grille"></div>
+  </section>
+
   <!-- FIN -->
   <section id="ecran-fin" class="ecran">
     <div class="confettis" id="confettis" aria-hidden="true"></div>
     <h1 id="fin-titre" class="titre">Bravo&nbsp;!</h1>
     <img id="fin-mascotte" class="mascotte-accueil fin-danse" src="assets/mascotte/png/pose-pouce.png" alt="Beufa danse de joie">
+    <div id="fin-carte" class="fin-carte" hidden>
+      <div id="fin-carte-titre" class="fin-carte-titre">Nouvelle carte&nbsp;!</div>
+      <div id="fin-carte-boite" class="fin-carte-boite"></div>
+    </div>
     <p class="fin-texte">Dents brillantes, sourire éclatant ✨</p>
+    <div id="fin-stats" class="fin-stats"></div>
     <div id="fin-zones" class="fin-zones" aria-label="Zones brossées"></div>
     <div id="montages" class="montages" hidden>
       <h2>Ta planche BD et tes photos</h2>
@@ -153,6 +181,7 @@
   </section>
 
 </main>
+<script src="js/jeu.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

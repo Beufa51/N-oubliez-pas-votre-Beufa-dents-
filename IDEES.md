@@ -121,6 +121,15 @@ Pas de publication sur le Play Store.
   - **pauses Classique** = « Fais comme moi ! » (pose de Beufa, sans photo) ;
   - **planche BD** « Les aventures de Léo & Beufa » qui réunit toutes les photos ;
   - **fête de fin** : fanfare, Beufa qui danse, les 4 zones validées une à une.
+- [x] Audit « fun » n°2 (inspiré de Disney Magic Timer, Pokémon Smile, Colgate Magik, Sonicare Kids, Brush DJ), points 1 à 3 faits :
+  - **microbes à chasser** : un microbe par dent (24), qui éclate (« POP ! ») quand la dent est propre ; le dernier de chaque zone est un **chef** couronné (« CHEF K.O. ! ») ; compteur 🦠 ;
+  - **carte surprise** : une carte cachée sous 4 tuiles « ? », une tuile tombe à chaque zone terminée, la carte est gagnée à la fin ;
+  - **album** de 21 cartes (Beufa + chapeau + objet, ex. Beufa Magicien, Roi Beufa, Beufa et le Dino), dont **3 rares** gagnées tous les **7 jours d'affilée** ;
+  - **calendrier** matin / soir (14 jours), **série de jours**, record, total de brossages et de microbes ; barre de suivi sur l'accueil.
+  - Tout est enregistré sur le téléphone (rien sur un serveur). Une carte n'est gagnée que si le brossage va jusqu'au bout.
+- [x] Rappels par notification : **abandonnés** (décision du créateur, peu fiables dans une appli web).
+- [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
+  récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
   accueil trop long sur petit écran ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des boutons de choix.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).

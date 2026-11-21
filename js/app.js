@@ -56,7 +56,8 @@
 
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
-  const ecrans = { accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin") };
+  const ecrans = { accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin"), album: $("#ecran-album") };
+  const JEU = window.BeufaJeu;
   const elTemps = $("#temps"), elAnneau = $("#anneau"), elZone = $("#zone-nom"), elFace = $("#face-nom");
   const elPoints = [...document.querySelectorAll("#points i")];
     const elMascotte = $("#mascotte"), elAstuce = $("#astuce"), elBouche = $("#bouche");
@@ -257,9 +258,30 @@
         const g = el("g", { class: "dent", transform: `translate(${P.x.toFixed(1)} ${P.y.toFixed(1)}) rotate(${(Math.atan2(P.n.y, P.n.x) * 180 / Math.PI).toFixed(1)})` }, sv);
         const r = el("rect", { x: -h / 2, y: -w / 2, width: h, height: w, rx: 7 }, g);
         if (i >= 3) el("rect", { x: -4.5, y: -4.5, width: 9, height: 9, rx: 2.5, class: "motif" }, g);   // dessus des molaires
-        dents[q].push({ r, etat: "" });
+        dents[q].push({ r, etat: "", P });
       }
     });
+    // un microbe sur chaque dent ; le dernier de chaque zone (molaire du fond) est le chef
+    const calque = el("g", { class: "microbes" }, sv);
+    QUARTS.forEach((Q, q) => dents[q].forEach((d, i) => {
+      const chef = i === 5;
+      const g = el("g", { transform: `translate(${d.P.x.toFixed(1)} ${d.P.y.toFixed(1)})` }, calque);
+      const m = el("g", { class: "microbe" + (chef ? " chef" : "") }, g);
+      m.style.animationDelay = (-Math.random() * 1.2).toFixed(2) + "s";
+      const r = chef ? 11 : 8;
+      for (let k = 0; k < 6; k++) {
+        const a = k * Math.PI / 3 + .3;
+        el("circle", { cx: (Math.cos(a) * r).toFixed(1), cy: (Math.sin(a) * r).toFixed(1), r: chef ? 3.4 : 2.6, class: "m-pic" }, m);
+      }
+      el("circle", { r, class: "m-corps" }, m);
+      [-1, 1].forEach(sx => {
+        el("circle", { cx: sx * r * .36, cy: -r * .18, r: r * .3, class: "m-oeil" }, m);
+        el("circle", { cx: sx * r * .36 + .6, cy: -r * .12, r: r * .14, class: "m-pupille" }, m);
+      });
+      el("path", { d: `M${-r * .35} ${r * .32} Q0 ${r * .62} ${r * .35} ${r * .32}`, class: "m-bouche" }, m);
+      if (chef) el("path", { d: "M-8 -10 L-8 -17 L-4 -13 L0 -19 L4 -13 L8 -17 L8 -10 Z", class: "m-couronne" }, m);
+      d.m = m; d.g = g;
+    }));
     el("text", { x: 150, y: 176, "text-anchor": "middle", class: "bouche-txt" }, sv).textContent = "comme dans un miroir";
 
     // brosse bleue (manche vers +x, poils côté -y)
@@ -275,7 +297,10 @@
         const c = q < z ? 1 : q > z ? 0 : Math.max(0, Math.min(1, zp * 1.3 - i * .06));
         const etat = c >= .98 ? "fait" : q === z ? "actif" : "";
         const d = dents[q][i];
-        if (d.etat !== etat) { d.etat = etat; d.r.setAttribute("class", etat); }
+        if (d.etat !== etat) {
+          d.etat = etat; d.r.setAttribute("class", etat);
+          if (etat === "fait" && (phase === "brosse" || phase === "pause")) tuerMicrobe(d, i === 5);
+        }
       }
     }
     // la brosse balaie la zone active
@@ -291,6 +316,24 @@
   }
 
   dessinerBouche();
+
+  /* ---------- microbes vaincus ---------- */
+  const elScore = $("#score");
+  let microbes = 0;
+  function remettreMicrobes() {
+    microbes = 0; elScore.textContent = "🦠 0";
+    dents.forEach(z => z.forEach(d => { d.m.classList.remove("mort"); d.g.querySelectorAll(".m-pop").forEach(n => n.remove()); }));
+  }
+  function tuerMicrobe(d, chef) {
+    if (d.m.classList.contains("mort")) return;
+    d.m.classList.add("mort"); microbes++;
+    elScore.textContent = "🦠 " + microbes;
+    elScore.classList.remove("bump"); void elScore.offsetWidth; elScore.classList.add("bump");
+    const t = el("text", { y: -14, "text-anchor": "middle", class: "m-pop" + (chef ? " chef" : "") }, d.g);
+    t.textContent = chef ? "CHEF K.O. !" : "POP !";
+    if (chef) { bip(988, .08); bip(1319, .08, .08); bip(1568, .14, .16); vibrer(80); }
+    else { bip(1300, .04); bip(650, .05, .03); }
+  }
 
   /* ---------- brossage ---------- */
   async function demarrer() {
@@ -327,6 +370,7 @@
     bip(523, .15); bip(784, .2, .16);
     parler(`${avecPrenom("C'est parti", " !")} On commence ${ZONES_VOIX[0]}, ${FACES_VOIX[0]}.`);
     defiJusqua = 0; elMascotte.classList.remove("saute");
+    remettreMicrobes(); preparerMystere();
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
     majAffichage();
@@ -396,6 +440,7 @@
     let zoneAnnoncee = false;
     if (z !== derniereZone) {
       zoneAnnoncee = derniereZone !== -1;
+      for (let k = 0; k < z; k++) devoiler(k);
       if (derniereZone !== -1 && phase === "brosse") {
         bip(740, .12); vibrer(120);
         defiActuel = hasard(DEFIS); defiJusqua = ecoule + Math.min(8, duree / 12);
@@ -431,6 +476,22 @@
     }
   }
   let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
+
+  // carte surprise : un quart se dévoile à chaque zone terminée
+  const elMystere = $("#mystere");
+  let carteSession = null;
+  function preparerMystere() {
+    carteSession = JEU.choisirCarte();
+    elMystere.innerHTML = "";
+    elMystere.appendChild(JEU.carteEl(carteSession));
+    const t = document.createElement("div"); t.className = "tuiles";
+    for (let i = 0; i < 4; i++) { const u = document.createElement("i"); u.textContent = "?"; t.appendChild(u); }
+    elMystere.appendChild(t);
+  }
+  function devoiler(k) {
+    const u = elMystere.querySelectorAll(".tuiles i")[k];
+    if (u && !u.classList.contains("partie")) { u.classList.add("partie"); bip(1046, .08); bip(1568, .1, .08); }
+  }
 
   // Beufa change de pose et saute
   function animerMascotte() {
@@ -709,19 +770,35 @@
   }
 
   function terminer() {
+    if (phase === "brosse" || phase === "pause") { ecoule = duree; majBouche(3, 1, 2); }   // derniers microbes
     cancelAnimationFrame(raf); lacherEcran(); fermerPose(); elPause.hidden = true;
     pleinEcran(false);
     stopperCamera(); phase = "fin";
     vibrer([200, 100, 200, 100, 400]);
     $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
-    feter(photos.length > 0);
+    const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
+    montrerCarteGagnee(res);
+    feter(photos.length > 0, res);
     confettis(); montrer("fin");
     afficherMontages();
   }
 
   // petite fanfare, Beufa qui danse, les 4 zones validées une à une
   let danseT = 0;
-  function feter(avecPhotos) {
+  function montrerCarteGagnee(res) {
+    const boite = $("#fin-carte-boite"), bloc = $("#fin-carte");
+    boite.innerHTML = ""; bloc.hidden = !res;
+    $("#fin-mascotte").hidden = !!res;
+    const st = $("#fin-stats"); st.innerHTML = "";
+    if (!res) return;
+    $("#fin-carte-titre").textContent = res.nouvelle ? (carteSession.rare ? "Carte RARE\u00a0!" : "Nouvelle carte\u00a0!") : `Encore elle\u00a0! (×${res.exemplaires})`;
+    const c = JEU.carteEl(carteSession); c.classList.add("retourne"); boite.appendChild(c);
+    [`🦠 ${microbes} microbes vaincus`, `🔥 ${res.serie} jour${res.serie > 1 ? "s" : ""} d'affilée`]
+      .concat(res.deuxFois ? ["☀️🌙 Matin et soir !"] : [])
+      .forEach((t, i) => { const b = document.createElement("span"); b.textContent = t; b.style.animationDelay = (.6 + i * .25) + "s"; st.appendChild(b); });
+  }
+
+  function feter(avecPhotos, res) {
     const air = [[523, 0], [659, .14], [784, .28], [1047, .42], [784, .62], [1047, .76], [1319, .9]];
     air.forEach(([f, t]) => bip(f, .18, t));
     const elZ = $("#fin-zones"); elZ.innerHTML = "";
@@ -729,8 +806,9 @@
       const d = document.createElement("span"); d.textContent = "✓ " + z; d.style.animationDelay = (1.1 + i * .35) + "s";
       elZ.appendChild(d); bip(880 + i * 110, .1, 1.1 + i * .35);
     });
-    setTimeout(() => parler(avecPrenom("Bravo", " !") + (avecPhotos
-      ? " Tes dents brillent. Regarde notre bande dessinée !" : " Tes quatre zones sont toutes propres !")), 900);
+    const carte = res ? ` Tu as vaincu ${microbes} microbes, et tu gagnes la carte ${carteSession.nom}${res.nouvelle ? "" : ", encore elle"} !` : "";
+    const serie = res && res.serie > 1 ? ` ${res.serie} jours d'affilée, continue !` : "";
+    setTimeout(() => parler(avecPrenom("Bravo", " !") + carte + serie + (avecPhotos ? " Et regarde notre bande dessinée !" : "")), 900);
     const el = $("#fin-mascotte"), danse = ["pouce", "main-levee", "coeur", "mains-hanches"];
     let k = 0; clearInterval(danseT);
     danseT = setInterval(() => {
@@ -752,9 +830,47 @@
     }
   }
 
+  /* ---------- suivi (accueil) et album ---------- */
+  function majSuivi() {
+    const j = JEU.lire(), s = JEU.serie(j), auj = j.jours[JEU.cleJour(new Date())] || {};
+    $("#serie").textContent = `🔥 ${s} jour${s > 1 ? "s" : ""}`;
+    $("#serie").classList.toggle("eteinte", s === 0);
+    $("#m-matin").classList.toggle("fait", !!auj.matin);
+    $("#m-soir").classList.toggle("fait", !!auj.soir);
+    const n = JEU.CARTES.filter(c => j.cartes[c.id]).length;
+    $("#album-compte").textContent = `${n}/${JEU.CARTES.length}`;
+  }
+  function ouvrirAlbum() {
+    const j = JEU.lire();
+    $("#album-stats").innerHTML = "";
+    [`🪥 ${j.brossages} brossage${j.brossages > 1 ? "s" : ""}`, `🦠 ${j.microbes} microbes`, `🔥 record ${j.record} j`]
+      .forEach(t => { const b = document.createElement("span"); b.textContent = t; $("#album-stats").appendChild(b); });
+    const cal = $("#calendrier"); cal.innerHTML = "";
+    const jours = ["D", "L", "M", "M", "J", "V", "S"];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const e = j.jours[JEU.cleJour(d)] || {};
+      const c = document.createElement("div"); c.className = "jour" + (i === 0 ? " auj" : "");
+      c.innerHTML = `<small>${jours[d.getDay()]}</small><i class="${e.matin ? "ok" : ""}">☀️</i><i class="${e.soir ? "ok" : ""}">🌙</i>`;
+      c.title = d.toLocaleDateString("fr-FR");
+      cal.appendChild(c);
+    }
+    const g = $("#album-grille"); g.innerHTML = "";
+    JEU.CARTES.forEach(c => {
+      const n = j.cartes[c.id] || 0;
+      const k = JEU.carteEl(c, { cachee: !n, compte: n });
+      if (!n && c.rare) k.querySelector(".carte-nom").textContent = "7 jours d'affilée";
+      g.appendChild(k);
+    });
+    montrer("album"); ecrans.album.scrollTop = 0;
+  }
+  $("#btn-album").addEventListener("click", ouvrirAlbum);
+  $("#btn-album-retour").addEventListener("click", () => { majSuivi(); montrer("accueil"); });
+  majSuivi();
+
   $("#btn-demarrer").addEventListener("click", demarrer);
   $("#btn-arreter").addEventListener("click", arreter);
-  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); montrer("accueil"); });
+  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); majSuivi(); montrer("accueil"); });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) taire();
     if (!document.hidden && (phase === "brosse" || phase === "pause")) garderEcran();

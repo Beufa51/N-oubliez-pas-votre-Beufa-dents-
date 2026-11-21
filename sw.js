@@ -1,7 +1,7 @@
 // Cache simple pour pouvoir utiliser l'appli hors ligne.
-const VERSION = "beufa-v7";
+const VERSION = "beufa-v8";
 const FICHIERS = [
-  "./", "index.html", "css/style.css", "js/app.js", "manifest.webmanifest",
+  "./", "index.html", "css/style.css", "js/jeu.js", "js/app.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png",
   "assets/mascotte/png/pose-mains-hanches.png",
   "assets/mascotte/png/pose-pouce.png",
