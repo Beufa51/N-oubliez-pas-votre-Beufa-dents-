@@ -17,6 +17,30 @@
   ];
   const POSES_PAUSE = ["pouce", "coeur", "main-levee", "pointe-du-doigt", "pensif", "bras-croises"];
 
+  /* ---------- mode Beufa dents : gabarits de montage ----------
+     Chaque pose = image de la mascotte (le geste à faire) + photo détourée du créateur
+     (facultative : assets/createur/<id>.png, sinon la mascotte prend sa place)
+     + côté où se tient le partenaire (l'utilisateur se place de l'autre côté). */
+  const POSE_COMPTE = 3;          // 3-2-1 avant la photo
+  const POSE_DUREE = 4;           // durée totale de la pause photo (s)
+  const POSES_BEUFA = [
+    { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !" },
+    { id: "pouce",         mascotte: "pouce",           cote: "gauche", consigne: "Pouce en l'air !" },
+    { id: "coeur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
+    { id: "pointe",        mascotte: "pointe-du-doigt", cote: "droite", consigne: "Montre Beufa du doigt" },
+    { id: "pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
+    { id: "bras-croises",  mascotte: "bras-croises",    cote: "gauche", consigne: "Croise les bras, l'air sûr de toi" },
+    { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en super-héros !" }
+  ];
+  // proportions communes au cadre-guide (CSS) et au montage (canvas)
+  const PART = { mascotteH: .6, createurH: .9, bas: .046, marge: .02 };
+  POSES_BEUFA.forEach(p => {
+    p.imgMascotte = new Image(); p.imgMascotte.src = IMG(p.mascotte);
+    const c = new Image();
+    c.onload = () => { p.createur = c; };
+    c.src = `assets/createur/${p.id}.png`;
+  });
+
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
   const ecrans = { accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin") };
@@ -31,6 +55,7 @@
   let phase = "accueil";           // accueil | brosse | pause | fin
   let ecoule = 0, tPause = 0, prochainePause = PAUSE_TOUTES_LES;
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
+  let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false;
 
   function montrer(nom) {
     Object.entries(ecrans).forEach(([k, el]) => el.classList.toggle("actif", k === nom));
@@ -66,7 +91,11 @@
   });
   $("#choix-mode").addEventListener("click", e => {
     const b = e.target.closest(".option"); if (!b || b.disabled) return;
-    choisir($("#choix-mode"), b);
+    choisir($("#choix-mode"), b); mode = b.dataset.mode;
+    // le mode Beufa dents a besoin de la caméra
+    const sans = $('#choix-camera [data-camera="0"]');
+    sans.disabled = mode === "beufa";
+    if (mode === "beufa") { choisir($("#choix-camera"), $('#choix-camera [data-camera="1"]')); cameraVoulue = true; }
   });
 
 
@@ -97,14 +126,16 @@
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
     } catch (e) {
       stopperCamera();
-      toast("Caméra indisponible ou refusée : on brosse sans caméra.");
+      toast(mode === "beufa"
+        ? "Caméra indisponible ou refusée : pas de photos cette fois, on brosse quand même !"
+        : "Caméra indisponible ou refusée : on brosse sans caméra.");
     }
   }
 
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
     flux = null; elCamera.srcObject = null;
-    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
+    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema", "en-pose");
   }
 
   // appui sur la petite vue = on l'agrandit
@@ -195,8 +226,10 @@
     stopperCamera(); await lancerCamera();
     $("#btn-demarrer").disabled = false;
     ecoule = 0; tPause = 0; prochainePause = PAUSE_TOUTES_LES; derniereZone = -1; dernierPoint = -1; poseIdx = 0;
+    finale = false; poseActuelle = null; photos = []; viderGalerie();
+    poses = melanger(POSES_BEUFA.slice());
     elMascotte.src = IMG("mains-hanches");
-    elPause.hidden = true;
+    fermerPose(); elPause.hidden = true;
     phase = "brosse";
     montrer("brossage");
     garderEcran();
@@ -207,19 +240,28 @@
   }
 
   function arreter() {
-    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil"; elPause.hidden = true; montrer("accueil");
+    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil";
+    fermerPose(); elPause.hidden = true; montrer("accueil");
   }
+
+  const avecPhotos = () => mode === "beufa" && !!flux;
 
   function boucle(now) {
     const dt = Math.max(0, Math.min(.25, (now - derniere) / 1000)) * VITESSE;
     derniere = now;
     if (phase === "brosse") {
       ecoule += dt;
-      if (ecoule >= duree) return terminer();
-      if (prochainePause < duree && ecoule >= prochainePause) commencerPause();
+      if (ecoule >= duree) {
+        if (!avecPhotos() || finale) return terminer();
+        ecoule = duree; finale = true; commencerPause();     // pose finale
+      } else if (prochainePause < duree && ecoule >= prochainePause) commencerPause();
     } else if (phase === "pause") {
       tPause += dt;
-      if (tPause >= PAUSE_DUREE) finirPause();
+      if (poseActuelle && !cliche && tPause >= POSE_COMPTE) prendrePhoto();
+      if (tPause >= (poseActuelle ? POSE_DUREE : PAUSE_DUREE)) {
+        if (finale) return terminer();
+        finirPause();
+      }
     }
     majAffichage();
     raf = requestAnimationFrame(boucle);
@@ -250,32 +292,167 @@
       dernierPoint = p;
     }
     if (phase === "pause") {
-      elPauseCompte.textContent = String(Math.max(1, Math.ceil(PAUSE_DUREE - tPause)));
+      if (poseActuelle) {
+        const n = Math.ceil(POSE_COMPTE - tPause);
+        elPauseCompte.textContent = n > 0 ? String(n) : "Clic !";
+        if (n !== dernierCompte) { dernierCompte = n; if (n > 0) bip(600, .08); }
+      } else {
+        elPauseCompte.textContent = String(Math.max(1, Math.ceil(PAUSE_DUREE - tPause)));
+      }
     }
   }
+  let dernierCompte = 0;
 
   function commencerPause() {
-    phase = "pause"; tPause = 0; prochainePause += PAUSE_TOUTES_LES;
-    const pose = POSES_PAUSE[poseIdx++ % POSES_PAUSE.length];
+    phase = "pause"; tPause = 0;
+    if (!finale) prochainePause += PAUSE_TOUTES_LES;
     const z = indexZone();
     elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
-    const img = new Image(); img.src = IMG(pose); img.alt = ""; img.className = "pause-img";
+    const img = new Image(); img.alt = ""; img.className = "pause-img";
+    if (avecPhotos()) {
+      poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
+      img.src = IMG(poseActuelle.mascotte);
+      elPauseTitre.textContent = finale ? "Pose finale !" : "Pose photo !";
+      elPauseSuite.textContent = poseActuelle.consigne;
+      ouvrirPose(poseActuelle);
+    } else {
+      img.src = IMG(POSES_PAUSE[poseIdx++ % POSES_PAUSE.length]);
+      elPauseTitre.textContent = "Pause !";
+      elPauseSuite.textContent = `Prochaine zone : ${ZONES[z].toLowerCase()}`;
+    }
     elPause.querySelector(".pause-boite").insertBefore(img, elPauseCompte);
-    elPauseSuite.textContent = `Prochaine zone : ${ZONES[z].toLowerCase()}`;
     elPause.hidden = false;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
   }
 
   function finirPause() {
-    phase = "brosse"; elPause.hidden = true;
+    phase = "brosse"; fermerPose(); elPause.hidden = true;
     bip(523, .1); bip(784, .15, .12);
   }
 
+  /* ---------- pose photo : cadre-guide, capture ---------- */
+  const elPauseTitre = $("#pause-titre"), elCadre = $("#cadre"), elFantome = $("#fantome"), elFlash = $("#flash");
+  let vueAvantPose = "";
+
+  function ouvrirPose(p) {
+    // la caméra passe en grand, au format 3:4 du montage
+    vueAvantPose = elScene.classList.contains("vue-schema") ? "vue-schema" : "vue-miroir";
+    elScene.classList.remove("vue-schema"); elScene.classList.add("vue-miroir", "en-pose");
+    elPause.classList.add("pause-pose");
+    const partenaire = p.createur || p.imgMascotte;
+    elFantome.src = partenaire.src;
+    elFantome.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
+    elFantome.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
+    elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
+    elCadre.hidden = false;
+  }
+
+  function fermerPose() {
+    elCadre.hidden = true; elPause.classList.remove("pause-pose");
+    if (elScene.classList.contains("en-pose")) {
+      elScene.classList.remove("en-pose", "vue-miroir"); elScene.classList.add(vueAvantPose || "vue-miroir");
+    }
+    poseActuelle = null;
+  }
+
+  function prendrePhoto() {
+    cliche = true;
+    const v = elCamera, vw = v.videoWidth, vh = v.videoHeight;
+    if (!vw || !vh) return;
+    // recadrage 3:4 centré, en miroir (comme ce que l'utilisateur voit)
+    let cw = vw, ch = vh;
+    if (vw / vh > 3 / 4) cw = vh * 3 / 4; else ch = vw * 4 / 3;
+    const c = document.createElement("canvas");
+    c.width = Math.round(cw); c.height = Math.round(ch);
+    const x = c.getContext("2d");
+    x.translate(c.width, 0); x.scale(-1, 1);
+    x.drawImage(v, (vw - cw) / 2, (vh - ch) / 2, cw, ch, 0, 0, c.width, c.height);
+    photos.push({ pose: poseActuelle, img: c });
+    elFlash.classList.remove("go"); void elFlash.offsetWidth; elFlash.classList.add("go");
+    bip(1200, .05); bip(900, .08, .05); vibrer(60);
+  }
+
+  /* ---------- montage avec le créateur (ou la mascotte) ---------- */
+  const W = 1080, H = 1440, BANDE = 110;
+
+  function composer({ pose, img }) {
+    const c = document.createElement("canvas"); c.width = W; c.height = H;
+    const x = c.getContext("2d");
+    x.drawImage(img, 0, 0, W, H);
+    const estCreateur = !!pose.createur, part = pose.createur || pose.imgMascotte;
+    if (part.naturalWidth) {
+      const h = H * (estCreateur ? PART.createurH : PART.mascotteH);
+      const w = h * part.naturalWidth / part.naturalHeight;
+      const m = estCreateur ? 0 : W * PART.marge;
+      const px = pose.cote === "droite" ? W - w - m : m;
+      const py = H - h - (estCreateur ? 0 : H * PART.bas);
+      x.save();
+      x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 10;
+      x.drawImage(part, px, py, w, h);
+      x.restore();
+    }
+    // bandeau souvenir
+    x.fillStyle = "rgba(255,255,255,.88)"; x.fillRect(0, H - BANDE, W, BANDE);
+    x.fillStyle = "#0b8f9a"; x.textBaseline = "middle";
+    x.font = "800 46px ui-rounded, Nunito, system-ui, sans-serif";
+    x.fillText("Brossé avec Beufa ✨", 36, H - BANDE / 2);
+    x.font = "700 34px ui-rounded, Nunito, system-ui, sans-serif"; x.textAlign = "right";
+    x.fillText(new Date().toLocaleDateString("fr-FR"), W - 36, H - BANDE / 2);
+    return new Promise(r => c.toBlob(b => r(b), "image/jpeg", .9));
+  }
+
+  /* ---------- galerie de fin ---------- */
+  const elMontages = $("#montages"), elGalerie = $("#galerie"), elVision = $("#visionneuse"), elVisionImg = $("#vision-img");
+  let souvenirs = [], souvenirVu = null;
+
+  function viderGalerie() {
+    souvenirs.forEach(s => URL.revokeObjectURL(s.url));
+    souvenirs = []; elGalerie.innerHTML = ""; elMontages.hidden = true;
+    ecrans.fin.classList.remove("avec-photos"); elVision.hidden = true;
+  }
+
+  async function afficherMontages() {
+    if (!photos.length) return;
+    elMontages.hidden = false; ecrans.fin.classList.add("avec-photos");
+    for (const [i, ph] of photos.entries()) {
+      const blob = await composer(ph);
+      if (!blob) continue;
+      const s = { blob, url: URL.createObjectURL(blob), nom: `beufa-dents-${Date.now()}-${i + 1}.jpg` };
+      souvenirs.push(s);
+      const b = document.createElement("button"); b.type = "button"; b.className = "vignette";
+      const im = new Image(); im.src = s.url; im.alt = `Photo souvenir ${i + 1} avec Beufa`;
+      b.appendChild(im); b.addEventListener("click", () => ouvrirVision(s));
+      elGalerie.appendChild(b);
+    }
+    photos = [];   // les canvas bruts ne servent plus
+  }
+
+  function ouvrirVision(s) {
+    souvenirVu = s; elVisionImg.src = s.url;
+    const a = $("#btn-enregistrer"); a.href = s.url; a.download = s.nom;
+    const f = new File([s.blob], s.nom, { type: "image/jpeg" });
+    $("#btn-partager").hidden = !(navigator.canShare && navigator.canShare({ files: [f] }));
+    elVision.hidden = false;
+  }
+  $("#btn-partager").addEventListener("click", async () => {
+    if (!souvenirVu) return;
+    const f = new File([souvenirVu.blob], souvenirVu.nom, { type: "image/jpeg" });
+    try { await navigator.share({ files: [f], title: "Brossé avec Beufa" }); } catch (e) { /* annulé */ }
+  });
+  $("#btn-fermer").addEventListener("click", () => { elVision.hidden = true; });
+
+  function melanger(t) {
+    for (let i = t.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [t[i], t[j]] = [t[j], t[i]]; }
+    return t;
+  }
+
   function terminer() {
-    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "fin";
+    cancelAnimationFrame(raf); lacherEcran(); fermerPose(); elPause.hidden = true;
+    stopperCamera(); phase = "fin";
     [523, 659, 784, 1047].forEach((f, i) => bip(f, .2, i * .13));
     vibrer([200, 100, 200, 100, 400]);
     confettis(); montrer("fin");
+    afficherMontages();
   }
 
   function confettis() {
@@ -293,7 +470,7 @@
 
   $("#btn-demarrer").addEventListener("click", demarrer);
   $("#btn-arreter").addEventListener("click", arreter);
-  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; montrer("accueil"); });
+  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); montrer("accueil"); });
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden && (phase === "brosse" || phase === "pause")) garderEcran();
   });
