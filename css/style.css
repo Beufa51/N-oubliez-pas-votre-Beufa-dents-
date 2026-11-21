@@ -126,77 +126,276 @@ body {
 .confettis i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 3px; animation: tombe linear forwards; }
 @keyframes tombe { to { transform: translateY(110dvh) rotate(720deg); } }
 
-/* ----- mode Beufa dents : pose photo ----- */
-.scene.en-pose #bouche, .scene.en-pose .astuce, .scene.en-pose .mascotte, .scene.en-pose .toast { display: none; }
-.scene.en-pose #camera, .cadre {
-  position: absolute; top: 0; left: 50%; height: 100%; width: auto; max-width: 100%; aspect-ratio: 3 / 4;
-  border-radius: 24px;
+/* ----- mode Beufa dents : studio photo plein écran ----- */
+.astuce.alerte { background: #ff7aa2; color: #fff; animation: alerte .6s ease-in-out infinite alternate; }
+.astuce.alerte::after { border-left-color: #ff7aa2; }
+@keyframes alerte { to { transform: scale(1.04); } }
+
+.studio { position: fixed; inset: 0; z-index: 20; background: linear-gradient(180deg, #14b8c4, #0b8f9a); overflow: hidden; }
+.studio[hidden] { display: none; }
+#studio-video { position: absolute; object-fit: cover; transform: scaleX(-1); }
+.cadre { position: absolute; pointer-events: none; overflow: hidden; }
+
+/* 1) démonstration : Beufa en très grand */
+.studio-demo {
+  position: absolute; inset: 0; z-index: 5; display: none; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); overflow: hidden;
+  background: radial-gradient(circle at 50% 48%, #ffffff 0, #c9f4f7 38%, #14b8c4 100%);
 }
-.scene.avec-camera.vue-miroir.en-pose #camera { inset: 0 auto auto 50%; width: auto; transform: translateX(-50%) scaleX(-1); }
-.cadre { transform: translateX(-50%); z-index: 6; pointer-events: none; overflow: hidden; }
-.cadre[hidden] { display: none; }
+.studio-demo::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+  background: repeating-conic-gradient(rgba(255,255,255,.35) 0 10deg, transparent 10deg 20deg);
+  animation: rayons 12s linear infinite; pointer-events: none;
+}
+@keyframes rayons { to { transform: rotate(360deg); } }
+.studio-demo > * { position: relative; }
+.studio.etape-demo .studio-demo { display: flex; }
+.demo-titre {
+  font-size: clamp(2.1rem, 11vw, 3.4rem); font-weight: 900; color: #fff; line-height: 1; text-align: center;
+  text-shadow: 0 4px 0 #0b8f9a, 0 8px 18px rgba(0,0,0,.25);
+}
+.demo-img { height: 58dvh; width: auto; max-width: 92vw; object-fit: contain; filter: drop-shadow(0 12px 16px rgba(11,143,154,.45)); transform-origin: 50% 100%; }
+.demo-img.montre { animation: arrive .6s cubic-bezier(.3,1.6,.5,1) both, montre .55s .6s ease-in-out infinite alternate; }
+@keyframes arrive { from { transform: translateY(60%) scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes montre { from { transform: rotate(-5deg) scale(1); } to { transform: rotate(5deg) scale(1.06); } }
+.demo-consigne {
+  background: #ff5c8a; color: #fff; font-weight: 900; font-size: clamp(1.2rem, 6.2vw, 1.8rem); text-align: center;
+  border-radius: 999px; padding: 10px 22px; box-shadow: 0 6px 0 #d13d6b, 0 10px 20px rgba(0,0,0,.2); max-width: 94%;
+}
+.pop { animation: pop .45s cubic-bezier(.3,1.6,.5,1) both; }
+.demo-consigne.pop { animation-delay: .25s; }
+@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* 2) photo : caméra plein écran, Beufa à côté */
+.studio.etape-demo .cadre, .studio.etape-demo .studio-haut, .studio.etape-demo .studio-compte { display: none; }
+.studio-haut {
+  position: absolute; z-index: 4; top: max(10px, env(safe-area-inset-top)); left: 12px; right: 12px; text-align: center;
+  background: #fff; color: #e0457a; border-radius: 18px; padding: 8px 14px; font-weight: 900; font-size: 1.15rem;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+.studio-compte {
+  position: absolute; z-index: 4; left: 0; right: 0; bottom: 12dvh; text-align: center; pointer-events: none;
+  font-size: min(36vw, 200px); line-height: 1; font-weight: 900; color: #fff;
+  -webkit-text-stroke: 5px #ff5c8a; paint-order: stroke fill; text-shadow: 0 8px 20px rgba(0,0,0,.35);
+}
+.studio-compte.pop { animation: compte .9s ease-out both; }
+@keyframes compte { 0% { transform: scale(1.8); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 100% { transform: scale(.9); opacity: .85; } }
+
 .cadre-tete {
-  position: absolute; top: 12%; width: 46%; height: 42%; border: 4px dashed rgba(255,255,255,.9); border-radius: 50%;
+  position: absolute; top: 12%; width: 46%; height: 40%; border: 4px dashed rgba(255,255,255,.9); border-radius: 50%;
   display: flex; align-items: flex-end; justify-content: center; box-shadow: 0 0 0 2px rgba(11,143,154,.4);
 }
 .cadre-tete span { margin-bottom: -2.2em; background: rgba(255,255,255,.85); border-radius: 999px; padding: 2px 10px; font-weight: 800; font-size: .8rem; }
-.cadre.cote-droite .cadre-tete { left: 8%; }
-.cadre.cote-gauche .cadre-tete { right: 8%; }
+.cadre.cote-droite .cadre-tete { left: 5%; }
+.cadre.cote-gauche .cadre-tete { right: 5%; }
+
 .partenaire { position: absolute; width: auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); transform-origin: 50% 100%; }
 .cadre.cote-droite .partenaire { right: 2%; }
 .cadre.cote-gauche .partenaire { left: 2%; }
-.cadre.avec-createur .partenaire { opacity: .85; }
 .cadre.avec-createur.cote-droite .partenaire { right: 0; }
 .cadre.avec-createur.cote-gauche .partenaire { left: 0; }
-/* Beufa arrive en sautant depuis son côté, danse pendant le 3-2-1, saute au clic */
-.cadre.cote-droite .partenaire.entre { animation: entre-droite .75s cubic-bezier(.3,1.5,.5,1) both; }
-.cadre.cote-gauche .partenaire.entre { animation: entre-gauche .75s cubic-bezier(.3,1.5,.5,1) both; }
+.cadre.cote-droite .partenaire.entre { animation: entre-droite .7s cubic-bezier(.3,1.5,.5,1) both; }
+.cadre.cote-gauche .partenaire.entre { animation: entre-gauche .7s cubic-bezier(.3,1.5,.5,1) both; }
 @keyframes entre-droite { from { transform: translateX(120%) rotate(18deg); } to { transform: none; } }
 @keyframes entre-gauche { from { transform: translateX(-120%) rotate(-18deg); } to { transform: none; } }
-.partenaire.danse { animation: danse .5s ease-in-out infinite alternate; }
-@keyframes danse { from { transform: rotate(-4deg) scale(1); } to { transform: rotate(4deg) scale(1.04); } }
+.partenaire.danse { animation: danse .45s ease-in-out infinite alternate; }
+@keyframes danse { from { transform: rotate(-5deg) scale(1); } to { transform: rotate(5deg) scale(1.05); } }
 .partenaire.saute { animation: saute .6s ease-out; }
 @keyframes saute { 0% { transform: none; } 40% { transform: translateY(-14%) rotate(6deg) scale(1.06); } 100% { transform: none; } }
 
 .bulle {
-  position: absolute; top: 9%; max-width: 46%; padding: 8px 14px; background: #fff; border-radius: 20px;
-  font-weight: 900; font-size: 1rem; line-height: 1.2; color: #e0457a; text-align: center;
-  box-shadow: 0 6px 14px rgba(0,0,0,.25); animation: bulle-pop .4s .45s cubic-bezier(.3,1.6,.5,1) both;
+  position: absolute; top: 4%; max-width: 46%; padding: 8px 14px; background: #fff; border-radius: 20px;
+  font-weight: 900; font-size: 1.15rem; line-height: 1.2; color: #e0457a; text-align: center;
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
 }
 .bulle::after { content: ""; position: absolute; bottom: -12px; border: 8px solid transparent; border-top: 14px solid #fff; border-bottom: 0; }
 .cadre.cote-droite .bulle { right: 4%; }
 .cadre.cote-droite .bulle::after { right: 30%; }
 .cadre.cote-gauche .bulle { left: 4%; }
 .cadre.cote-gauche .bulle::after { left: 30%; }
-.bulle.reaction { font-size: 1.25rem; animation: bulle-pop .4s cubic-bezier(.3,1.6,.5,1) both; }
-@keyframes bulle-pop { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+.bulle.reaction { font-size: 1.35rem; }
 
+/* 3) aperçu de la photo */
 .apercu {
-  position: absolute; left: 50%; top: 20%; width: 46%; border: 8px solid #fff; border-bottom-width: 26px; border-radius: 6px;
+  position: absolute; top: 18%; width: 46%; border: 8px solid #fff; border-bottom-width: 26px; border-radius: 6px;
   box-shadow: 0 10px 24px rgba(0,0,0,.4); animation: polaroid .5s cubic-bezier(.3,1.5,.5,1) both;
 }
 .apercu[hidden] { display: none; }
-.cadre.cote-droite .apercu { left: 8%; }
-.cadre.cote-gauche .apercu { left: auto; right: 8%; }
+.cadre.cote-droite .apercu { left: 6%; }
+.cadre.cote-gauche .apercu { right: 6%; }
 @keyframes polaroid { from { transform: scale(.3) rotate(-25deg); opacity: 0; } to { transform: rotate(-6deg); opacity: 1; } }
-.flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 7; border-radius: 24px; }
+.studio .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 6; }
 .flash.go { animation: flash .45s ease-out; }
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 
-.pause.pause-pose { background: none; place-items: start center; pointer-events: none; }
-.pause.pause-pose .pause-boite {
-  margin-top: max(12px, env(safe-area-inset-top)); width: calc(100% - 24px); display: grid; grid-template-columns: 1fr auto;
-  align-items: center; gap: 4px 10px; text-align: left; background: #fff; border-radius: 22px;
-  padding: 8px 14px; box-shadow: 0 6px 18px rgba(11,143,154,.3);
+/* ----- boutons son / fermer ----- */
+.btn-son {
+  flex: 0 0 auto; align-self: flex-start; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff;
+  font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 3px 10px rgba(11,143,154,.25);
 }
-.pause.pause-pose .pause-img { display: none; }
-.pause.pause-pose .pause-titre { font-size: 1.5rem; }
-.pause.pause-pose .pause-suite { margin: 0; grid-column: 1; font-size: .95rem; }
-.pause.pause-pose .pause-compte { grid-column: 2; grid-row: 1 / 3; font-size: 3.2rem; min-width: 1.4em; text-align: center; }
-.pause.pause-pose .pause-compte.texte { font-size: 1.6rem; animation: none; }
-.astuce.alerte { background: #ff7aa2; color: #fff; animation: alerte .6s ease-in-out infinite alternate; }
-@keyframes alerte { to { transform: scale(1.04); } }
-.astuce.alerte::after { border-left-color: #ff7aa2; }
+.btn-son.coin { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 2; }
+.btn-rond {
+  position: absolute; z-index: 8; top: max(10px, env(safe-area-inset-top)); width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.92); color: var(--encre); font-size: 1.25rem; font-weight: 900; line-height: 1; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,.25);
+}
+.btn-fermer-studio { left: 10px; }
+.btn-rond.btn-son { right: 10px; }
+.studio .studio-haut { left: 62px; right: 62px; }
+
+/* ----- installation (mode Beufa dents) ----- */
+.prepa #prepa-video { position: absolute; object-fit: cover; transform: scaleX(-1); }
+.prepa .cadre-tete { left: 27%; width: 46%; top: 24%; }
+.prepa-carte {
+  position: absolute; z-index: 4; top: calc(max(10px, env(safe-area-inset-top)) + 54px); left: 12px; right: 12px;
+  background: #fff; border-radius: 22px; padding: 12px 16px; box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  animation: pop .45s cubic-bezier(.3,1.6,.5,1) both;
+}
+.prepa-carte h2 { margin: 0 0 6px; font-size: 1.5rem; font-weight: 900; color: #e0457a; text-align: center; }
+.prepa-carte ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.prepa-carte li { display: flex; gap: 10px; align-items: center; font-weight: 700; font-size: 1rem; line-height: 1.25; }
+.prepa-carte li b { font-size: 1.5rem; }
+.prepa-mascotte {
+  position: absolute; z-index: 4; right: 4px; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 70px); height: 26dvh; width: auto;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); transform-origin: 50% 100%; animation: danse .6s ease-in-out infinite alternate;
+}
+.prepa-bouton { position: absolute; z-index: 5; left: 16px; right: 16px; width: auto; bottom: max(16px, env(safe-area-inset-bottom)); margin: 0; }
+.demo-brosse {
+  background: #fff; color: var(--turquoise-fonce); font-weight: 900; font-size: 1.05rem; border-radius: 999px; padding: 6px 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.15);
+}
+
+/* ----- prénom, Beufa vivant, défis ----- */
+.prenom { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; }
+.prenom span { font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--turquoise-fonce); font-weight: 800; white-space: nowrap; }
+.prenom input {
+  flex: 1; min-width: 0; border: 3px solid transparent; border-radius: 14px; padding: 9px 12px; font: inherit; font-weight: 700;
+  font-size: 1rem; color: var(--encre); background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.prenom input:focus { outline: none; border-color: var(--turquoise); }
+.mascotte { height: min(30dvh, 270px); }
+.mascotte.saute { animation: saute-m .6s ease-out; }
+@keyframes saute-m { 0% { transform: none; } 35% { transform: translateY(-18%) rotate(-6deg) scale(1.08); } 100% { transform: none; } }
+.astuce.defi { background: #ffd166; animation: alerte .6s ease-in-out infinite alternate; }
+.astuce.defi::after { border-left-color: #ffd166; }
+.pause-suite small { display: block; margin-top: 6px; font-size: .9rem; opacity: .7; }
+
+/* ----- fête de fin ----- */
+.fin-danse { animation: fin-danse .65s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes fin-danse { 0%, 100% { transform: rotate(-6deg) translateY(0); } 50% { transform: rotate(6deg) translateY(-10px); } }
+.fin-zones { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 12px; }
+.fin-zones span {
+  background: #fff; color: var(--turquoise-fonce); font-weight: 800; font-size: .85rem; border-radius: 999px; padding: 5px 11px;
+  box-shadow: 0 2px 8px rgba(11,143,154,.2); animation: pop .45s cubic-bezier(.3,1.6,.5,1) both;
+}
+.vignette.bd { grid-column: 1 / -1; }
+.vignette.bd img { aspect-ratio: auto; }
+
+/* ----- accueil : suivi ----- */
+#ecran-accueil .mascotte-accueil { height: min(27dvh, 250px); }
+.suivi { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 2px 0 10px; }
+.serie, .moments i, .btn-album {
+  display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 7px 11px; font-weight: 800; font-size: .85rem;
+  font-style: normal; background: #fff; box-shadow: 0 2px 6px rgba(11,143,154,.18); white-space: nowrap;
+}
+.serie { color: #e8590c; }
+.serie.eteinte { color: #8aa; }
+.moments { display: flex; gap: 6px; }
+.moments i { opacity: .5; filter: grayscale(1); }
+.moments i.fait { opacity: 1; filter: none; background: var(--turquoise); color: #fff; }
+.btn-album { border: 0; font: inherit; font-weight: 800; font-size: .85rem; color: var(--encre); cursor: pointer; }
+
+/* ----- microbes ----- */
+.score { margin-top: 6px; font-weight: 900; font-size: 1.05rem; color: #2f7d1f; display: inline-block; }
+.score.bump { animation: bump .35s ease-out; }
+@keyframes bump { 40% { transform: scale(1.35); } }
+#bouche .microbe { transform-box: fill-box; transform-origin: center; animation: gigote .8s ease-in-out infinite alternate; }
+@keyframes gigote { from { transform: rotate(-12deg) scale(.94); } to { transform: rotate(12deg) scale(1.06); } }
+#bouche .m-corps, #bouche .m-pic { fill: #7bd85a; }
+#bouche .m-corps { stroke: #2f7d1f; stroke-width: 1.5; }
+#bouche .chef .m-corps, #bouche .chef .m-pic { fill: #a259ff; }
+#bouche .chef .m-corps { stroke: #5a189a; }
+#bouche .m-oeil { fill: #fff; }
+#bouche .m-pupille { fill: #12343b; }
+#bouche .m-bouche { fill: none; stroke: #12343b; stroke-width: 1.4; stroke-linecap: round; }
+#bouche .m-couronne { fill: #ffd166; stroke: #b8860b; stroke-width: 1; }
+#bouche .microbe.mort { animation: eclate .35s ease-in forwards; }
+@keyframes eclate { 0% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0) rotate(90deg); opacity: 0; } }
+#bouche .m-pop {
+  font-size: 11px; font-weight: 900; fill: #ff5c8a; stroke: #fff; stroke-width: 3; paint-order: stroke;
+  transform-box: fill-box; animation: monte .9s ease-out forwards; pointer-events: none;
+}
+#bouche .m-pop.chef { font-size: 14px; fill: #7c4dff; }
+@keyframes monte { from { transform: translateY(4px) scale(.6); opacity: 1; } 30% { transform: translateY(-4px) scale(1.15); } to { transform: translateY(-24px); opacity: 0; } }
+
+/* ----- cartes à collectionner ----- */
+.carte-beufa {
+  position: relative; width: var(--l, 120px); aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; flex: 0 0 auto;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.55), transparent 60%), linear-gradient(160deg, var(--c2), var(--c1));
+  border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,.2); container-type: inline-size;
+}
+.carte-beufa .beufa-fig { position: absolute; left: 50%; bottom: 15%; height: 72%; aspect-ratio: 305 / 738; transform: translateX(-50%); }
+.carte-beufa .beufa-fig img { height: 100%; width: 100%; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+.carte-beufa .chapeau { position: absolute; left: 63.6%; top: 0; transform: translate(-50%, -58%); font-size: 17cqw; line-height: 1; }
+.carte-beufa .objet { position: absolute; left: 5%; bottom: 17%; font-size: 22cqw; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+.carte-beufa .deco { position: absolute; right: 7%; top: 7%; font-size: 15cqw; line-height: 1; }
+.carte-beufa .carte-nom {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 3% 3% 4%; background: rgba(255,255,255,.92); color: var(--encre);
+  font-weight: 900; font-size: 8.5cqw; line-height: 1.1; text-align: center;
+}
+.carte-beufa .carte-rare { position: absolute; left: 5%; top: 5%; background: #ffd166; color: #7a4a00; font-weight: 900; font-size: 6.5cqw; border-radius: 999px; padding: 1% 5%; }
+.carte-beufa .carte-compte { position: absolute; right: 5%; top: 5%; background: #fff; color: var(--encre); font-weight: 900; font-size: 8cqw; border-radius: 999px; padding: 1% 5%; }
+.carte-beufa.rare { border-color: #ffd166; box-shadow: 0 0 0 2px #b8860b, 0 0 18px rgba(255,209,102,.8); }
+.carte-beufa.rare::after {
+  content: ""; position: absolute; inset: -50%; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+  animation: brille 2.6s ease-in-out infinite; pointer-events: none;
+}
+@keyframes brille { from { transform: translateX(-60%); } to { transform: translateX(60%); } }
+.carte-beufa.cachee { background: #dff3f5; border-style: dashed; border-color: #9fd7dd; box-shadow: none; }
+.carte-beufa.cachee .beufa-fig img { filter: brightness(0); opacity: .14; }
+.carte-beufa.cachee .carte-nom { background: transparent; color: #7fb6bd; }
+.carte-beufa.cachee.rare::after { display: none; }
+
+/* carte mystère pendant le brossage */
+.mystere { position: absolute; left: 2px; bottom: 98px; z-index: 3; --l: 76px; transform: rotate(-4deg); }
+.mystere:empty { display: none; }
+.mystere .carte-beufa { --l: 76px; }
+.tuiles { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 12px; overflow: hidden; }
+.tuiles i {
+  display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 1.1rem; color: #fff;
+  background: linear-gradient(135deg, #2fd0dc, #0b8f9a); border: 1px solid rgba(255,255,255,.5);
+  transition: transform .5s cubic-bezier(.5,-0.4,.6,1.4), opacity .5s;
+}
+.tuiles i.partie { transform: rotateY(90deg) scale(.4); opacity: 0; }
+
+/* ----- album ----- */
+#ecran-album { gap: 10px; }
+.album-haut { width: 100%; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
+.album-haut .titre { margin: 0; }
+.btn-rond-clair { width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; font-size: 1.3rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 10px rgba(11,143,154,.25); color: var(--encre); }
+.album-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.album-stats span { background: #fff; border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: .9rem; box-shadow: 0 2px 6px rgba(11,143,154,.18); }
+.album-cal { padding-bottom: 12px; }
+.calendrier { display: grid; grid-template-columns: repeat(14, 1fr); gap: 2px; }
+.jour { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 0; border-radius: 8px; }
+.jour small { font-size: .65rem; font-weight: 800; opacity: .6; }
+.jour i { font-style: normal; font-size: .8rem; opacity: .18; filter: grayscale(1); }
+.jour i.ok { opacity: 1; filter: none; }
+.jour.auj { background: #e3fafc; box-shadow: inset 0 0 0 2px var(--turquoise); }
+.album-grille { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; padding-bottom: 16px; }
+.album-grille .carte-beufa { width: 100%; }
+
+/* ----- fin : carte gagnée ----- */
+.fin-carte { text-align: center; margin: 4px 0 2px; }
+.fin-carte[hidden] { display: none; }
+.fin-carte-titre { font-size: 1.5rem; font-weight: 900; color: #e0457a; animation: pop .45s .2s cubic-bezier(.3,1.6,.5,1) both; }
+.fin-carte-boite { display: flex; justify-content: center; margin-top: 6px; perspective: 800px; }
+.fin-carte-boite .carte-beufa { --l: min(44vw, 190px); }
+.carte-beufa.retourne { animation: retourne .9s .3s cubic-bezier(.3,1.3,.5,1) both; }
+@keyframes retourne { from { transform: rotateY(180deg) scale(.3); opacity: 0; } 60% { opacity: 1; } to { transform: none; opacity: 1; } }
+.fin-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 8px; }
+.fin-stats span { background: #fff; border-radius: 999px; padding: 5px 11px; font-weight: 800; font-size: .9rem; box-shadow: 0 2px 8px rgba(11,143,154,.2); animation: pop .45s cubic-bezier(.3,1.6,.5,1) both; }
+#ecran-fin .fin-texte { margin: 4px 0 6px; }
 
 /* ----- fin : galerie des montages ----- */
 #ecran-fin.avec-photos { justify-content: flex-start; }
@@ -215,5 +414,6 @@ body {
 .vision-actions .lien { color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span { animation: none !important; }
+  #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
 }

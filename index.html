@@ -15,10 +15,21 @@
 
   <!-- ACCUEIL -->
   <section id="ecran-accueil" class="ecran actif">
+    <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     <h1 class="titre">N'oubliez pas votre <span>Beufa dents</span></h1>
     <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
 
+    <div class="suivi">
+      <span id="serie" class="serie">🔥 0</span>
+      <span class="moments"><i id="m-matin">☀️ Matin</i><i id="m-soir">🌙 Soir</i></span>
+      <button id="btn-album" class="btn-album" type="button">📒 <b id="album-compte">0/18</b></button>
+    </div>
+
     <div class="carte">
+      <label class="prenom"><span>Ton prénom</span>
+        <input id="prenom" type="text" maxlength="16" autocomplete="given-name" placeholder="Facultatif" enterkeyhint="done">
+      </label>
+
       <h2>Mode</h2>
       <div class="choix" id="choix-mode">
         <button class="option actif" data-mode="classique" type="button">
@@ -59,19 +70,15 @@
         <div id="zone-nom" class="zone-nom">Haut gauche</div>
         <div id="face-nom" class="face-nom">Face extérieure</div>
         <div class="points" id="points"><i></i><i></i><i></i></div>
+        <div id="score" class="score" aria-live="off">🦠 0</div>
       </div>
+      <button class="btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     </header>
 
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
-      <div id="cadre" class="cadre" hidden aria-hidden="true">
-        <div class="cadre-tete"><span>Ta tête ici</span></div>
-        <img id="partenaire" class="partenaire" alt="">
-        <div id="bulle" class="bulle"></div>
-        <img id="apercu" class="apercu" alt="" hidden>
-      </div>
-      <div id="flash" class="flash" aria-hidden="true"></div>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
+      <div id="mystere" class="mystere" aria-label="Carte surprise : une partie se dévoile à chaque zone"></div>
       <div id="astuce" class="astuce"></div>
       <div id="toast" class="toast" hidden></div>
       <img id="mascotte" class="mascotte" src="assets/mascotte/png/pose-mains-hanches.png" alt="">
@@ -86,16 +93,79 @@
         <div id="pause-suite" class="pause-suite"></div>
       </div>
     </div>
+
+    <!-- mode Beufa dents : installation avant de commencer -->
+    <div id="prepa" class="studio prepa" hidden>
+      <video id="prepa-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <div id="prepa-cadre" class="cadre" aria-hidden="true">
+        <div class="cadre-tete"><span>Ta tête ici</span></div>
+      </div>
+      <button class="btn-rond btn-fermer-studio" type="button" aria-label="Revenir à l'accueil">✕</button>
+      <button class="btn-rond btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
+      <div class="prepa-carte">
+        <h2>Installe-toi&nbsp;!</h2>
+        <ul>
+          <li><b>📱</b><span>Pose ton téléphone <strong>debout</strong> devant toi</span></li>
+          <li><b>🙋</b><span>Recule : on doit voir <strong>ta tête et tes deux mains</strong></span></li>
+          <li><b>🪥</b><span>Pendant les photos, tu poseras ta brosse</span></li>
+        </ul>
+      </div>
+      <img class="prepa-mascotte" src="assets/mascotte/png/pose-pointe-du-doigt.png" alt="">
+      <button id="btn-pret" class="gros-bouton prepa-bouton" type="button">Je suis prêt&nbsp;!</button>
+    </div>
+
+    <!-- mode Beufa dents : studio photo plein écran -->
+    <div id="studio" class="studio" hidden>
+      <button class="btn-rond btn-fermer-studio" type="button" aria-label="Arrêter le brossage">✕</button>
+      <button class="btn-rond btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
+      <video id="studio-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <div id="cadre" class="cadre" aria-hidden="true">
+        <div class="cadre-tete"><span>Ta tête ici</span></div>
+        <img id="partenaire" class="partenaire" alt="">
+        <div id="bulle" class="bulle"></div>
+        <img id="apercu" class="apercu" alt="" hidden>
+      </div>
+      <div id="studio-haut" class="studio-haut"></div>
+      <div id="studio-compte" class="studio-compte"></div>
+      <div class="studio-demo">
+        <div class="demo-brosse">✋ Pose ta brosse</div>
+        <div id="demo-titre" class="demo-titre">Fais comme moi&nbsp;!</div>
+        <img id="demo-img" class="demo-img" alt="Beufa montre la pose">
+        <div id="demo-consigne" class="demo-consigne"></div>
+      </div>
+      <div id="flash" class="flash" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ALBUM -->
+  <section id="ecran-album" class="ecran">
+    <div class="album-haut">
+      <button id="btn-album-retour" class="btn-rond-clair" type="button" aria-label="Retour à l'accueil">←</button>
+      <h1 class="titre">Mon album</h1>
+      <span></span>
+    </div>
+    <div id="album-stats" class="album-stats"></div>
+    <div class="carte album-cal">
+      <h2>Mes 14 derniers jours</h2>
+      <div id="calendrier" class="calendrier"></div>
+    </div>
+    <div id="album-grille" class="album-grille"></div>
   </section>
 
   <!-- FIN -->
   <section id="ecran-fin" class="ecran">
     <div class="confettis" id="confettis" aria-hidden="true"></div>
-    <h1 class="titre">Bravo&nbsp;!</h1>
-    <img class="mascotte-accueil" src="assets/mascotte/png/pose-pouce.png" alt="Beufa fait un pouce en l'air">
+    <h1 id="fin-titre" class="titre">Bravo&nbsp;!</h1>
+    <img id="fin-mascotte" class="mascotte-accueil fin-danse" src="assets/mascotte/png/pose-pouce.png" alt="Beufa danse de joie">
+    <div id="fin-carte" class="fin-carte" hidden>
+      <div id="fin-carte-titre" class="fin-carte-titre">Nouvelle carte&nbsp;!</div>
+      <div id="fin-carte-boite" class="fin-carte-boite"></div>
+    </div>
     <p class="fin-texte">Dents brillantes, sourire éclatant ✨</p>
+    <div id="fin-stats" class="fin-stats"></div>
+    <div id="fin-zones" class="fin-zones" aria-label="Zones brossées"></div>
     <div id="montages" class="montages" hidden>
-      <h2>Tes photos avec Beufa</h2>
+      <h2>Ta planche BD et tes photos</h2>
       <div id="galerie" class="galerie"></div>
       <small>Appuie sur une photo pour l'enregistrer ou la partager. Elles restent sur ton téléphone.</small>
     </div>
@@ -111,6 +181,7 @@
   </section>
 
 </main>
+<script src="js/jeu.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

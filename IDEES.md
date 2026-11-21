@@ -104,6 +104,34 @@ Pas de publication sur le Play Store.
     alerte rose 5 s avant chaque photo, pause photo de 7,3 s (2,5 s pour voir la pose + 3-2-1 + 1,8 s d'aperçu),
     Beufa en grand et opaque qui arrive en sautant, danse pendant le compte, saute au clic, bulle avec la consigne
     puis une réaction (« Quelle star ! »), aperçu façon polaroïd ; sur le montage, Beufa plus grand avec étoiles et bulle.
+  - Retour du test (session 5) : caméra trop zoomée, Beufa trop petit, on ne comprend pas la pose. Corrigé par un **studio plein écran** :
+    1) 3 s de démonstration : Beufa en très grand sur fond de rayons, « Fais comme moi ! » + consigne ;
+    2) caméra plein écran au format réel de la caméra (image entière, plus de recadrage), Beufa grand à côté, gros 3-2-1 ;
+    3) aperçu + réaction. La photo n'est plus recadrée et le montage garde le format de la caméra. Vrai plein écran (sans barres du navigateur) en mode Beufa dents.
+- [x] Audit « utilisateur régulier » (session 6) et corrections :
+  - écran **Installe-toi !** avant le mode Beufa dents (téléphone debout, recule, aperçu caméra, bouton « Je suis prêt ! ») ;
+  - **Beufa parle** (voix du téléphone, aucun fichier) : zones, faces, pauses, alerte photo, consigne, 3-2-1, réaction, bravo ;
+  - rappel « ✋ Pose ta brosse » pendant la démonstration, « Reprends ta brosse ! » après la photo ;
+  - croix **✕** pour quitter pendant l'installation et les poses ;
+  - bouton **🔊 / 🔇** (accueil, brossage, studio), mémorisé sur le téléphone ;
+  - pauses du mode Classique gardées (choix du créateur).
+- [x] Audit « fun » n°1 (session 6), points 1 à 5 faits :
+  - **prénom** facultatif (gardé sur le téléphone) : « C'est parti Léo ! », « Bravo Léo ! », sur les photos ;
+  - **Beufa vivant** : change de pose et saute à chaque zone/face, **mini-défi** à chaque zone (« Brosse sur un seul pied ! »), encouragements ;
+  - **pauses Classique** = « Fais comme moi ! » (pose de Beufa, sans photo) ;
+  - **planche BD** « Les aventures de Léo & Beufa » qui réunit toutes les photos ;
+  - **fête de fin** : fanfare, Beufa qui danse, les 4 zones validées une à une.
+- [x] Audit « fun » n°2 (inspiré de Disney Magic Timer, Pokémon Smile, Colgate Magik, Sonicare Kids, Brush DJ), points 1 à 3 faits :
+  - **microbes à chasser** : un microbe par dent (24), qui éclate (« POP ! ») quand la dent est propre ; le dernier de chaque zone est un **chef** couronné (« CHEF K.O. ! ») ; compteur 🦠 ;
+  - **carte surprise** : une carte cachée sous 4 tuiles « ? », une tuile tombe à chaque zone terminée, la carte est gagnée à la fin ;
+  - **album** de 21 cartes (Beufa + chapeau + objet, ex. Beufa Magicien, Roi Beufa, Beufa et le Dino), dont **3 rares** gagnées tous les **7 jours d'affilée** ;
+  - **calendrier** matin / soir (14 jours), **série de jours**, record, total de brossages et de microbes ; barre de suivi sur l'accueil.
+  - Tout est enregistré sur le téléphone (rien sur un serveur). Une carte n'est gagnée que si le brossage va jusqu'au bout.
+- [x] Rappels par notification : **abandonnés** (décision du créateur, peu fiables dans une appli web).
+- [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
+  récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
+- [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
+  accueil trop long sur petit écran ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des boutons de choix.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
 - [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).

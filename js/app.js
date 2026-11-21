@@ -15,13 +15,21 @@
     "Passe derrière les dents, tout doucement",
     "Petits va-et-vient sur le dessus des dents"
   ];
-  const POSES_PAUSE = ["pouce", "coeur", "main-levee", "pointe-du-doigt", "pensif", "bras-croises"];
+  const TOUTES_POSES = ["pouce", "coeur", "main-levee", "pointe-du-doigt", "pensif", "bras-croises", "mains-hanches"];
+  // mini-défis lancés à chaque changement de zone (faisables en brossant)
+  const DEFIS = [
+    "Brosse en faisant les gros yeux !", "Brosse sur un seul pied !", "Petits cercles comme un robot : bip, bip !",
+    "Brosse en dansant !", "Brosse en faisant un clin d'œil !", "Brosse au ralenti, tout doux !",
+    "Lève les sourcils en brossant !", "Brosse en marchant sur place !", "Brosse en faisant le dos rond comme un chat !"
+  ];
+  const BRAVOS = ["Super !", "Bien joué !", "Continue comme ça !", "Tu gères !", "Ça brille déjà !"];
+  const hasard = t => t[Math.floor(Math.random() * t.length)];
 
   /* ---------- mode Beufa dents : gabarits de montage ----------
      Chaque pose = image de la mascotte (le geste à faire) + photo détourée du créateur
      (facultative : assets/createur/<id>.png, sinon la mascotte prend sa place)
      + côté où se tient le partenaire (l'utilisateur se place de l'autre côté). */
-  const POSE_PREP = 2.5;          // la mascotte arrive et montre la pose (s)
+  const POSE_PREP = 3;            // Beufa montre la pose en plein écran (s)
   const POSE_COMPTE = 3;          // 3-2-1 avant la photo (s)
   const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
   const POSE_CLIC = POSE_PREP + POSE_COMPTE;
@@ -38,7 +46,7 @@
     { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en super-héros !" }
   ];
   // proportions communes au cadre-guide (CSS) et au montage (canvas)
-  const PART = { mascotteH: .68, createurH: .9, bas: .046, marge: .02 };
+  const PART = { mascotteH: .76, createurH: .92, bas: .08, marge: .02 };
   POSES_BEUFA.forEach(p => {
     p.imgMascotte = new Image(); p.imgMascotte.src = IMG(p.mascotte);
     const c = new Image();
@@ -48,7 +56,8 @@
 
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
-  const ecrans = { accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin") };
+  const ecrans = { accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin"), album: $("#ecran-album") };
+  const JEU = window.BeufaJeu;
   const elTemps = $("#temps"), elAnneau = $("#anneau"), elZone = $("#zone-nom"), elFace = $("#face-nom");
   const elPoints = [...document.querySelectorAll("#points i")];
     const elMascotte = $("#mascotte"), elAstuce = $("#astuce"), elBouche = $("#bouche");
@@ -66,9 +75,16 @@
     Object.entries(ecrans).forEach(([k, el]) => el.classList.toggle("actif", k === nom));
   }
 
-  /* ---------- sons & vibration ---------- */
-  let audio;
+  /* ---------- réglages gardés sur le téléphone ---------- */
+  function lireReglage(cle, defaut) {
+    try { const v = localStorage.getItem("beufa-" + cle); return v === null ? defaut : JSON.parse(v); } catch (e) { return defaut; }
+  }
+  function ecrireReglage(cle, v) { try { localStorage.setItem("beufa-" + cle, JSON.stringify(v)); } catch (e) {} }
+
+  /* ---------- sons, voix & vibration ---------- */
+  let audio, sonActif = lireReglage("son", true);
   function bip(freq = 660, dur = .12, delai = 0) {
+    if (!sonActif) return;
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
       const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + delai;
@@ -79,6 +95,58 @@
     } catch (e) { /* pas de son, tant pis */ }
   }
   const vibrer = m => { try { navigator.vibrate && navigator.vibrate(m); } catch (e) {} };
+
+  // Beufa parle avec la voix du téléphone (aucun fichier son, rien n'est envoyé)
+  const synthese = window.speechSynthesis;
+  let voixFr = null;
+  function choisirVoix() {
+    try {
+      const v = synthese.getVoices();
+      voixFr = v.find(x => /^fr[-_]FR/i.test(x.lang)) || v.find(x => /^fr/i.test(x.lang)) || null;
+    } catch (e) {}
+  }
+  if (synthese) { choisirVoix(); synthese.addEventListener && synthese.addEventListener("voiceschanged", choisirVoix); }
+  function parler(texte, urgent = true) {
+    if (!sonActif || !synthese || !texte) return;
+    try {
+      if (urgent) synthese.cancel();
+      const u = new SpeechSynthesisUtterance(texte.replace(/…/g, "."));
+      u.lang = "fr-FR"; if (voixFr) u.voice = voixFr;
+      u.rate = 1.05; u.pitch = 1.25;
+      synthese.speak(u);
+    } catch (e) {}
+  }
+  function taire() { try { synthese && synthese.cancel(); } catch (e) {} }
+  // à appeler pendant un appui : débloque le son et la voix (iPhone)
+  function debloquerSon() {
+    try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume && audio.resume(); } catch (e) {}
+    try { if (synthese && sonActif) { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; synthese.speak(u); } } catch (e) {}
+  }
+
+  function majBoutonsSon() {
+    document.querySelectorAll(".btn-son").forEach(b => {
+      b.textContent = sonActif ? "🔊" : "🔇";
+      b.setAttribute("aria-pressed", String(sonActif));
+      b.setAttribute("aria-label", sonActif ? "Couper le son" : "Remettre le son");
+    });
+  }
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".btn-son")) return;
+    sonActif = !sonActif; ecrireReglage("son", sonActif); majBoutonsSon();
+    if (sonActif) { debloquerSon(); bip(660, .1); } else taire();
+  });
+  majBoutonsSon();
+
+  /* ---------- prénom (facultatif, gardé sur le téléphone) ---------- */
+  const elPrenom = $("#prenom");
+  let prenom = String(lireReglage("prenom", "") || "");
+  elPrenom.value = prenom;
+  elPrenom.addEventListener("input", () => { prenom = elPrenom.value.trim().slice(0, 16); ecrireReglage("prenom", prenom); });
+  elPrenom.addEventListener("keydown", e => { if (e.key === "Enter") elPrenom.blur(); });
+  const avecPrenom = (debut, fin = "") => prenom ? `${debut} ${prenom}${fin}` : `${debut}${fin}`;
+
+  const ZONES_VOIX = ["en haut à gauche", "en haut à droite", "en bas à droite", "en bas à gauche"];
+  const FACES_VOIX = ["le devant des dents", "derrière les dents", "le dessus des dents"];
 
   /* ---------- écran qui reste allumé ---------- */
   async function garderEcran() {
@@ -124,7 +192,7 @@
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("indisponible");
       flux = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false
+        video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 }, aspectRatio: { ideal: 3 / 4 } }, audio: false
       });
       elCamera.srcObject = flux;
       await elCamera.play().catch(() => {});
@@ -140,7 +208,7 @@
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
     flux = null; elCamera.srcObject = null;
-    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema", "en-pose");
+    elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
   }
 
   // appui sur la petite vue = on l'agrandit
@@ -190,9 +258,30 @@
         const g = el("g", { class: "dent", transform: `translate(${P.x.toFixed(1)} ${P.y.toFixed(1)}) rotate(${(Math.atan2(P.n.y, P.n.x) * 180 / Math.PI).toFixed(1)})` }, sv);
         const r = el("rect", { x: -h / 2, y: -w / 2, width: h, height: w, rx: 7 }, g);
         if (i >= 3) el("rect", { x: -4.5, y: -4.5, width: 9, height: 9, rx: 2.5, class: "motif" }, g);   // dessus des molaires
-        dents[q].push({ r, etat: "" });
+        dents[q].push({ r, etat: "", P });
       }
     });
+    // un microbe sur chaque dent ; le dernier de chaque zone (molaire du fond) est le chef
+    const calque = el("g", { class: "microbes" }, sv);
+    QUARTS.forEach((Q, q) => dents[q].forEach((d, i) => {
+      const chef = i === 5;
+      const g = el("g", { transform: `translate(${d.P.x.toFixed(1)} ${d.P.y.toFixed(1)})` }, calque);
+      const m = el("g", { class: "microbe" + (chef ? " chef" : "") }, g);
+      m.style.animationDelay = (-Math.random() * 1.2).toFixed(2) + "s";
+      const r = chef ? 11 : 8;
+      for (let k = 0; k < 6; k++) {
+        const a = k * Math.PI / 3 + .3;
+        el("circle", { cx: (Math.cos(a) * r).toFixed(1), cy: (Math.sin(a) * r).toFixed(1), r: chef ? 3.4 : 2.6, class: "m-pic" }, m);
+      }
+      el("circle", { r, class: "m-corps" }, m);
+      [-1, 1].forEach(sx => {
+        el("circle", { cx: sx * r * .36, cy: -r * .18, r: r * .3, class: "m-oeil" }, m);
+        el("circle", { cx: sx * r * .36 + .6, cy: -r * .12, r: r * .14, class: "m-pupille" }, m);
+      });
+      el("path", { d: `M${-r * .35} ${r * .32} Q0 ${r * .62} ${r * .35} ${r * .32}`, class: "m-bouche" }, m);
+      if (chef) el("path", { d: "M-8 -10 L-8 -17 L-4 -13 L0 -19 L4 -13 L8 -17 L8 -10 Z", class: "m-couronne" }, m);
+      d.m = m; d.g = g;
+    }));
     el("text", { x: 150, y: 176, "text-anchor": "middle", class: "bouche-txt" }, sv).textContent = "comme dans un miroir";
 
     // brosse bleue (manche vers +x, poils côté -y)
@@ -208,7 +297,10 @@
         const c = q < z ? 1 : q > z ? 0 : Math.max(0, Math.min(1, zp * 1.3 - i * .06));
         const etat = c >= .98 ? "fait" : q === z ? "actif" : "";
         const d = dents[q][i];
-        if (d.etat !== etat) { d.etat = etat; d.r.setAttribute("class", etat); }
+        if (d.etat !== etat) {
+          d.etat = etat; d.r.setAttribute("class", etat);
+          if (etat === "fait" && (phase === "brosse" || phase === "pause")) tuerMicrobe(d, i === 5);
+        }
       }
     }
     // la brosse balaie la zone active
@@ -225,11 +317,48 @@
 
   dessinerBouche();
 
+  /* ---------- microbes vaincus ---------- */
+  const elScore = $("#score");
+  let microbes = 0;
+  function remettreMicrobes() {
+    microbes = 0; elScore.textContent = "🦠 0";
+    dents.forEach(z => z.forEach(d => { d.m.classList.remove("mort"); d.g.querySelectorAll(".m-pop").forEach(n => n.remove()); }));
+  }
+  function tuerMicrobe(d, chef) {
+    if (d.m.classList.contains("mort")) return;
+    d.m.classList.add("mort"); microbes++;
+    elScore.textContent = "🦠 " + microbes;
+    elScore.classList.remove("bump"); void elScore.offsetWidth; elScore.classList.add("bump");
+    const t = el("text", { y: -14, "text-anchor": "middle", class: "m-pop" + (chef ? " chef" : "") }, d.g);
+    t.textContent = chef ? "CHEF K.O. !" : "POP !";
+    if (chef) { bip(988, .08); bip(1319, .08, .08); bip(1568, .14, .16); vibrer(80); }
+    else { bip(1300, .04); bip(650, .05, .03); }
+  }
+
   /* ---------- brossage ---------- */
   async function demarrer() {
     $("#btn-demarrer").disabled = true;
+    debloquerSon();
+    if (mode === "beufa") pleinEcran(true);
     stopperCamera(); await lancerCamera();
     $("#btn-demarrer").disabled = false;
+    if (avecPhotos()) return ouvrirPrepa();
+    lancerBrossage();
+  }
+
+  /* ---------- installation (mode Beufa dents) ---------- */
+  const elPrepa = $("#prepa"), elPrepaVideo = $("#prepa-video"), elPrepaCadre = $("#prepa-cadre");
+  function ouvrirPrepa() {
+    phase = "prepa"; montrer("brossage");
+    elPrepaVideo.srcObject = flux; elPrepaVideo.play().catch(() => {});
+    elPrepa.hidden = false; placer(elPrepa, elPrepaVideo, elPrepaCadre); garderEcran();
+    parler("Pose ton téléphone debout devant toi, et recule un peu, pour qu'on voie ta tête et tes deux mains. Quand tu es prêt, appuie sur le bouton !");
+  }
+  function fermerPrepa() { elPrepa.hidden = true; elPrepaVideo.srcObject = null; }
+  elPrepaVideo.addEventListener("loadedmetadata", () => placer(elPrepa, elPrepaVideo, elPrepaCadre));
+  $("#btn-pret").addEventListener("click", () => { debloquerSon(); fermerPrepa(); lancerBrossage(); });
+
+  function lancerBrossage() {
     ecoule = 0; tPause = 0; prochainePause = PAUSE_TOUTES_LES; derniereZone = -1; dernierPoint = -1; poseIdx = 0;
     finale = false; poseActuelle = null; photos = []; viderGalerie();
     poses = melanger(POSES_BEUFA.slice());
@@ -239,14 +368,26 @@
     montrer("brossage");
     garderEcran();
     bip(523, .15); bip(784, .2, .16);
+    parler(`${avecPrenom("C'est parti", " !")} On commence ${ZONES_VOIX[0]}, ${FACES_VOIX[0]}.`);
+    defiJusqua = 0; elMascotte.classList.remove("saute");
+    remettreMicrobes(); preparerMystere();
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
     majAffichage();
   }
 
+  function pleinEcran(oui) {
+    try {
+      const d = document, el = d.documentElement;
+      if (oui && !d.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+      if (!oui && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(() => {});
+    } catch (e) {}
+  }
+
   function arreter() {
-    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil";
-    fermerPose(); elPause.hidden = true; montrer("accueil");
+    pleinEcran(false);
+    cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil"; taire();
+    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil");
   }
 
   const avecPhotos = () => mode === "beufa" && !!flux;
@@ -288,117 +429,189 @@
     // en mode Beufa dents, on prévient avant chaque photo
     const avantPhoto = avecPhotos() && phase === "brosse" &&
       ((prochainePause < duree && prochainePause - ecoule < 5) || (!finale && duree - ecoule < 5));
-    elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : ASTUCES[p];
+    const enDefi = !avantPhoto && ecoule < defiJusqua;
+    elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p];
     elAstuce.classList.toggle("alerte", avantPhoto);
+    elAstuce.classList.toggle("defi", enDefi);
+    if (avantPhoto && !alerteDite) { alerteDite = true; parler("Prépare-toi, photo avec moi dans 5 secondes !"); }
+    if (!avantPhoto && phase === "brosse") alerteDite = false;
     majBouche(z, Math.max(0, Math.min(1, (ecoule - z * dureeZone) / dureeZone)), p);
 
+    let zoneAnnoncee = false;
     if (z !== derniereZone) {
-      if (derniereZone !== -1 && phase === "brosse") { bip(740, .12); vibrer(120); }
+      zoneAnnoncee = derniereZone !== -1;
+      for (let k = 0; k < z; k++) devoiler(k);
+      if (derniereZone !== -1 && phase === "brosse") {
+        bip(740, .12); vibrer(120);
+        defiActuel = hasard(DEFIS); defiJusqua = ecoule + Math.min(8, duree / 12);
+        parler(`Maintenant, ${ZONES_VOIX[z]} ! Défi : ${defiActuel}`);
+        animerMascotte();
+      }
       derniereZone = z;
     }
     if (p !== dernierPoint) {
-      if (dernierPoint !== -1 && phase === "brosse" && z === derniereZone) bip(520, .06);
+      if (dernierPoint !== -1 && phase === "brosse" && z === derniereZone) {
+        bip(520, .06);
+        if (!zoneAnnoncee && !avantPhoto) parler(`${hasard(BRAVOS)} ${FACES_VOIX[p][0].toUpperCase() + FACES_VOIX[p].slice(1)} !`);
+        if (!zoneAnnoncee) animerMascotte();
+      }
       dernierPoint = p;
     }
     if (phase === "pause") {
       if (poseActuelle) {
-        const enPrep = tPause < POSE_PREP;
-        const n = enPrep ? 99 : Math.ceil(POSE_CLIC - tPause);
-        elPauseCompte.textContent = enPrep ? "Prêt ?" : n > 0 ? String(n) : "Clic !";
-        elPauseCompte.classList.toggle("texte", enPrep || n <= 0);
+        if (tPause >= POSE_PREP && etapePose === "demo") passerEnPhoto();
+        const n = tPause < POSE_PREP ? 0 : Math.ceil(POSE_CLIC - tPause);
         if (n !== dernierCompte) {
           dernierCompte = n;
-          if (n > 0 && n < 99) { bip(600, .08); elPartenaire.className = "partenaire danse"; }
+          elStudioCompte.textContent = n > 0 ? String(n) : "";
+          if (n > 0) {
+            bip(600, .08); vibrer(40); parler(String(n));
+            elStudioCompte.classList.remove("pop"); void elStudioCompte.offsetWidth; elStudioCompte.classList.add("pop");
+            elPartenaire.className = "partenaire danse";
+          }
         }
       } else {
         elPauseCompte.textContent = String(Math.max(1, Math.ceil(PAUSE_DUREE - tPause)));
       }
     }
   }
-  let dernierCompte = 0;
+  let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
+
+  // carte surprise : un quart se dévoile à chaque zone terminée
+  const elMystere = $("#mystere");
+  let carteSession = null;
+  function preparerMystere() {
+    carteSession = JEU.choisirCarte();
+    elMystere.innerHTML = "";
+    elMystere.appendChild(JEU.carteEl(carteSession));
+    const t = document.createElement("div"); t.className = "tuiles";
+    for (let i = 0; i < 4; i++) { const u = document.createElement("i"); u.textContent = "?"; t.appendChild(u); }
+    elMystere.appendChild(t);
+  }
+  function devoiler(k) {
+    const u = elMystere.querySelectorAll(".tuiles i")[k];
+    if (u && !u.classList.contains("partie")) { u.classList.add("partie"); bip(1046, .08); bip(1568, .1, .08); }
+  }
+
+  // Beufa change de pose et saute
+  function animerMascotte() {
+    elMascotte.src = IMG(hasard(TOUTES_POSES.filter(x => !elMascotte.src.endsWith(`pose-${x}.png`))));
+    elMascotte.classList.remove("saute"); void elMascotte.offsetWidth; elMascotte.classList.add("saute");
+  }
+  elMascotte.addEventListener("animationend", e => { if (e.animationName === "saute-m") elMascotte.classList.remove("saute"); });
 
   function commencerPause() {
     phase = "pause"; tPause = 0;
     if (!finale) prochainePause += PAUSE_TOUTES_LES;
-    const z = indexZone();
-    elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
-    const img = new Image(); img.alt = ""; img.className = "pause-img";
+    bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
-      img.src = IMG(poseActuelle.mascotte);
-      elPauseTitre.textContent = finale ? "Pose finale !" : "Imite Beufa !";
-      elPauseSuite.textContent = poseActuelle.consigne;
-      elBulle.textContent = poseActuelle.consigne;
-      ouvrirPose(poseActuelle);
-    } else {
-      img.src = IMG(POSES_PAUSE[poseIdx++ % POSES_PAUSE.length]);
-      elPauseTitre.textContent = "Pause !";
-      elPauseSuite.textContent = `Prochaine zone : ${ZONES[z].toLowerCase()}`;
+      return ouvrirPose(poseActuelle);
     }
+    elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
+    const img = new Image(); img.alt = ""; img.className = "pause-img";
+    const pose = poses[poseIdx++ % poses.length];
+    img.src = IMG(pose.mascotte);
+    elPauseTitre.textContent = "Fais comme moi\u00a0!";
+    elPauseSuite.innerHTML = "";
+    elPauseSuite.append(pose.consigne, Object.assign(document.createElement("small"), { textContent: `Ensuite : ${ZONES[indexZone()].toLowerCase()}` }));
+    parler(`Pause ! Fais comme moi : ${pose.consigne}`);
     elPause.querySelector(".pause-boite").insertBefore(img, elPauseCompte);
     elPause.hidden = false;
-    bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
   }
 
   function finirPause() {
+    const apresPhoto = !!poseActuelle;
     phase = "brosse"; fermerPose(); elPause.hidden = true;
     bip(523, .1); bip(784, .15, .12);
+    parler(apresPhoto ? `Reprends ta brosse ! On continue ${ZONES_VOIX[indexZone()]}.` : `C'est reparti, ${ZONES_VOIX[indexZone()]} !`);
   }
 
-  /* ---------- pose photo : cadre-guide, capture ---------- */
-  const elPauseTitre = $("#pause-titre"), elCadre = $("#cadre"), elPartenaire = $("#partenaire"), elFlash = $("#flash");
-  const elBulle = $("#bulle"), elApercu = $("#apercu");
-  let vueAvantPose = "";
+  /* ---------- studio photo plein écran ----------
+     1) Beufa montre la pose en très grand ; 2) caméra plein écran (image entière, sans zoom)
+     avec Beufa à côté, 3-2-1, photo ; 3) aperçu + réaction. */
+  const elPauseTitre = $("#pause-titre"), elStudio = $("#studio"), elStudioVideo = $("#studio-video");
+  const elCadre = $("#cadre"), elPartenaire = $("#partenaire"), elBulle = $("#bulle"), elApercu = $("#apercu"), elFlash = $("#flash");
+  const elStudioHaut = $("#studio-haut"), elStudioCompte = $("#studio-compte");
+  const elDemoTitre = $("#demo-titre"), elDemoImg = $("#demo-img"), elDemoConsigne = $("#demo-consigne");
+  let etapePose = "";
+
+  // la vidéo et le cadre prennent exactement le format de la caméra, le plus grand possible
+  function placer(boite, video, cadre) {
+    const vw = video.videoWidth || 3, vh = video.videoHeight || 4;
+    const sw = boite.clientWidth, sh = boite.clientHeight;
+    let w = sw, h = sw * vh / vw;
+    if (h > sh) { h = sh; w = sh * vw / vh; }
+    const st = `left:${(sw - w) / 2}px;top:${(sh - h) / 2}px;width:${w}px;height:${h}px`;
+    video.style.cssText = st; cadre.style.cssText = st;
+  }
+  const placerCadre = () => placer(elStudio, elStudioVideo, elCadre);
+  window.addEventListener("resize", () => {
+    if (!elStudio.hidden) placerCadre();
+    if (!elPrepa.hidden) placer(elPrepa, elPrepaVideo, elPrepaCadre);
+  });
+  document.addEventListener("click", e => { if (e.target.closest(".btn-fermer-studio")) arreter(); });
+  elStudioVideo.addEventListener("loadedmetadata", placerCadre);
+
+  function rejouer(n, cls) { n.classList.remove(cls); void n.offsetWidth; n.classList.add(cls); }
 
   function ouvrirPose(p) {
-    // la caméra passe en grand, au format 3:4 du montage
-    vueAvantPose = elScene.classList.contains("vue-schema") ? "vue-schema" : "vue-miroir";
-    elScene.classList.remove("vue-schema"); elScene.classList.add("vue-miroir", "en-pose");
-    elPause.classList.add("pause-pose");
+    elStudioVideo.srcObject = flux; elStudioVideo.play().catch(() => {});
+    elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : "Fais comme moi\u00a0!";
+    elDemoImg.src = IMG(p.mascotte);
+    elDemoConsigne.textContent = p.consigne;
+    elStudioHaut.textContent = p.consigne;
+    elStudioCompte.textContent = "";
     const partenaire = p.createur || p.imgMascotte;
     elPartenaire.src = partenaire.src;
     elPartenaire.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
     elPartenaire.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
     elPartenaire.className = "partenaire";
-    elApercu.hidden = true; elBulle.classList.remove("reaction");
+    elBulle.textContent = "À toi !"; elBulle.classList.remove("reaction");
+    elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
-    elCadre.hidden = false;
-    void elPartenaire.offsetWidth; elPartenaire.classList.add("entre");   // Beufa arrive en sautant
+    etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
+    placerCadre();
+    rejouer(elDemoImg, "montre"); rejouer(elDemoTitre, "pop"); rejouer(elDemoConsigne, "pop");
     bip(392, .08, .25); bip(523, .08, .35); bip(659, .12, .45);
+    parler(`${finale ? "Pose finale ! " : ""}Pose ta brosse, et fais comme moi : ${p.consigne}`);
+  }
+
+  function passerEnPhoto() {
+    etapePose = "photo"; elStudio.className = "studio etape-photo"; placerCadre();
+    rejouer(elPartenaire, "entre"); rejouer(elBulle, "pop");
+    bip(784, .1);
   }
 
   function fermerPose() {
-    elCadre.hidden = true; elPause.classList.remove("pause-pose");
-    if (elScene.classList.contains("en-pose")) {
-      elScene.classList.remove("en-pose", "vue-miroir"); elScene.classList.add(vueAvantPose || "vue-miroir");
-    }
-    poseActuelle = null;
+    elStudio.hidden = true; elStudioVideo.srcObject = null; etapePose = ""; poseActuelle = null;
   }
 
   function prendrePhoto() {
     cliche = true;
-    const v = elCamera, vw = v.videoWidth, vh = v.videoHeight;
+    const v = elStudioVideo, vw = v.videoWidth, vh = v.videoHeight;
     if (!vw || !vh) return;
-    // recadrage 3:4 centré, en miroir (comme ce que l'utilisateur voit)
-    let cw = vw, ch = vh;
-    if (vw / vh > 3 / 4) cw = vh * 3 / 4; else ch = vw * 4 / 3;
+    // image entière de la caméra (pas de recadrage), en miroir comme à l'écran
+    const k = Math.min(1, 1280 / Math.max(vw, vh));
     const c = document.createElement("canvas");
-    c.width = Math.round(cw); c.height = Math.round(ch);
+    c.width = Math.round(vw * k); c.height = Math.round(vh * k);
     const x = c.getContext("2d");
     x.translate(c.width, 0); x.scale(-1, 1);
-    x.drawImage(v, (vw - cw) / 2, (vh - ch) / 2, cw, ch, 0, 0, c.width, c.height);
+    x.drawImage(v, 0, 0, c.width, c.height);
     photos.push({ pose: poseActuelle, img: c, bulle: BULLES_MONTAGE[Math.floor(Math.random() * BULLES_MONTAGE.length)] });
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
     elBulle.textContent = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
-    elBulle.classList.add("reaction");
-    elPartenaire.className = "partenaire"; void elPartenaire.offsetWidth; elPartenaire.classList.add("saute");
-    elFlash.classList.remove("go"); void elFlash.offsetWidth; elFlash.classList.add("go");
+    parler("Clic ! " + (Math.random() < .5 ? avecPrenom(elBulle.textContent.replace(/ !$/, ""), " !") : elBulle.textContent));
+    elBulle.classList.add("reaction"); rejouer(elBulle, "pop");
+    elPartenaire.className = "partenaire"; rejouer(elPartenaire, "saute");
+    rejouer(elFlash, "go");
     bip(1200, .05); bip(900, .08, .05); vibrer(60);
   }
 
   /* ---------- montage avec le créateur (ou la mascotte) ---------- */
-  const W = 1080, H = 1440, BANDE = 110;
+  let W = 1080, H = 1440;
+  const BANDE = 110;
 
   function bulleCanvas(x, texte, cx, cy, versCote) {
     x.save();
@@ -427,6 +640,7 @@
   }
 
   function composer({ pose, img, bulle }) {
+    W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
     x.drawImage(img, 0, 0, W, H);
@@ -436,7 +650,7 @@
       const w = h * part.naturalWidth / part.naturalHeight;
       const m = estCreateur ? 0 : W * PART.marge;
       const px = pose.cote === "droite" ? W - w - m : m;
-      const py = H - h - (estCreateur ? 0 : H * PART.bas);
+      const py = H - h - (estCreateur ? 0 : H * PART.bas);  // même place que dans le studio
       x.save();
       x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 10;
       x.drawImage(part, px, py, w, h);
@@ -451,7 +665,7 @@
     x.fillStyle = "rgba(255,255,255,.88)"; x.fillRect(0, H - BANDE, W, BANDE);
     x.fillStyle = "#0b8f9a"; x.textBaseline = "middle";
     x.font = "800 46px ui-rounded, Nunito, system-ui, sans-serif";
-    x.fillText("Brossé avec Beufa ✨", 36, H - BANDE / 2);
+    x.fillText(prenom ? `${prenom} & Beufa ✨` : "Brossé avec Beufa ✨", 36, H - BANDE / 2);
     x.font = "700 34px ui-rounded, Nunito, system-ui, sans-serif"; x.textAlign = "right";
     x.fillText(new Date().toLocaleDateString("fr-FR"), W - 36, H - BANDE / 2);
     return new Promise(r => c.toBlob(b => r(b), "image/jpeg", .9));
@@ -467,20 +681,73 @@
     ecrans.fin.classList.remove("avec-photos"); elVision.hidden = true;
   }
 
+  function ajouterVignette(s, alt, classe = "") {
+    const b = document.createElement("button"); b.type = "button"; b.className = "vignette " + classe;
+    const im = new Image(); im.src = s.url; im.alt = alt;
+    b.appendChild(im); b.addEventListener("click", () => ouvrirVision(s));
+    elGalerie.appendChild(b);
+  }
+
+  // toutes les photos réunies en une planche de bande dessinée
+  async function planche(blobs) {
+    const imgs = [];
+    for (const b of blobs) { try { imgs.push(await createImageBitmap(b)); } catch (e) {} }
+    if (!imgs.length) return null;
+    const PW = 1080, M = 36, G = 26, HAUT = 190, BAS = 110;
+    const cols = imgs.length === 1 ? 1 : 2;
+    const cw = (PW - 2 * M - (cols - 1) * G) / cols, ch = cw * imgs[0].height / imgs[0].width;
+    const lignes = Math.ceil(imgs.length / cols);
+    const PH = Math.round(HAUT + lignes * ch + (lignes - 1) * G + BAS);
+    const c = document.createElement("canvas"); c.width = PW; c.height = PH;
+    const x = c.getContext("2d");
+    // fond jaune à petits points façon BD
+    x.fillStyle = "#ffd166"; x.fillRect(0, 0, PW, PH);
+    x.fillStyle = "rgba(255,122,162,.28)";
+    for (let yy = 0; yy < PH; yy += 22) for (let xx = (yy / 22) % 2 ? 11 : 0; xx < PW; xx += 22) { x.beginPath(); x.arc(xx, yy, 4, 0, 7); x.fill(); }
+    // titre
+    x.textAlign = "center"; x.textBaseline = "middle"; x.lineJoin = "round";
+    const titre = prenom ? `LES AVENTURES DE ${prenom.toUpperCase()} & BEUFA` : "LES AVENTURES DE BEUFA";
+    let taille = 66; x.font = `900 ${taille}px ui-rounded, Nunito, system-ui, sans-serif`;
+    while (x.measureText(titre).width > PW - 2 * M && taille > 30) { taille -= 2; x.font = `900 ${taille}px ui-rounded, Nunito, system-ui, sans-serif`; }
+    x.lineWidth = 14; x.strokeStyle = "#12343b"; x.strokeText(titre, PW / 2, HAUT / 2);
+    x.fillStyle = "#fff"; x.fillText(titre, PW / 2, HAUT / 2);
+    // cases
+    imgs.forEach((im, i) => {
+      const l = Math.floor(i / cols), k = i % cols;
+      const seule = cols === 2 && i === imgs.length - 1 && imgs.length % 2 === 1;
+      const cx = seule ? (PW - cw) / 2 : M + k * (cw + G), cy = HAUT + l * (ch + G);
+      x.save();
+      x.translate(cx + cw / 2, cy + ch / 2); x.rotate((i % 2 ? 1 : -1) * .012 * (1 + l));
+      x.fillStyle = "#12343b"; x.fillRect(-cw / 2 - 8, -ch / 2 - 8, cw + 16, ch + 16);
+      x.drawImage(im, -cw / 2, -ch / 2, cw, ch);
+      // numéro de case
+      x.fillStyle = "#ff5c8a"; x.beginPath(); x.arc(-cw / 2 + 34, -ch / 2 + 34, 26, 0, 7); x.fill();
+      x.lineWidth = 5; x.strokeStyle = "#fff"; x.stroke();
+      x.fillStyle = "#fff"; x.font = "900 32px ui-rounded, Nunito, system-ui, sans-serif"; x.fillText(String(i + 1), -cw / 2 + 34, -ch / 2 + 36);
+      x.restore();
+    });
+    // bas de page
+    x.fillStyle = "#12343b"; x.font = "800 38px ui-rounded, Nunito, system-ui, sans-serif";
+    x.fillText(`Dents brillantes ✨  ·  ${new Date().toLocaleDateString("fr-FR")}`, PW / 2, PH - BAS / 2);
+    return new Promise(r => c.toBlob(b => r(b), "image/jpeg", .9));
+  }
+
   async function afficherMontages() {
     if (!photos.length) return;
     elMontages.hidden = false; ecrans.fin.classList.add("avec-photos");
-    for (const [i, ph] of photos.entries()) {
-      const blob = await composer(ph);
-      if (!blob) continue;
-      const s = { blob, url: URL.createObjectURL(blob), nom: `beufa-dents-${Date.now()}-${i + 1}.jpg` };
-      souvenirs.push(s);
-      const b = document.createElement("button"); b.type = "button"; b.className = "vignette";
-      const im = new Image(); im.src = s.url; im.alt = `Photo souvenir ${i + 1} avec Beufa`;
-      b.appendChild(im); b.addEventListener("click", () => ouvrirVision(s));
-      elGalerie.appendChild(b);
-    }
+    const blobs = [];
+    for (const ph of photos) { const b = await composer(ph); if (b) blobs.push(b); }
     photos = [];   // les canvas bruts ne servent plus
+    const t = Date.now();
+    const bd = await planche(blobs);
+    if (bd) {
+      const s = { blob: bd, url: URL.createObjectURL(bd), nom: `beufa-dents-bd-${t}.jpg` };
+      souvenirs.push(s); ajouterVignette(s, "Ta planche BD avec Beufa", "bd");
+    }
+    blobs.forEach((blob, i) => {
+      const s = { blob, url: URL.createObjectURL(blob), nom: `beufa-dents-${t}-${i + 1}.jpg` };
+      souvenirs.push(s); ajouterVignette(s, `Photo souvenir ${i + 1} avec Beufa`);
+    });
   }
 
   function ouvrirVision(s) {
@@ -503,12 +770,51 @@
   }
 
   function terminer() {
+    if (phase === "brosse" || phase === "pause") { ecoule = duree; majBouche(3, 1, 2); }   // derniers microbes
     cancelAnimationFrame(raf); lacherEcran(); fermerPose(); elPause.hidden = true;
+    pleinEcran(false);
     stopperCamera(); phase = "fin";
-    [523, 659, 784, 1047].forEach((f, i) => bip(f, .2, i * .13));
     vibrer([200, 100, 200, 100, 400]);
+    $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
+    const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
+    montrerCarteGagnee(res);
+    feter(photos.length > 0, res);
     confettis(); montrer("fin");
     afficherMontages();
+  }
+
+  // petite fanfare, Beufa qui danse, les 4 zones validées une à une
+  let danseT = 0;
+  function montrerCarteGagnee(res) {
+    const boite = $("#fin-carte-boite"), bloc = $("#fin-carte");
+    boite.innerHTML = ""; bloc.hidden = !res;
+    $("#fin-mascotte").hidden = !!res;
+    const st = $("#fin-stats"); st.innerHTML = "";
+    if (!res) return;
+    $("#fin-carte-titre").textContent = res.nouvelle ? (carteSession.rare ? "Carte RARE\u00a0!" : "Nouvelle carte\u00a0!") : `Encore elle\u00a0! (×${res.exemplaires})`;
+    const c = JEU.carteEl(carteSession); c.classList.add("retourne"); boite.appendChild(c);
+    [`🦠 ${microbes} microbes vaincus`, `🔥 ${res.serie} jour${res.serie > 1 ? "s" : ""} d'affilée`]
+      .concat(res.deuxFois ? ["☀️🌙 Matin et soir !"] : [])
+      .forEach((t, i) => { const b = document.createElement("span"); b.textContent = t; b.style.animationDelay = (.6 + i * .25) + "s"; st.appendChild(b); });
+  }
+
+  function feter(avecPhotos, res) {
+    const air = [[523, 0], [659, .14], [784, .28], [1047, .42], [784, .62], [1047, .76], [1319, .9]];
+    air.forEach(([f, t]) => bip(f, .18, t));
+    const elZ = $("#fin-zones"); elZ.innerHTML = "";
+    ZONES.forEach((z, i) => {
+      const d = document.createElement("span"); d.textContent = "✓ " + z; d.style.animationDelay = (1.1 + i * .35) + "s";
+      elZ.appendChild(d); bip(880 + i * 110, .1, 1.1 + i * .35);
+    });
+    const carte = res ? ` Tu as vaincu ${microbes} microbes, et tu gagnes la carte ${carteSession.nom}${res.nouvelle ? "" : ", encore elle"} !` : "";
+    const serie = res && res.serie > 1 ? ` ${res.serie} jours d'affilée, continue !` : "";
+    setTimeout(() => parler(avecPrenom("Bravo", " !") + carte + serie + (avecPhotos ? " Et regarde notre bande dessinée !" : "")), 900);
+    const el = $("#fin-mascotte"), danse = ["pouce", "main-levee", "coeur", "mains-hanches"];
+    let k = 0; clearInterval(danseT);
+    danseT = setInterval(() => {
+      if (phase !== "fin") return clearInterval(danseT);
+      el.src = IMG(danse[k++ % danse.length]);
+    }, 650);
   }
 
   function confettis() {
@@ -524,10 +830,49 @@
     }
   }
 
+  /* ---------- suivi (accueil) et album ---------- */
+  function majSuivi() {
+    const j = JEU.lire(), s = JEU.serie(j), auj = j.jours[JEU.cleJour(new Date())] || {};
+    $("#serie").textContent = `🔥 ${s} jour${s > 1 ? "s" : ""}`;
+    $("#serie").classList.toggle("eteinte", s === 0);
+    $("#m-matin").classList.toggle("fait", !!auj.matin);
+    $("#m-soir").classList.toggle("fait", !!auj.soir);
+    const n = JEU.CARTES.filter(c => j.cartes[c.id]).length;
+    $("#album-compte").textContent = `${n}/${JEU.CARTES.length}`;
+  }
+  function ouvrirAlbum() {
+    const j = JEU.lire();
+    $("#album-stats").innerHTML = "";
+    [`🪥 ${j.brossages} brossage${j.brossages > 1 ? "s" : ""}`, `🦠 ${j.microbes} microbes`, `🔥 record ${j.record} j`]
+      .forEach(t => { const b = document.createElement("span"); b.textContent = t; $("#album-stats").appendChild(b); });
+    const cal = $("#calendrier"); cal.innerHTML = "";
+    const jours = ["D", "L", "M", "M", "J", "V", "S"];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const e = j.jours[JEU.cleJour(d)] || {};
+      const c = document.createElement("div"); c.className = "jour" + (i === 0 ? " auj" : "");
+      c.innerHTML = `<small>${jours[d.getDay()]}</small><i class="${e.matin ? "ok" : ""}">☀️</i><i class="${e.soir ? "ok" : ""}">🌙</i>`;
+      c.title = d.toLocaleDateString("fr-FR");
+      cal.appendChild(c);
+    }
+    const g = $("#album-grille"); g.innerHTML = "";
+    JEU.CARTES.forEach(c => {
+      const n = j.cartes[c.id] || 0;
+      const k = JEU.carteEl(c, { cachee: !n, compte: n });
+      if (!n && c.rare) k.querySelector(".carte-nom").textContent = "7 jours d'affilée";
+      g.appendChild(k);
+    });
+    montrer("album"); ecrans.album.scrollTop = 0;
+  }
+  $("#btn-album").addEventListener("click", ouvrirAlbum);
+  $("#btn-album-retour").addEventListener("click", () => { majSuivi(); montrer("accueil"); });
+  majSuivi();
+
   $("#btn-demarrer").addEventListener("click", demarrer);
   $("#btn-arreter").addEventListener("click", arreter);
-  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); montrer("accueil"); });
+  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); majSuivi(); montrer("accueil"); });
   document.addEventListener("visibilitychange", () => {
+    if (document.hidden) taire();
     if (!document.hidden && (phase === "brosse" || phase === "pause")) garderEcran();
   });
 
