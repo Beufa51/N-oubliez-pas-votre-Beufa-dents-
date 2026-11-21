@@ -1,0 +1,131 @@
+:root {
+  --fond-1: #e6fbfd;
+  --fond-2: #b9eef3;
+  --turquoise: #14b8c4;
+  --turquoise-fonce: #0b8f9a;
+  --encre: #12343b;
+  --rose: #ff7aa2;
+  --blanc: #ffffff;
+  --dent-off: #cfeff2;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: ui-rounded, "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--encre);
+  background: linear-gradient(180deg, var(--fond-1), var(--fond-2));
+  background-attachment: fixed;
+  overflow: hidden;
+  user-select: none;
+}
+#app { height: 100dvh; position: relative; max-width: 520px; margin: 0 auto; }
+.ecran {
+  position: absolute; inset: 0; display: none; flex-direction: column; align-items: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+.ecran.actif { display: flex; }
+
+.titre { text-align: center; font-size: clamp(1.4rem, 6.5vw, 2rem); line-height: 1.15; margin: 8px 0 0; font-weight: 800; }
+.titre span { color: var(--turquoise-fonce); display: block; font-size: 1.25em; }
+
+.mascotte-accueil {
+  height: min(38dvh, 340px); width: auto; margin: 6px 0; flex: 0 0 auto;
+  filter: drop-shadow(0 8px 10px rgba(11, 143, 154, .25));
+  animation: flotte 3s ease-in-out infinite;
+}
+@keyframes flotte { 50% { transform: translateY(-6px) rotate(1.5deg); } }
+
+.carte {
+  width: 100%; background: rgba(255, 255, 255, .8); border-radius: 24px; padding: 14px 16px 18px;
+  box-shadow: 0 10px 30px rgba(11, 143, 154, .18);
+}
+.carte h2 { margin: 6px 0 8px; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--turquoise-fonce); }
+.choix { display: flex; gap: 10px; margin-bottom: 10px; }
+.option {
+  flex: 1; border: 3px solid transparent; border-radius: 16px; padding: 10px 6px; background: var(--blanc);
+  font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+}
+.option strong { font-size: 1.05rem; }
+.option small { font-size: .72rem; opacity: .7; }
+.option.actif { border-color: var(--turquoise); background: #e3fafc; }
+.option:disabled { opacity: .45; cursor: not-allowed; }
+
+.gros-bouton {
+  width: 100%; margin-top: 8px; border: 0; border-radius: 999px; padding: 16px; font: inherit; font-size: 1.25rem; font-weight: 800;
+  color: #fff; background: linear-gradient(180deg, #2fd0dc, var(--turquoise)); box-shadow: 0 6px 0 var(--turquoise-fonce);
+  cursor: pointer;
+}
+.gros-bouton:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--turquoise-fonce); }
+
+/* ----- brossage ----- */
+.entete { width: 100%; display: flex; align-items: center; gap: 14px; }
+.minuteur { position: relative; width: 104px; height: 104px; flex: 0 0 auto; }
+.minuteur svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.anneau-fond { fill: rgba(255, 255, 255, .7); stroke: var(--dent-off); stroke-width: 10; }
+.anneau { fill: none; stroke: var(--turquoise); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 326.7; stroke-dashoffset: 0; }
+.temps { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.7rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.consigne { flex: 1; min-width: 0; }
+.zone-nom { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
+.face-nom { margin-top: 4px; font-size: 1.05rem; color: var(--turquoise-fonce); font-weight: 700; }
+.points { display: flex; gap: 6px; margin-top: 8px; }
+.points i { width: 12px; height: 12px; border-radius: 50%; background: var(--dent-off); transition: background .2s; }
+.points i.on { background: var(--rose); }
+
+.scene { position: relative; flex: 1; width: 100%; min-height: 0; display: flex; justify-content: center; align-items: flex-start; }
+#bouche { width: 100%; max-height: 100%; height: auto; position: relative; z-index: 1; overflow: visible; }
+#bouche .carte-bouche { fill: rgba(255, 255, 255, .7); }
+#bouche .dent rect { fill: #fff; stroke: #1f6f9f; stroke-width: 2.6; transition: fill .25s; }
+#bouche .dent rect.actif { fill: #ff7aa2; animation: clignote .7s ease-in-out infinite alternate; }
+#bouche .dent rect.fait { fill: #a6ecf2; }
+#bouche .dent rect.motif { fill: none; stroke-width: 1.8; opacity: .55; }
+@keyframes clignote { to { fill: #ffb0c8; } }
+#bouche .br-corps { fill: #1f6f9f; }
+#bouche .br-poil { fill: #fff; stroke: #1f6f9f; stroke-width: 1.2; }
+.bouche-txt { font-size: 10px; font-weight: 700; fill: var(--turquoise-fonce); opacity: .55; }
+
+/* caméra miroir : grande vue + petite vue, un appui sur la petite les échange */
+#camera { display: none; object-fit: cover; transform: scaleX(-1); background: #0b3a40; border-radius: 24px; }
+.scene.avec-camera #camera { display: block; position: absolute; z-index: 0; }
+.scene.avec-camera.vue-miroir #camera { inset: 0 0 0 0; width: 100%; height: 100%; }
+.scene.avec-camera.vue-miroir #bouche { position: absolute; top: 8px; left: 8px; width: 38%; z-index: 2; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.25); border-radius: 18px; }
+.scene.avec-camera.vue-schema #camera { top: 8px; left: 8px; width: 30%; height: 28%; z-index: 2; cursor: pointer; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+.toast { position: absolute; top: 8px; left: 8px; right: 8px; z-index: 4; background: #fff; border-radius: 14px; padding: 8px 12px; font-weight: 700; font-size: .85rem; text-align: center; box-shadow: 0 4px 12px rgba(11,143,154,.25); }
+.toast[hidden] { display: none; }
+
+.mascotte {
+  position: absolute; right: -4px; bottom: 0; z-index: 3; height: min(27dvh, 240px); width: auto;
+  filter: drop-shadow(0 6px 8px rgba(11, 143, 154, .25));
+  transform-origin: 50% 100%; animation: vibre .18s linear infinite;
+}
+@keyframes vibre { 0% { transform: translateX(-1.5px) rotate(-.6deg); } 50% { transform: translateX(1.5px) rotate(.6deg); } 100% { transform: translateX(-1.5px) rotate(-.6deg); } }
+.astuce {
+  position: absolute; left: 0; bottom: 18px; z-index: 3; width: calc(100% - 110px); background: #fff; border-radius: 18px;
+  padding: 10px 14px; font-weight: 700; font-size: .95rem; box-shadow: 0 4px 12px rgba(11, 143, 154, .2);
+}
+.astuce::after { content: ""; position: absolute; right: -9px; bottom: 16px; border: 9px solid transparent; border-left-color: #fff; border-right: 0; }
+
+.lien { margin-top: 6px; background: none; border: 0; font: inherit; color: var(--turquoise-fonce); text-decoration: underline; padding: 8px; cursor: pointer; }
+
+/* pause */
+.pause { position: absolute; inset: 0; background: rgba(230, 251, 253, .98); display: grid; place-items: center; z-index: 5; }
+.pause[hidden] { display: none; }
+.pause-boite { text-align: center; padding: 16px; }
+.pause-titre { font-size: 2.4rem; font-weight: 900; color: var(--turquoise-fonce); }
+.pause-compte { font-size: 5rem; font-weight: 900; line-height: 1; color: var(--rose); animation: rebond 1s ease-out infinite; }
+@keyframes rebond { 0% { transform: scale(1.3); } 100% { transform: scale(1); } }
+.pause-suite { margin-top: 10px; font-size: 1.1rem; font-weight: 700; }
+.pause-img { height: 36dvh; width: auto; display: block; margin: 8px auto; animation: flotte 1.4s ease-in-out infinite; filter: drop-shadow(0 8px 10px rgba(11, 143, 154, .3)); }
+
+/* fin */
+#ecran-fin { justify-content: center; text-align: center; }
+.fin-texte { font-size: 1.15rem; font-weight: 700; margin: 4px 0 14px; }
+#ecran-fin .gros-bouton { max-width: 340px; }
+.confettis { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confettis i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 3px; animation: tombe linear forwards; }
+@keyframes tombe { to { transform: translateY(110dvh) rotate(720deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte { animation: none; }
+}
