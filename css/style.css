@@ -266,13 +266,6 @@ body {
 }
 
 /* ----- prénom, Beufa vivant, défis ----- */
-.prenom { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; }
-.prenom span { font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--turquoise-fonce); font-weight: 800; white-space: nowrap; }
-.prenom input {
-  flex: 1; min-width: 0; border: 3px solid transparent; border-radius: 14px; padding: 9px 12px; font: inherit; font-weight: 700;
-  font-size: 1rem; color: var(--encre); background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.08);
-}
-.prenom input:focus { outline: none; border-color: var(--turquoise); }
 .mascotte { height: min(30dvh, 270px); }
 .mascotte.saute { animation: saute-m .6s ease-out; }
 @keyframes saute-m { 0% { transform: none; } 35% { transform: translateY(-18%) rotate(-6deg) scale(1.08); } 100% { transform: none; } }
@@ -292,7 +285,10 @@ body {
 .vignette.bd img { aspect-ratio: auto; }
 
 /* ----- accueil : suivi ----- */
-#ecran-accueil .mascotte-accueil { height: min(27dvh, 250px); }
+#ecran-accueil .mascotte-accueil { height: min(20dvh, 190px); margin: 2px 0; }
+#ecran-accueil .titre { margin-top: 2px; }
+#ecran-accueil .carte h2 { margin: 4px 0 6px; }
+#ecran-accueil .choix { margin-bottom: 6px; }
 .suivi { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 2px 0 10px; }
 .serie, .moments i, .btn-album {
   display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 7px 11px; font-weight: 800; font-size: .85rem;
@@ -439,6 +435,44 @@ body {
 .rev-points i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.6); }
 .rev-points i.on { background: #ff5c8a; }
 .revelation .gros-bouton { max-width: 340px; }
+
+/* ----- utilisateurs ----- */
+.profils { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; margin-bottom: 4px; scrollbar-width: none; }
+.profils::-webkit-scrollbar { display: none; }
+.profil {
+  position: relative; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 72px;
+  border: 3px solid transparent; border-radius: 16px; padding: 8px 8px 6px; background: #fff; font: inherit; color: inherit;
+  cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.profil.actif { border-color: var(--turquoise); background: #e3fafc; }
+.profil .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 1.2rem; }
+.profil.ajouter .avatar { background: #dff3f5; color: var(--turquoise-fonce); border: 2px dashed #9fd7dd; }
+.profil-nom { font-weight: 800; font-size: .9rem; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profil small { font-size: .7rem; opacity: .65; }
+.profil-edit { position: absolute; top: 2px; right: 4px; font-size: .75rem; }
+
+.fiche { position: fixed; inset: 0; z-index: 40; background: rgba(18,52,59,.55); display: grid; place-items: center; padding: 16px; }
+.fiche[hidden] { display: none; }
+.fiche-boite {
+  width: 100%; max-width: 380px; background: #fff; border-radius: 24px; padding: 18px 18px 12px; box-shadow: 0 16px 40px rgba(0,0,0,.3);
+  animation: pop .4s cubic-bezier(.3,1.5,.5,1) both;
+}
+.fiche-boite h2 { margin: 0 0 12px; text-align: center; font-size: 1.3rem; font-weight: 900; color: #e0457a; }
+.fiche-champ { display: block; margin-bottom: 12px; }
+.fiche-champ > span { display: block; margin-bottom: 4px; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--turquoise-fonce); font-weight: 800; }
+.fiche-champ input {
+  width: 100%; border: 3px solid #dff3f5; border-radius: 14px; padding: 10px 12px; font: inherit; font-weight: 800; font-size: 1.1rem; color: var(--encre);
+}
+.fiche-champ input:focus { outline: none; border-color: var(--turquoise); }
+.age { display: flex; gap: 8px; align-items: center; }
+.age input { text-align: center; -moz-appearance: textfield; }
+.age input::-webkit-inner-spin-button, .age input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.age button { flex: 0 0 48px; height: 48px; border: 0; border-radius: 50%; background: #e3fafc; color: var(--turquoise-fonce); font-size: 1.5rem; font-weight: 900; cursor: pointer; }
+.fiche-ton { margin: 0 0 8px; min-height: 1.2em; font-weight: 700; font-size: .9rem; text-align: center; }
+.fiche-erreur { margin: 0 0 8px; color: #d62828; font-weight: 800; text-align: center; }
+.fiche-liens { display: flex; justify-content: space-between; margin-top: 4px; }
+.lien.danger { color: #d62828; }
+.lien[hidden] { display: none; }
 
 /* ----- fin : galerie des montages ----- */
 #ecran-fin.avec-photos { justify-content: flex-start; }

@@ -32,17 +32,61 @@
   ];
   const IMG = p => `assets/mascotte/png/pose-${p}.png`;
 
-  /* ---------- journal ---------- */
-  const CLE = "beufa-journal";
+  /* ---------- profils : plusieurs personnes sur le même téléphone ----------
+     { actif: id, liste: [{ id, prenom, age }] } ; chaque profil a son propre journal. */
+  const CLE_PROFILS = "beufa-profils";
+  const lireBrut = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  const ecrireBrut = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+  function profils() {
+    let p = lireBrut(CLE_PROFILS);
+    if (!p || !Array.isArray(p.liste)) {
+      p = { actif: null, liste: [] };
+      // reprise de l'ancienne version (un seul prénom, un seul journal)
+      const ancienPrenom = lireBrut("beufa-prenom"), ancienJournal = lireBrut("beufa-journal");
+      if (ancienPrenom || ancienJournal) {
+        const id = "p" + Date.now().toString(36);
+        p.liste.push({ id, prenom: String(ancienPrenom || "Moi").slice(0, 16), age: null });
+        p.actif = id;
+        if (ancienJournal) ecrireBrut("beufa-journal-" + id, ancienJournal);
+        try { localStorage.removeItem("beufa-journal"); localStorage.removeItem("beufa-prenom"); } catch (e) {}
+      }
+      ecrireBrut(CLE_PROFILS, p);
+    }
+    if (!p.liste.some(x => x.id === p.actif)) p.actif = p.liste[0] ? p.liste[0].id : null;
+    return p;
+  }
+  const profilActif = () => { const p = profils(); return p.liste.find(x => x.id === p.actif) || null; };
+  function choisirProfil(id) { const p = profils(); if (p.liste.some(x => x.id === id)) { p.actif = id; ecrireBrut(CLE_PROFILS, p); } }
+  function enregistrerProfil({ id, prenom, age }) {
+    const p = profils();
+    let x = id && p.liste.find(y => y.id === id);
+    if (!x) { x = { id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) }; p.liste.push(x); }
+    x.prenom = String(prenom || "").trim().slice(0, 16) || "Moi";
+    x.age = Number.isFinite(age) ? age : null;
+    p.actif = x.id; ecrireBrut(CLE_PROFILS, p);
+    return x;
+  }
+  function supprimerProfil(id) {
+    const p = profils();
+    p.liste = p.liste.filter(x => x.id !== id);
+    if (p.actif === id) p.actif = p.liste[0] ? p.liste[0].id : null;
+    ecrireBrut(CLE_PROFILS, p);
+    try { localStorage.removeItem("beufa-journal-" + id); } catch (e) {}
+  }
+  // au-dessus de 16 ans, Beufa change de ton
+  const estAdulte = (x = profilActif()) => !!x && x.age > 16;
+
+  /* ---------- journal (celui du profil actif) ---------- */
+  const cle = () => "beufa-journal-" + ((profilActif() || {}).id || "invite");
   function lire() {
-    let j = null;
-    try { j = JSON.parse(localStorage.getItem(CLE)); } catch (e) {}
+    let j = lireBrut(cle());
     j = j && typeof j === "object" ? j : {};
     j.jours = j.jours || {}; j.cartes = j.cartes || {};
     j.microbes = j.microbes || 0; j.brossages = j.brossages || 0; j.record = j.record || 0;
     return j;
   }
-  function ecrire(j) { try { localStorage.setItem(CLE, JSON.stringify(j)); } catch (e) {} }
+  function ecrire(j) { ecrireBrut(cle(), j); }
 
   const cleJour = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const veille = d => { const x = new Date(d); x.setDate(x.getDate() - 1); return x; };
@@ -102,5 +146,8 @@
     return d;
   }
 
-  window.BeufaJeu = { CARTES, lire, serie, serieApres, choisirCarte, enregistrer, carteEl, cleJour, moment };
+  window.BeufaJeu = {
+    CARTES, lire, serie, serieApres, choisirCarte, enregistrer, carteEl, cleJour, moment,
+    profils, profilActif, choisirProfil, enregistrerProfil, supprimerProfil, estAdulte
+  };
 })();

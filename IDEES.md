@@ -133,6 +133,11 @@ Pas de publication sur le Play Store.
   - Après le brossage : écran **« Surprise ! »** pour chaque photo : la photo de l'utilisateur, roulement de tambour, puis la photo du créateur glisse et vient la compléter. Ensuite seulement : carte gagnée, planche BD.
   - Tant que les photos du créateur ne sont pas déposées dans `assets/createur/`, c'est Beufa qui arrive à leur place.
   - L'utilisateur peut être un **adulte** (le premier en sera un).
+- [x] **Utilisateurs** (session 7) : on choisit « Qui se brosse les dents ? » sur l'accueil (prénom + âge, bouton « Ajouter »,
+  ✏️ pour modifier ou supprimer). Chaque utilisateur a **son album, sa série et son calendrier**.
+  - **Au-dessus de 16 ans, ton adulte** : défis plus « pub de dentifrice / yoga / agent secret » que « gros yeux / robot »,
+    encouragements sobres (« Impeccable. », « Ton dentiste serait fier. »), « bactéries éliminées » au lieu de « microbes vaincus ».
+  - L'âge est demandé avant le premier brossage. Reprise automatique du prénom et de l'album de la version précédente.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
