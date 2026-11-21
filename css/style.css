@@ -75,12 +75,15 @@ body {
 
 .scene { position: relative; flex: 1; width: 100%; min-height: 0; display: flex; justify-content: center; align-items: flex-start; }
 #bouche { width: 100%; max-height: 100%; height: auto; position: relative; z-index: 1; overflow: visible; }
-#bouche .halo { fill: none; stroke: #fff; stroke-width: 50; stroke-linecap: round; opacity: 0; transition: opacity .25s; }
-#bouche .halo.actif { opacity: .5; animation: halo .8s ease-in-out infinite alternate; }
-@keyframes halo { to { opacity: .85; } }
-#bouche .dent rect { fill: #fff; stroke: #bcd9e2; stroke-width: 1.5; }
-#bouche .plaque circle { fill: #ead96f; opacity: .9; }
-#bouche .eclat { fill: #fff; stroke: #4fd2dd; stroke-width: .8; }
+#bouche .carte-bouche { fill: rgba(255, 255, 255, .7); }
+#bouche .dent rect { fill: #fff; stroke: #1f6f9f; stroke-width: 2.6; transition: fill .25s; }
+#bouche .dent rect.actif { fill: #ff7aa2; animation: clignote .7s ease-in-out infinite alternate; }
+#bouche .dent rect.fait { fill: #a6ecf2; }
+#bouche .dent rect.motif { fill: none; stroke-width: 1.8; opacity: .55; }
+@keyframes clignote { to { fill: #ffb0c8; } }
+#bouche .br-corps { fill: #1f6f9f; }
+#bouche .br-poil { fill: #fff; stroke: #1f6f9f; stroke-width: 1.2; }
+.bouche-txt { font-size: 10px; font-weight: 700; fill: var(--turquoise-fonce); opacity: .55; }
 
 .mascotte {
   position: absolute; right: -4px; bottom: 0; z-index: 3; height: min(27dvh, 240px); width: auto;
@@ -115,5 +118,5 @@ body {
 @keyframes tombe { to { transform: translateY(110dvh) rotate(720deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .halo.actif, .pause-compte { animation: none; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte { animation: none; }
 }

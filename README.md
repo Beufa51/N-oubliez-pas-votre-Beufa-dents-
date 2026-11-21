@@ -4,7 +4,7 @@ Appli web (PWA) de brossage de dents ludique, avec une mascotte brosse à dents 
 Voir `IDEES.md` pour le carnet d'idées et la feuille de route.
 
 ## État
-- ✅ Mode **Classique** : choix 1 ou 2 min, vue de bouche ouverte (plaque qui disparaît, brosse qui balaie la zone), 4 zones, 3 faces par zone, pause de 3 s toutes les 30 s, mascotte, astuces, sons/vibrations, écran allumé.
+- ✅ Mode **Classique** : choix 1 ou 2 min, schéma des dents épuré (rose = à brosser, turquoise = propre, brosse qui balaie la zone), 4 zones, 3 faces par zone, pause de 3 s toutes les 30 s, mascotte, astuces, sons/vibrations, écran allumé.
 - ⏳ Mode **Beufa dents** (poses + photos + montage) : à venir.
 
 ## Lancer en local
