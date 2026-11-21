@@ -89,3 +89,10 @@ Pas de publication sur le Play Store.
 3. Avatars Gemini intégrés.
 4. Mode Beufa dents : poses de la mascotte, capture photo, montage avec les photos du créateur.
 5. Suivi de la bouche (MediaPipe) et effets ludiques.
+
+## Avancement
+- [x] Mascotte : 7 poses générées avec Gemini, détourées (`assets/mascotte/png/`).
+- [x] Étape 1 : mode Classique (minuteur 1/2 min, zones, pauses 3 s, mascotte).
+- [ ] Étape 2 : caméra frontale en miroir.
+- [ ] Étape 3 : mode Beufa dents (poses, photos, montage avec le créateur).
+- Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).
