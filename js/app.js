@@ -21,8 +21,13 @@
      Chaque pose = image de la mascotte (le geste à faire) + photo détourée du créateur
      (facultative : assets/createur/<id>.png, sinon la mascotte prend sa place)
      + côté où se tient le partenaire (l'utilisateur se place de l'autre côté). */
-  const POSE_COMPTE = 3;          // 3-2-1 avant la photo
-  const POSE_DUREE = 4;           // durée totale de la pause photo (s)
+  const POSE_PREP = 2.5;          // la mascotte arrive et montre la pose (s)
+  const POSE_COMPTE = 3;          // 3-2-1 avant la photo (s)
+  const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
+  const POSE_CLIC = POSE_PREP + POSE_COMPTE;
+  const POSE_DUREE = POSE_CLIC + POSE_APRES;
+  const REACTIONS = ["Trop bien !", "Magnifique !", "Quelle star !", "Top photo !", "On est trop beaux !"];
+  const BULLES_MONTAGE = ["Dents de star !", "Équipe Beufa !", "On brille !", "Trop stylé !", "Sourire XXL !"];
   const POSES_BEUFA = [
     { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !" },
     { id: "pouce",         mascotte: "pouce",           cote: "gauche", consigne: "Pouce en l'air !" },
@@ -33,7 +38,7 @@
     { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en super-héros !" }
   ];
   // proportions communes au cadre-guide (CSS) et au montage (canvas)
-  const PART = { mascotteH: .6, createurH: .9, bas: .046, marge: .02 };
+  const PART = { mascotteH: .68, createurH: .9, bas: .046, marge: .02 };
   POSES_BEUFA.forEach(p => {
     p.imgMascotte = new Image(); p.imgMascotte.src = IMG(p.mascotte);
     const c = new Image();
@@ -257,7 +262,7 @@
       } else if (prochainePause < duree && ecoule >= prochainePause) commencerPause();
     } else if (phase === "pause") {
       tPause += dt;
-      if (poseActuelle && !cliche && tPause >= POSE_COMPTE) prendrePhoto();
+      if (poseActuelle && !cliche && tPause >= POSE_CLIC) prendrePhoto();
       if (tPause >= (poseActuelle ? POSE_DUREE : PAUSE_DUREE)) {
         if (finale) return terminer();
         finirPause();
@@ -280,7 +285,11 @@
     elZone.textContent = ZONES[z];
     elFace.textContent = FACES[p];
     elPoints.forEach((d, i) => d.classList.toggle("on", i <= p));
-    elAstuce.textContent = ASTUCES[p];
+    // en mode Beufa dents, on prévient avant chaque photo
+    const avantPhoto = avecPhotos() && phase === "brosse" &&
+      ((prochainePause < duree && prochainePause - ecoule < 5) || (!finale && duree - ecoule < 5));
+    elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : ASTUCES[p];
+    elAstuce.classList.toggle("alerte", avantPhoto);
     majBouche(z, Math.max(0, Math.min(1, (ecoule - z * dureeZone) / dureeZone)), p);
 
     if (z !== derniereZone) {
@@ -293,9 +302,14 @@
     }
     if (phase === "pause") {
       if (poseActuelle) {
-        const n = Math.ceil(POSE_COMPTE - tPause);
-        elPauseCompte.textContent = n > 0 ? String(n) : "Clic !";
-        if (n !== dernierCompte) { dernierCompte = n; if (n > 0) bip(600, .08); }
+        const enPrep = tPause < POSE_PREP;
+        const n = enPrep ? 99 : Math.ceil(POSE_CLIC - tPause);
+        elPauseCompte.textContent = enPrep ? "Prêt ?" : n > 0 ? String(n) : "Clic !";
+        elPauseCompte.classList.toggle("texte", enPrep || n <= 0);
+        if (n !== dernierCompte) {
+          dernierCompte = n;
+          if (n > 0 && n < 99) { bip(600, .08); elPartenaire.className = "partenaire danse"; }
+        }
       } else {
         elPauseCompte.textContent = String(Math.max(1, Math.ceil(PAUSE_DUREE - tPause)));
       }
@@ -312,8 +326,9 @@
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
       img.src = IMG(poseActuelle.mascotte);
-      elPauseTitre.textContent = finale ? "Pose finale !" : "Pose photo !";
+      elPauseTitre.textContent = finale ? "Pose finale !" : "Imite Beufa !";
       elPauseSuite.textContent = poseActuelle.consigne;
+      elBulle.textContent = poseActuelle.consigne;
       ouvrirPose(poseActuelle);
     } else {
       img.src = IMG(POSES_PAUSE[poseIdx++ % POSES_PAUSE.length]);
@@ -331,7 +346,8 @@
   }
 
   /* ---------- pose photo : cadre-guide, capture ---------- */
-  const elPauseTitre = $("#pause-titre"), elCadre = $("#cadre"), elFantome = $("#fantome"), elFlash = $("#flash");
+  const elPauseTitre = $("#pause-titre"), elCadre = $("#cadre"), elPartenaire = $("#partenaire"), elFlash = $("#flash");
+  const elBulle = $("#bulle"), elApercu = $("#apercu");
   let vueAvantPose = "";
 
   function ouvrirPose(p) {
@@ -340,11 +356,15 @@
     elScene.classList.remove("vue-schema"); elScene.classList.add("vue-miroir", "en-pose");
     elPause.classList.add("pause-pose");
     const partenaire = p.createur || p.imgMascotte;
-    elFantome.src = partenaire.src;
-    elFantome.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
-    elFantome.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
+    elPartenaire.src = partenaire.src;
+    elPartenaire.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
+    elPartenaire.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
+    elPartenaire.className = "partenaire";
+    elApercu.hidden = true; elBulle.classList.remove("reaction");
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
     elCadre.hidden = false;
+    void elPartenaire.offsetWidth; elPartenaire.classList.add("entre");   // Beufa arrive en sautant
+    bip(392, .08, .25); bip(523, .08, .35); bip(659, .12, .45);
   }
 
   function fermerPose() {
@@ -367,7 +387,12 @@
     const x = c.getContext("2d");
     x.translate(c.width, 0); x.scale(-1, 1);
     x.drawImage(v, (vw - cw) / 2, (vh - ch) / 2, cw, ch, 0, 0, c.width, c.height);
-    photos.push({ pose: poseActuelle, img: c });
+    photos.push({ pose: poseActuelle, img: c, bulle: BULLES_MONTAGE[Math.floor(Math.random() * BULLES_MONTAGE.length)] });
+    // aperçu façon polaroïd + réaction de Beufa
+    elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
+    elBulle.textContent = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
+    elBulle.classList.add("reaction");
+    elPartenaire.className = "partenaire"; void elPartenaire.offsetWidth; elPartenaire.classList.add("saute");
     elFlash.classList.remove("go"); void elFlash.offsetWidth; elFlash.classList.add("go");
     bip(1200, .05); bip(900, .08, .05); vibrer(60);
   }
@@ -375,7 +400,33 @@
   /* ---------- montage avec le créateur (ou la mascotte) ---------- */
   const W = 1080, H = 1440, BANDE = 110;
 
-  function composer({ pose, img }) {
+  function bulleCanvas(x, texte, cx, cy, versCote) {
+    x.save();
+    x.font = "900 50px ui-rounded, Nunito, system-ui, sans-serif";
+    const tw = x.measureText(texte).width, bw = tw + 64, bh = 96;
+    const bx = Math.max(16, Math.min(W - bw - 16, cx - bw / 2)), by = cy - bh / 2;
+    x.shadowColor = "rgba(0,0,0,.25)"; x.shadowBlur = 18; x.shadowOffsetY = 6;
+    x.fillStyle = "#fff";
+    x.beginPath(); x.roundRect(bx, by, bw, bh, 48); x.fill();
+    // petite queue vers la mascotte
+    const qx = Math.max(bx + 50, Math.min(bx + bw - 50, cx + versCote * 60));
+    x.beginPath(); x.moveTo(qx - 22, by + bh - 4); x.lineTo(qx + 22, by + bh - 4); x.lineTo(qx + versCote * 30, by + bh + 34); x.fill();
+    x.shadowColor = "transparent";
+    x.fillStyle = "#ff5c8a"; x.textAlign = "center"; x.textBaseline = "middle";
+    x.fillText(texte, bx + bw / 2, by + bh / 2 + 2);
+    x.restore();
+  }
+
+  function etoile(x, cx, cy, r, coul) {
+    x.save(); x.fillStyle = coul; x.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4, rr = i % 2 ? r * .38 : r;
+      x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr);
+    }
+    x.closePath(); x.fill(); x.restore();
+  }
+
+  function composer({ pose, img, bulle }) {
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
     x.drawImage(img, 0, 0, W, H);
@@ -390,6 +441,11 @@
       x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 10;
       x.drawImage(part, px, py, w, h);
       x.restore();
+      // étincelles autour de Beufa + bulle
+      const cx = px + w / 2;
+      [[-.55, .1, 26, "#ffd166"], [.5, .02, 20, "#fff"], [-.35, .35, 16, "#8fe3ea"], [.55, .4, 24, "#ff7aa2"]]
+        .forEach(([dx, dy, r, c]) => etoile(x, cx + dx * w, py + dy * h, r, c));
+      if (bulle) bulleCanvas(x, bulle, pose.cote === "droite" ? W * .66 : W * .34, Math.max(70, py - 70), pose.cote === "droite" ? 1 : -1);
     }
     // bandeau souvenir
     x.fillStyle = "rgba(255,255,255,.88)"; x.fillRect(0, H - BANDE, W, BANDE);

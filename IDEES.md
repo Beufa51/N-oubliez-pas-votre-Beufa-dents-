@@ -100,6 +100,10 @@ Pas de publication sur le Play Store.
   - Pause photo de 4 s : carte en haut (mascotte + consigne), caméra en grand au format 3:4, cadre-guide « Ta tête ici » + partenaire en transparence, 3-2-1, flash, « Clic ! ».
   - Montage 1080×1440 sur le téléphone : photo miroir + partenaire au bord (photo du créateur si présente dans `assets/createur/`, sinon la mascotte) + bandeau « Brossé avec Beufa » et date.
   - Écran de fin : galerie, agrandissement, Enregistrer / Partager. Rien n'est envoyé sur un serveur.
+  - Retour du test (session 4) : mascotte peu visible, pas assez ludique, pas le temps de prendre la pose. Corrigé :
+    alerte rose 5 s avant chaque photo, pause photo de 7,3 s (2,5 s pour voir la pose + 3-2-1 + 1,8 s d'aperçu),
+    Beufa en grand et opaque qui arrive en sautant, danse pendant le compte, saute au clic, bulle avec la consigne
+    puis une réaction (« Quelle star ! »), aperçu façon polaroïd ; sur le montage, Beufa plus grand avec étoiles et bulle.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
 - [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).
