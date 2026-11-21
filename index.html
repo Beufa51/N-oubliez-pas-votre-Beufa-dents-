@@ -15,6 +15,7 @@
 
   <!-- ACCUEIL -->
   <section id="ecran-accueil" class="ecran actif">
+    <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     <h1 class="titre">N'oubliez pas votre <span>Beufa dents</span></h1>
     <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
 
@@ -60,6 +61,7 @@
         <div id="face-nom" class="face-nom">Face extérieure</div>
         <div class="points" id="points"><i></i><i></i><i></i></div>
       </div>
+      <button class="btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     </header>
 
     <div class="scene" id="scene">
@@ -80,8 +82,30 @@
       </div>
     </div>
 
+    <!-- mode Beufa dents : installation avant de commencer -->
+    <div id="prepa" class="studio prepa" hidden>
+      <video id="prepa-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <div id="prepa-cadre" class="cadre" aria-hidden="true">
+        <div class="cadre-tete"><span>Ta tête ici</span></div>
+      </div>
+      <button class="btn-rond btn-fermer-studio" type="button" aria-label="Revenir à l'accueil">✕</button>
+      <button class="btn-rond btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
+      <div class="prepa-carte">
+        <h2>Installe-toi&nbsp;!</h2>
+        <ul>
+          <li><b>📱</b><span>Pose ton téléphone <strong>debout</strong> devant toi</span></li>
+          <li><b>🙋</b><span>Recule : on doit voir <strong>ta tête et tes deux mains</strong></span></li>
+          <li><b>🪥</b><span>Pendant les photos, tu poseras ta brosse</span></li>
+        </ul>
+      </div>
+      <img class="prepa-mascotte" src="assets/mascotte/png/pose-pointe-du-doigt.png" alt="">
+      <button id="btn-pret" class="gros-bouton prepa-bouton" type="button">Je suis prêt&nbsp;!</button>
+    </div>
+
     <!-- mode Beufa dents : studio photo plein écran -->
     <div id="studio" class="studio" hidden>
+      <button class="btn-rond btn-fermer-studio" type="button" aria-label="Arrêter le brossage">✕</button>
+      <button class="btn-rond btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
       <video id="studio-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
       <div id="cadre" class="cadre" aria-hidden="true">
         <div class="cadre-tete"><span>Ta tête ici</span></div>
@@ -92,6 +116,7 @@
       <div id="studio-haut" class="studio-haut"></div>
       <div id="studio-compte" class="studio-compte"></div>
       <div class="studio-demo">
+        <div class="demo-brosse">✋ Pose ta brosse</div>
         <div id="demo-titre" class="demo-titre">Fais comme moi&nbsp;!</div>
         <img id="demo-img" class="demo-img" alt="Beufa montre la pose">
         <div id="demo-consigne" class="demo-consigne"></div>

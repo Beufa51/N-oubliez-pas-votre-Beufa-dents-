@@ -228,6 +228,43 @@ body {
 .flash.go { animation: flash .45s ease-out; }
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 
+/* ----- boutons son / fermer ----- */
+.btn-son {
+  flex: 0 0 auto; align-self: flex-start; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff;
+  font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 3px 10px rgba(11,143,154,.25);
+}
+.btn-son.coin { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 2; }
+.btn-rond {
+  position: absolute; z-index: 8; top: max(10px, env(safe-area-inset-top)); width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.92); color: var(--encre); font-size: 1.25rem; font-weight: 900; line-height: 1; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,.25);
+}
+.btn-fermer-studio { left: 10px; }
+.btn-rond.btn-son { right: 10px; }
+.studio .studio-haut { left: 62px; right: 62px; }
+
+/* ----- installation (mode Beufa dents) ----- */
+.prepa #prepa-video { position: absolute; object-fit: cover; transform: scaleX(-1); }
+.prepa .cadre-tete { left: 27%; width: 46%; top: 24%; }
+.prepa-carte {
+  position: absolute; z-index: 4; top: calc(max(10px, env(safe-area-inset-top)) + 54px); left: 12px; right: 12px;
+  background: #fff; border-radius: 22px; padding: 12px 16px; box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  animation: pop .45s cubic-bezier(.3,1.6,.5,1) both;
+}
+.prepa-carte h2 { margin: 0 0 6px; font-size: 1.5rem; font-weight: 900; color: #e0457a; text-align: center; }
+.prepa-carte ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.prepa-carte li { display: flex; gap: 10px; align-items: center; font-weight: 700; font-size: 1rem; line-height: 1.25; }
+.prepa-carte li b { font-size: 1.5rem; }
+.prepa-mascotte {
+  position: absolute; z-index: 4; right: 4px; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 70px); height: 26dvh; width: auto;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); transform-origin: 50% 100%; animation: danse .6s ease-in-out infinite alternate;
+}
+.prepa-bouton { position: absolute; z-index: 5; left: 16px; right: 16px; width: auto; bottom: max(16px, env(safe-area-inset-bottom)); margin: 0; }
+.demo-brosse {
+  background: #fff; color: var(--turquoise-fonce); font-weight: 900; font-size: 1.05rem; border-radius: 999px; padding: 6px 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.15);
+}
+
 /* ----- fin : galerie des montages ----- */
 #ecran-fin.avec-photos { justify-content: flex-start; }
 #ecran-fin.avec-photos .mascotte-accueil { height: min(16dvh, 140px); }
@@ -245,5 +282,5 @@ body {
 .vision-actions .lien { color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte { animation: none !important; }
 }

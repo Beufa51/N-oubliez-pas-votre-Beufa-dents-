@@ -108,6 +108,15 @@ Pas de publication sur le Play Store.
     1) 3 s de démonstration : Beufa en très grand sur fond de rayons, « Fais comme moi ! » + consigne ;
     2) caméra plein écran au format réel de la caméra (image entière, plus de recadrage), Beufa grand à côté, gros 3-2-1 ;
     3) aperçu + réaction. La photo n'est plus recadrée et le montage garde le format de la caméra. Vrai plein écran (sans barres du navigateur) en mode Beufa dents.
+- [x] Audit « utilisateur régulier » (session 6) et corrections :
+  - écran **Installe-toi !** avant le mode Beufa dents (téléphone debout, recule, aperçu caméra, bouton « Je suis prêt ! ») ;
+  - **Beufa parle** (voix du téléphone, aucun fichier) : zones, faces, pauses, alerte photo, consigne, 3-2-1, réaction, bravo ;
+  - rappel « ✋ Pose ta brosse » pendant la démonstration, « Reprends ta brosse ! » après la photo ;
+  - croix **✕** pour quitter pendant l'installation et les poses ;
+  - bouton **🔊 / 🔇** (accueil, brossage, studio), mémorisé sur le téléphone ;
+  - pauses du mode Classique gardées (choix du créateur).
+- [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
+  accueil trop long sur petit écran ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des boutons de choix.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
 - [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).
