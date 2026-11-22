@@ -700,6 +700,159 @@ button, input { font-family: inherit; }
 .fiche-champ > span { text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 600; color: var(--encre); }
 .fiche-champ input { font-weight: 600; }
 
+
+/* =====================================================================
+   THÈME « PLATEAU TÉLÉ » : accordé au panneau-titre (nuit, néons, paillettes dorées)
+   ===================================================================== */
+:root {
+  --nuit: #0d1250; --nuit-2: #2a0d5e; --verre: rgba(22, 26, 96, .72); --verre-bord: rgba(120, 220, 255, .35);
+  --or: #ffc83d; --or-clair: #ffe58a; --or-fonce: #c0730a; --magenta: #ff3fa4; --cyan: #2ee6ff; --texte: #f4f6ff;
+}
+body {
+  color: var(--texte);
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 18%, rgba(70, 110, 255, .55), transparent 70%),
+    radial-gradient(circle at 8% 85%, rgba(255, 63, 164, .45), transparent 40%),
+    radial-gradient(circle at 95% 60%, rgba(46, 230, 255, .28), transparent 38%),
+    linear-gradient(170deg, #16207a 0%, var(--nuit) 50%, var(--nuit-2) 100%);
+  background-attachment: fixed;
+}
+/* paillettes qui scintillent et tombent doucement (les anciennes bulles de mousse) */
+.mousse i {
+  bottom: auto; top: -20px; width: 6px !important; height: 6px !important; border-radius: 2px; box-shadow: none;
+  background: var(--or); animation-name: paillette; opacity: .85;
+}
+.mousse i:nth-child(3n) { background: var(--cyan); }
+.mousse i:nth-child(4n) { background: var(--magenta); width: 5px !important; height: 8px !important; }
+.mousse i:nth-child(5n) { background: #fff; border-radius: 50%; }
+@keyframes paillette {
+  0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(-14px, 55vh) rotate(200deg); opacity: .9; }
+  70% { opacity: .25; } 75% { opacity: 1; }
+  100% { transform: translate(10px, 112vh) rotate(420deg); opacity: 0; }
+}
+body::before {   /* petites étoiles fixes qui scintillent */
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent), radial-gradient(1px 1px at 28% 8%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 44% 34%, #ffe58a, transparent), radial-gradient(1px 1px at 63% 12%, #fff, transparent),
+    radial-gradient(2px 2px at 80% 28%, #fff, transparent), radial-gradient(1px 1px at 91% 8%, #ffe58a, transparent),
+    radial-gradient(1.5px 1.5px at 6% 55%, #fff, transparent), radial-gradient(1px 1px at 22% 72%, #ffe58a, transparent),
+    radial-gradient(1.5px 1.5px at 72% 66%, #fff, transparent), radial-gradient(1px 1px at 88% 82%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 38% 90%, #fff, transparent), radial-gradient(1px 1px at 55% 78%, #ffe58a, transparent);
+  animation: scintille 3s ease-in-out infinite alternate;
+}
+@keyframes scintille { from { opacity: .45; } to { opacity: 1; } }
+
+/* Beufa est noir : un halo pour qu'il ressorte sur la nuit */
+.mascotte, .mascotte-accueil, .pause-img, .demo-img, .prepa-mascotte, .partenaire, .rev-part {
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.9)) drop-shadow(0 0 14px rgba(140,200,255,.55));
+}
+
+/* titres dorés lumineux, comme le panneau */
+.logo-fin, .demo-titre, .rev-titre, .pause-titre, .album-haut .titre {
+  color: var(--or-clair); -webkit-text-stroke: 6px #7a3500; paint-order: stroke fill;
+  text-shadow: 0 0 12px rgba(255,190,60,.85), 0 0 28px rgba(255,120,40,.5), 0 5px 0 #4a1a00;
+}
+.pause-compte { -webkit-text-stroke: 6px var(--magenta); text-shadow: 0 0 18px rgba(255,63,164,.8); }
+
+/* panneaux en verre sombre bordés de néon */
+.carte, .entete, .montages, .album-cal, .fiche-boite {
+  background: var(--verre); border: 2px solid var(--verre-bord); color: var(--texte);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 0 22px rgba(46,230,255,.22), 0 14px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.carte h2, #ecran-accueil .carte h2, .montages h2, .album-cal h2 { color: var(--texte); }
+.montages small { color: rgba(244,246,255,.7); }
+
+/* choix : tuiles sombres, la sélection s'allume en néon */
+.choix.acc-rose { --acc: var(--magenta); --acc-clair: rgba(255,63,164,.22); --acc-ombre: #a0145e; }
+.choix.acc-jaune { --acc: var(--or); --acc-clair: rgba(255,200,61,.2); --acc-ombre: var(--or-fonce); }
+.choix.acc-violet { --acc: var(--cyan); --acc-clair: rgba(46,230,255,.18); --acc-ombre: #0a7d95; }
+.option, .profil {
+  background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: var(--texte); box-shadow: 0 4px 0 rgba(0,0,0,.35);
+}
+.option:active { box-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.option.actif { box-shadow: 0 4px 0 var(--acc-ombre), 0 0 16px var(--acc); }
+.option.actif::after { color: #1a1040; }
+.profil.actif { background: rgba(46,230,255,.16); border-color: var(--cyan); box-shadow: 0 4px 0 #0a7d95, 0 0 14px rgba(46,230,255,.6); }
+.profil.ajouter .avatar { background: rgba(255,255,255,.08); color: var(--cyan); border-color: rgba(46,230,255,.5); }
+.profil .avatar { box-shadow: inset 0 -4px 0 rgba(0,0,0,.2), 0 0 0 3px rgba(255,255,255,.85); }
+
+/* boutons dorés façon enseigne lumineuse */
+.gros-bouton {
+  color: #3d1600; text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  background: linear-gradient(180deg, #fff1a8 0%, var(--or) 45%, #ff9a1f 100%);
+  box-shadow: 0 6px 0 #a85a00, 0 0 22px rgba(255,180,50,.6), 0 12px 24px rgba(0,0,0,.35);
+}
+.gros-bouton:active { box-shadow: 0 2px 0 #a85a00, 0 0 18px rgba(255,180,50,.6); }
+.vision-actions .gros-bouton + .gros-bouton { background: linear-gradient(180deg, #8ff4ff, var(--cyan)); box-shadow: 0 6px 0 #0a7d95, 0 0 18px rgba(46,230,255,.5); color: #06303a; }
+
+/* pastilles du haut */
+.serie, .moments i, .btn-album, .score, .fin-zones span, .fin-stats span, .album-stats span, .btn-arreter {
+  background: rgba(255,255,255,.1); color: var(--texte); border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 3px 0 rgba(0,0,0,.3);
+}
+.serie { color: #ffb066; border-color: rgba(255,154,60,.6); }
+.serie.eteinte { color: rgba(244,246,255,.55); background: rgba(255,255,255,.06); }
+#m-matin.fait { background: linear-gradient(180deg, #fff1a8, var(--or)); color: #5a2a00; border-color: #fff1a8; box-shadow: 0 0 12px rgba(255,200,61,.6); }
+#m-soir.fait { background: linear-gradient(180deg, #a98bff, #6a3cff); color: #fff; border-color: #c9b6ff; box-shadow: 0 0 12px rgba(124,77,255,.7); }
+.btn-album { color: var(--cyan); border-color: rgba(46,230,255,.5); }
+.score { color: #8cff6a; border-color: rgba(140,255,106,.45); }
+.btn-son, .btn-rond, .btn-rond-clair { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.studio .btn-rond { background: rgba(10,14,60,.6); }
+.lien { color: var(--cyan); }
+
+/* brossage */
+.anneau-fond { fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.14); }
+.temps, .zone-nom { color: #fff; }
+.face-nom { background: var(--magenta); box-shadow: 0 0 12px rgba(255,63,164,.6); }
+.points i { background: rgba(255,255,255,.18); }
+.points i.on { box-shadow: 0 0 8px rgba(255,200,61,.8); }
+#bouche .carte-bouche { fill: rgba(255,255,255,.94); stroke: var(--cyan); stroke-width: 3; }
+.scene.avec-camera.vue-miroir #bouche { box-shadow: 0 0 16px rgba(46,230,255,.5); }
+.tuiles i { background: linear-gradient(135deg, var(--magenta), #6a3cff); border-color: rgba(255,255,255,.4); }
+
+/* écrans pleins : même nuit de spectacle avec projecteurs */
+.pause, .studio-demo, .revelation {
+  background: radial-gradient(circle at 50% 42%, #3a4cff 0, #1a1f8a 38%, var(--nuit) 72%, var(--nuit-2) 100%);
+}
+.pause::before, .studio-demo::before, .revelation::before {
+  background: repeating-conic-gradient(rgba(255,214,110,.13) 0 10deg, transparent 10deg 20deg);
+}
+.studio { background: linear-gradient(180deg, #16207a, var(--nuit-2)); }
+.prepa { background: linear-gradient(180deg, #16207a, var(--nuit-2)); }
+.rev-sous { color: var(--texte); }
+.rev-scene { border-color: var(--or-clair); box-shadow: 0 0 24px rgba(255,200,61,.6), 0 12px 30px rgba(0,0,0,.4); }
+.rev-points i { background: rgba(255,255,255,.3); }
+.rev-points i.on { background: var(--or); }
+.demo-brosse { background: rgba(255,255,255,.95); }
+
+/* fin et album */
+#ecran-fin .fin-texte { color: var(--texte); }
+.fin-carte-titre { color: var(--magenta); text-shadow: 0 0 12px rgba(255,63,164,.6); }
+.carte-beufa { border-color: rgba(255,255,255,.9); }
+.carte-beufa.cachee { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.25); }
+.carte-beufa.cachee .beufa-fig img { filter: brightness(0) invert(1); opacity: .12; }
+.carte-beufa.cachee .carte-nom { color: rgba(244,246,255,.5); }
+.jour.auj { background: rgba(46,230,255,.15); box-shadow: inset 0 0 0 2px var(--cyan); }
+.vignette { border-color: var(--or-clair); }
+
+/* les bulles et cartes blanches gardent un texte foncé */
+.salut-bulle, .astuce, .pause-suite, .prepa-carte, .cadre-tete span, .toast, .apercu, .visionneuse .lien { color: var(--encre); }
+.visionneuse .lien { color: #fff; }
+.astuce.alerte { color: #fff; }
+.gros-bouton.prepa-bouton { position: absolute; }
+
+/* fiche utilisateur */
+.fiche { background: rgba(5,8,40,.7); }
+.fiche-boite h2 { color: var(--or-clair); }
+.fiche-champ > span { color: var(--texte); }
+.fiche-champ input { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: #fff; }
+.fiche-champ input:focus { border-color: var(--cyan); }
+.age button { background: rgba(255,255,255,.12); color: #fff; }
+.fiche-erreur, .lien.danger { color: #ff7a9a; }
+
 /* petits écrans : l'accueil doit tenir sans défiler */
 @media (max-height: 760px) {
   .titre-image { width: min(50%, 240px); }
@@ -707,7 +860,7 @@ button, input { font-family: inherit; }
   .profil small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before { animation: none !important; }
   .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
