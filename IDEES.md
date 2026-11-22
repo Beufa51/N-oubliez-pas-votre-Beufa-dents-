@@ -164,6 +164,10 @@ Pas de publication sur le Play Store.
 - [x] **Mises à jour visibles tout de suite** (session 9) : la copie hors ligne prend désormais toujours la dernière version
   en ligne des pages, scripts et styles quand il y a du réseau (la copie ne sert qu'hors ligne), télécharge sans passer par
   le cache du navigateur, et l'appli se recharge seule quand une nouvelle version s'installe (jamais en plein brossage).
+- [x] Retours du test (session 10) : pendant le brossage avec la caméra, **schéma en petit en bas à gauche** (la caméra du
+  téléphone est en haut, le visage aussi), Beufa plus petit, carte surprise à droite. Studio photo : **4 s pour se placer**
+  (ovale doré qui clignote, « Place-toi ! », « Mets ta tête dans l'ovale, et fais la pose ! ») avant le 3-2-1 : on voit la
+  caméra environ 7 s avant la photo au lieu de 3.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

@@ -55,9 +55,10 @@
      (facultative : assets/createur/<id>.png, sinon la mascotte prend sa place)
      + côté où se tient le partenaire (l'utilisateur se place de l'autre côté). */
   const POSE_PREP = 3;            // Beufa montre la pose en plein écran (s)
+  const POSE_PLACEMENT = 4;       // caméra visible : on met sa tête dans l'ovale, sans compte à rebours (s)
   const POSE_COMPTE = 3;          // 3-2-1 avant la photo (s)
   const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
-  const POSE_CLIC = POSE_PREP + POSE_COMPTE;
+  const POSE_CLIC = POSE_PREP + POSE_PLACEMENT + POSE_COMPTE;
   const POSE_DUREE = POSE_CLIC + POSE_APRES;
   const POSES_BEUFA = [
     { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !" },
@@ -563,10 +564,11 @@
     if (phase === "pause") {
       if (poseActuelle) {
         if (tPause >= POSE_PREP && etapePose === "demo") passerEnPhoto();
-        const n = tPause < POSE_PREP ? 0 : Math.ceil(POSE_CLIC - tPause);
+        const n = tPause < POSE_PREP + POSE_PLACEMENT ? 0 : Math.ceil(POSE_CLIC - tPause);
         if (n !== dernierCompte) {
           dernierCompte = n;
           elStudioCompte.textContent = n > 0 ? String(n) : "";
+          if (n > 0) elCadre.classList.remove("placement");
           if (n > 0) {
             bip(600, .08); vibrer(40); parler(String(n));
             elStudioCompte.classList.remove("pop"); void elStudioCompte.offsetWidth; elStudioCompte.classList.add("pop");
@@ -685,7 +687,11 @@
   function passerEnPhoto() {
     etapePose = "photo"; elStudio.className = "studio etape-photo"; placerCadre();
     rejouer(elPartenaire, "entre"); rejouer(elBulle, "pop");
+    // d'abord le temps de se placer (ovale qui clignote), ensuite seulement le 3-2-1
+    elCadre.classList.add("placement");
+    elStudioCompte.textContent = "Place-toi !"; rejouer(elStudioCompte, "pop");
     bip(784, .1);
+    parler("Mets ta tête dans l'ovale, et fais la pose !");
   }
 
   function fermerPose() {
