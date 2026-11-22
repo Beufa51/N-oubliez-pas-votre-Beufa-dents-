@@ -4,7 +4,7 @@
 // - Images, sons, police : copie locale d'abord (lourds et ils changent rarement).
 // - Les fichiers sont toujours téléchargés en contournant le cache du navigateur ({ cache: "reload" }),
 //   sinon une copie vieille de quelques minutes pourrait être gardée par erreur.
-const VERSION = "beufa-v22";
+const VERSION = "beufa-v23";
 const FICHIERS = [
   "./", "index.html", "css/style.css", "js/jeu.js", "js/app.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "assets/fonts/fredoka.woff2", "assets/titre.webp",
