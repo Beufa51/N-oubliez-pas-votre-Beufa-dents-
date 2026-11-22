@@ -157,6 +157,10 @@ Pas de publication sur le Play Store.
   fondu à la sortie ; pause si l'appli passe en arrière-plan.
   - Avant l'intro, un écran **« Appuyez sur l'écran »** (doigt qui tapote, texte doré lumineux) : cet appui autorise le son
     sur les téléphones, l'intro s'ouvre et la musique démarre aussitôt.
+- [x] **Musique de fond de l'interface** (session 9) : « Game Show Groove » (Suno, sans paroles, `assets/fond.mp3`, réencodée
+  en 112 kb/s). Démarre avec son intro puis boucle sur 85 mesures de groove (3,516 s → 161,652 s, 129 BPM ; points trouvés
+  par ressemblance du son). Joue sur l'accueil et l'album, fondu d'entrée, s'arrête pendant le brossage et reprend où elle
+  en était ; 🔊/🔇 respecté ; pause si l'appli passe en arrière-plan.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
