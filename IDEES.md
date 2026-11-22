@@ -155,6 +155,8 @@ Pas de publication sur le Play Store.
   **boucle sans paroles** : 8 mesures d'orchestre seul (7,187 s → 22,371 s, 126,45 BPM), repérées par analyse du mixage
   (la voix est au centre). Si le téléphone bloque le son, « Touche l'écran pour lancer la musique » ; 🔊/🔇 respecté ;
   fondu à la sortie ; pause si l'appli passe en arrière-plan.
+  - Avant l'intro, un écran **« Appuyez sur l'écran »** (doigt qui tapote, texte doré lumineux) : cet appui autorise le son
+    sur les téléphones, l'intro s'ouvre et la musique démarre aussitôt.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

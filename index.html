@@ -14,8 +14,16 @@
 <div class="mousse" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <main id="app">
 
+  <!-- DÉMARRAGE : un appui pour autoriser le son, puis l'intro en musique -->
+  <section id="ecran-demarrage" class="ecran actif" role="button" tabindex="0" aria-label="Appuyez sur l'écran pour commencer">
+    <div class="demarrage-texte">
+      <span class="demarrage-doigt" aria-hidden="true">👆</span>
+      <strong>Appuyez sur l'écran</strong>
+    </div>
+  </section>
+
   <!-- INTRO : panneau-titre + générique en musique -->
-  <section id="ecran-intro" class="ecran actif">
+  <section id="ecran-intro" class="ecran">
     <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     <div class="intro-scene">
       <img class="intro-titre" src="assets/titre.webp" width="800" height="495" alt="N'oubliez pas votre brosse… Beufa dents !">

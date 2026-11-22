@@ -79,7 +79,7 @@
 
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
-  const ecrans = { intro: $("#ecran-intro"), accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin"), album: $("#ecran-album") };
+  const ecrans = { demarrage: $("#ecran-demarrage"), intro: $("#ecran-intro"), accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin"), album: $("#ecran-album") };
   const JEU = window.BeufaJeu;
   const elTemps = $("#temps"), elAnneau = $("#anneau"), elZone = $("#zone-nom"), elFace = $("#face-nom");
   const elPoints = [...document.querySelectorAll("#points i")];
@@ -89,7 +89,7 @@
 
   /* ---------- état ---------- */
   let duree = 120;
-  let phase = "intro";             // intro | accueil | prepa | brosse | pause | fin
+  let phase = "demarrage";         // demarrage | intro | accueil | prepa | brosse | pause | fin
   let ecoule = 0, tPause = 0, prochainePause = PAUSE_TOUTES_LES;
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
   let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false;
@@ -1091,14 +1091,23 @@
     if (sonActif) { if (audio && audio.state !== "running") audio.resume().then(jouerMusique).catch(() => {}); else jouerMusique(); }
     else { arreterMusique(.3); $("#intro-son").hidden = true; }
   }
-  // essai de lecture automatique ; si le navigateur l'interdit, on invite à toucher l'écran
-  chargerMusique().then(() => {
-    if (!musique.tampon || phase !== "intro" || !sonActif) return;
-    audio.resume().catch(() => {}).then(() => setTimeout(() => {
-      if (audio.state === "running") jouerMusique();
-      else if (phase === "intro") $("#intro-son").hidden = false;
-    }, 150));
-  });
+  // la chanson se charge pendant l'écran « Appuyez sur l'écran »
+  chargerMusique();
+  // l'appui autorise le son (règle des téléphones) : on passe à l'intro et la musique démarre
+  function lancerIntro() {
+    if (phase !== "demarrage") return;
+    debloquerSon();
+    phase = "intro"; montrer("intro");
+    if (!sonActif) return;
+    Promise.all([audio.resume().catch(() => {}), chargerMusique()]).then(() => {
+      if (phase !== "intro") return;
+      jouerMusique();
+      // filet de sécurité : si le téléphone bloque encore, un toucher sur l'intro relancera la musique
+      setTimeout(() => { if (phase === "intro" && sonActif && !musique.lancee) $("#intro-son").hidden = false; }, 400);
+    });
+  }
+  ecrans.demarrage.addEventListener("click", lancerIntro);
+  ecrans.demarrage.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lancerIntro(); } });
   function quitterIntro() {
     arreterMusique(); phase = "accueil"; montrer("accueil");
     if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);

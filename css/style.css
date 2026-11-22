@@ -875,6 +875,20 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .age button { background: rgba(255,255,255,.12); color: #fff; }
 .fiche-erreur, .lien.danger { color: #ff7a9a; }
 
+/* ----- démarrage : « Appuyez sur l'écran » ----- */
+#ecran-demarrage { justify-content: center; cursor: pointer; }
+#ecran-demarrage:focus { outline: none; }
+.demarrage-texte { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.demarrage-doigt { font-size: 4rem; line-height: 1; animation: tape 1.1s ease-in-out infinite; filter: drop-shadow(0 0 14px rgba(255,200,80,.7)); }
+@keyframes tape { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(10px) scale(.92); } 55% { transform: translateY(10px) scale(.92); } }
+.demarrage-texte strong {
+  font-weight: 700; font-size: clamp(1.9rem, 9vw, 2.6rem); color: var(--or-clair); line-height: 1.1;
+  -webkit-text-stroke: 5px #7a3500; paint-order: stroke fill;
+  text-shadow: 0 0 12px rgba(255,190,60,.85), 0 0 28px rgba(255,120,40,.5), 0 4px 0 #4a1a00;
+  animation: respire 1.6s ease-in-out infinite alternate;
+}
+@keyframes respire { from { opacity: .7; transform: scale(.97); } to { opacity: 1; transform: scale(1.03); } }
+
 /* ----- intro (générique) ----- */
 #ecran-intro { justify-content: center; gap: 14px; }
 #ecran-intro::before {
@@ -909,7 +923,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
   .profil small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan, #ecran-intro::before, .intro-titre, .intro-mascotte, .intro-son, .intro-bouton { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan, #ecran-intro::before, .intro-titre, .intro-mascotte, .intro-son, .intro-bouton, .demarrage-doigt, .demarrage-texte strong { animation: none !important; }
   .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
