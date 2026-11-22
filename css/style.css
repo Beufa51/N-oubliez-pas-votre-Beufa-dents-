@@ -874,6 +874,17 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .etape-photo .studio-compte { font-size: min(36vw, 200px); }
 .cadre.placement ~ .studio-compte { font-size: clamp(2.2rem, 11vw, 3.4rem); -webkit-text-stroke: 4px var(--magenta); }
 
+/* textes lisibles de loin (téléphone posé près du lavabo) */
+.zone-nom { font-size: 1.75rem; }
+.face-nom { font-size: 1.05rem; }
+.astuce { font-size: 1.12rem; line-height: 1.25; }
+.studio-haut { font-size: 1.3rem; }
+.bulle { font-size: 1.25rem; }
+.bulle.reaction { font-size: 1.45rem; }
+.pause-suite { font-size: 1.25rem; }
+.demo-consigne { font-size: clamp(1.35rem, 6.8vw, 2rem); }
+.prepa-carte li { font-size: 1.08rem; }
+
 /* les bulles et cartes blanches gardent un texte foncé */
 .salut-bulle, .astuce, .pause-suite, .prepa-carte, .cadre-tete span, .toast, .apercu, .visionneuse .lien { color: var(--encre); }
 .visionneuse .lien { color: #fff; }

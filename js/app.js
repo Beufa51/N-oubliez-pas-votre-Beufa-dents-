@@ -91,7 +91,7 @@
   /* ---------- état ---------- */
   let duree = 120;
   let phase = "demarrage";         // demarrage | intro | accueil | prepa | brosse | pause | fin
-  let ecoule = 0, tPause = 0, prochainePause = PAUSE_TOUTES_LES;
+  let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 4;
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
   let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false;
 
@@ -185,7 +185,7 @@
     plus.innerHTML = '<span class="avatar">+</span><span class="profil-nom">Ajouter</span>';
     box.appendChild(plus);
     if (typeof majSuivi === "function") majSuivi();
-    majSalut(act);
+    majSalut(act); appliquerReglages();
   }
   function majSalut(act) {
     const h = new Date().getHours(), nom = act ? " " + act.prenom : "";
@@ -258,18 +258,39 @@
   function choisir(groupe, bouton) {
     groupe.querySelectorAll(".option").forEach(b => b.classList.toggle("actif", b === bouton));
   }
+  function retenir(r) { const x = window.BeufaJeu.profilActif(); if (x) window.BeufaJeu.reglerProfil(x.id, r); }
   $("#choix-duree").addEventListener("click", e => {
     const b = e.target.closest(".option"); if (!b) return;
-    choisir($("#choix-duree"), b); duree = Number(b.dataset.duree);
+    choisir($("#choix-duree"), b); duree = Number(b.dataset.duree); retenir({ duree });
   });
   $("#choix-mode").addEventListener("click", e => {
     const b = e.target.closest(".option"); if (!b || b.disabled) return;
-    choisir($("#choix-mode"), b); mode = b.dataset.mode;
-    // le mode Beufa dents a besoin de la caméra
-    const sans = $('#choix-camera [data-camera="0"]');
-    sans.disabled = mode === "beufa";
-    if (mode === "beufa") { choisir($("#choix-camera"), $('#choix-camera [data-camera="1"]')); cameraVoulue = true; }
+    choisir($("#choix-mode"), b); mode = b.dataset.mode; retenir({ mode }); majModeCamera();
   });
+  $("#choix-photos").addEventListener("click", e => {
+    const b = e.target.closest(".option"); if (!b) return;
+    choisir($("#choix-photos"), b); nbPhotos = Number(b.dataset.photos); retenir({ photos: nbPhotos });
+  });
+  // le mode Beufa dents a toujours besoin de la caméra : la rubrique Caméra laisse place au nombre de photos
+  let cameraChoisie = false;
+  function majModeCamera() {
+    const beufa = mode === "beufa";
+    $("#bloc-camera").hidden = beufa; $("#bloc-photos").hidden = !beufa;
+    cameraVoulue = beufa || cameraChoisie;
+  }
+  // remet les derniers choix de l'utilisateur actif
+  function appliquerReglages() {
+    const x = window.BeufaJeu.profilActif(), r = (x && x.reglages) || {};
+    mode = r.mode === "beufa" ? "beufa" : "classique";
+    duree = r.duree === 60 ? 60 : 120;
+    cameraChoisie = !!r.camera;
+    nbPhotos = r.photos === 2 ? 2 : 4;
+    choisir($("#choix-mode"), $(`#choix-mode [data-mode="${mode}"]`));
+    choisir($("#choix-duree"), $(`#choix-duree [data-duree="${duree}"]`));
+    choisir($("#choix-camera"), $(`#choix-camera [data-camera="${cameraChoisie ? 1 : 0}"]`));
+    choisir($("#choix-photos"), $(`#choix-photos [data-photos="${nbPhotos}"]`));
+    majModeCamera();
+  }
 
 
   /* ---------- caméra miroir ---------- */
@@ -278,7 +299,7 @@
 
   $("#choix-camera").addEventListener("click", e => {
     const b = e.target.closest(".option"); if (!b) return;
-    choisir($("#choix-camera"), b); cameraVoulue = b.dataset.camera === "1";
+    choisir($("#choix-camera"), b); cameraChoisie = b.dataset.camera === "1"; retenir({ camera: cameraChoisie }); majModeCamera();
   });
 
   function toast(msg) {
@@ -440,7 +461,6 @@
   async function demarrer() {
     const qui = window.BeufaJeu.profilActif();
     if (!qui || !qui.age) return ouvrirFiche(qui, demarrer);
-    arreterFond();
     $("#btn-demarrer").disabled = true;
     debloquerSon();
     if (mode === "beufa") pleinEcran(true);
@@ -453,7 +473,7 @@
   /* ---------- installation (mode Beufa dents) ---------- */
   const elPrepa = $("#prepa"), elPrepaVideo = $("#prepa-video"), elPrepaCadre = $("#prepa-cadre");
   function ouvrirPrepa() {
-    phase = "prepa"; montrer("brossage");
+    phase = "prepa"; montrer("brossage"); volumeFond(); jouerFond();
     elPrepaVideo.srcObject = flux; elPrepaVideo.play().catch(() => {});
     elPrepa.hidden = false; placer(elPrepa, elPrepaVideo, elPrepaCadre); garderEcran();
     parler("Pose ton téléphone debout devant toi, et recule un peu, pour qu'on voie ta tête et tes deux mains. Quand tu es prêt, appuie sur le bouton !");
@@ -463,7 +483,10 @@
   $("#btn-pret").addEventListener("click", () => { debloquerSon(); fermerPrepa(); lancerBrossage(); });
 
   function lancerBrossage() {
-    ecoule = 0; tPause = 0; prochainePause = PAUSE_TOUTES_LES; derniereZone = -1; dernierPoint = -1; poseIdx = 0;
+    ecoule = 0; tPause = 0; iPause = 0; derniereZone = -1;
+    // pauses : toutes les 30 s ; en mode Beufa dents « 2 photos », une seule au milieu (+ la pose finale)
+    pauses = avecPhotos() && nbPhotos === 2 ? [duree / 2]
+      : [1, 2, 3].map(k => k * PAUSE_TOUTES_LES).filter(t => t < duree); dernierPoint = -1; poseIdx = 0;
     finale = false; poseActuelle = null; photos = []; viderGalerie();
     poses = melanger(POSES_BEUFA.slice());
     elMascotte.src = IMG("mains-hanches");
@@ -473,6 +496,7 @@
     garderEcran();
     bip(523, .15); bip(784, .2, .16);
     parler(`${avecPrenom("C'est parti", " !")} On commence ${ZONES_VOIX[0]}, ${FACES_VOIX[0]}.`);
+    volumeFond(); jouerFond();
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
     derniere = performance.now();
@@ -491,7 +515,7 @@
   function arreter() {
     pleinEcran(false);
     cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil"; taire();
-    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil"); jouerFond();
+    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil"); volumeFond(); jouerFond();
   }
 
   const avecPhotos = () => mode === "beufa" && !!flux;
@@ -504,7 +528,7 @@
       if (ecoule >= duree) {
         if (!avecPhotos() || finale) return terminer();
         ecoule = duree; finale = true; commencerPause();     // pose finale
-      } else if (prochainePause < duree && ecoule >= prochainePause) commencerPause();
+      } else if (iPause < pauses.length && ecoule >= pauses[iPause]) commencerPause();
     } else if (phase === "pause") {
       tPause += dt;
       if (poseActuelle && !cliche && tPause >= POSE_CLIC) prendrePhoto();
@@ -532,7 +556,7 @@
     elPoints.forEach((d, i) => d.classList.toggle("on", i <= p));
     // en mode Beufa dents, on prévient avant chaque photo
     const avantPhoto = avecPhotos() && phase === "brosse" &&
-      ((prochainePause < duree && prochainePause - ecoule < 5) || (!finale && duree - ecoule < 5));
+      ((iPause < pauses.length && pauses[iPause] - ecoule < 5) || (!finale && duree - ecoule < 5));
     const enDefi = !avantPhoto && ecoule < defiJusqua;
     elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p];
     elAstuce.classList.toggle("alerte", avantPhoto);
@@ -607,7 +631,7 @@
 
   function commencerPause() {
     phase = "pause"; tPause = 0;
-    if (!finale) prochainePause += PAUSE_TOUTES_LES;
+    if (!finale) iPause++;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
@@ -914,7 +938,7 @@
   function terminer() {
     if (phase === "brosse" || phase === "pause") { ecoule = duree; majBouche(3, 1, 2); }   // derniers microbes
     cancelAnimationFrame(raf); lacherEcran(); fermerPose(); elPause.hidden = true;
-    pleinEcran(false);
+    pleinEcran(false); arreterFond();   // place à la fanfare
     stopperCamera(); phase = "fin";
     vibrer([200, 100, 200, 100, 400]);
     $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
@@ -1091,17 +1115,21 @@
     try { g.gain.setTargetAtTime(0, audio.currentTime, fondu / 3); src.stop(audio.currentTime + fondu); } catch (e) {}
   }
   function majMusique() {
-    if (phase === "accueil") return sonActif ? jouerFond() : arreterFond(.3);
+    if (PHASES_FOND.includes(phase)) return sonActif ? jouerFond() : arreterFond(.3);
     if (phase !== "intro") return;
     if (sonActif) { if (audio && audio.state !== "running") audio.resume().then(jouerMusique).catch(() => {}); else jouerMusique(); }
     else { arreterMusique(.3); $("#intro-son").hidden = true; }
   }
-  // la chanson se charge pendant l'écran « Appuyez sur l'écran », puis la musique de fond
+  // la chanson se charge pendant l'écran « Appuie sur l'écran », puis la musique de fond
   chargerMusique().then(() => chargerFond());
   // l'appui autorise le son (règle des téléphones) : on passe à l'intro et la musique démarre
   function lancerIntro() {
     if (phase !== "demarrage") return;
     debloquerSon();
+    // le générique ne passe qu'au premier lancement de la journée ; ensuite, un appui mène droit à l'accueil
+    const auj = window.BeufaJeu.cleJour(new Date());
+    if (lireReglage("intro-vue", "") === auj) return quitterIntro();
+    ecrireReglage("intro-vue", auj);
     phase = "intro"; montrer("intro");
     if (!sonActif) return;
     Promise.all([audio.resume().catch(() => {}), chargerMusique()]).then(() => {
@@ -1117,7 +1145,11 @@
      Elle démarre avec son intro, puis tourne en boucle sur 85 mesures de groove (129 BPM),
      de 3,516 s à 161,652 s : on ne rejoue jamais l'intro ni la coupure de la fin.
      Elle joue sur l'accueil et l'album, s'arrête pendant le brossage et reprend où elle en était. */
-  const FOND = { debut: 3.516, fin: 161.652, volume: .38 };
+  const FOND = { debut: 3.516, fin: 161.652, volume: .38, volumeBrossage: .13 };
+  const PHASES_FOND = ["accueil", "prepa", "brosse", "pause"];
+  const volumeVoulu = () => (phase === "accueil" ? FOND.volume : FOND.volumeBrossage);
+  // pendant le brossage, la musique continue tout bas (sous la voix de Beufa)
+  function volumeFond() { if (fond.gain && fond.source) fond.gain.gain.setTargetAtTime(volumeVoulu(), audio.currentTime, .5); }
   const fond = { tampon: null, source: null, gain: null, depart: 0, pos: 0 };
   let chargementFond = null;
   function chargerFond() {
@@ -1137,11 +1169,11 @@
     return p;
   }
   function jouerFond() {
-    if (!sonActif || phase !== "accueil" || fond.source || !audio) return;
+    if (!sonActif || !PHASES_FOND.includes(phase) || fond.source || !audio) return;
     if (!fond.tampon) { chargerFond().then(() => { if (fond.tampon) jouerFond(); }); return; }
     if (audio.state !== "running") { audio.resume().then(() => { if (audio.state === "running") jouerFond(); }).catch(() => {}); return; }
     const g = audio.createGain(); g.gain.value = 0; g.connect(audio.destination);
-    g.gain.setTargetAtTime(FOND.volume, audio.currentTime, .4);          // fondu d'entrée
+    g.gain.setTargetAtTime(volumeVoulu(), audio.currentTime, .4);        // fondu d'entrée
     const src = audio.createBufferSource(); src.buffer = fond.tampon;
     src.loop = true; src.loopStart = FOND.debut; src.loopEnd = FOND.fin;
     src.connect(g); src.start(0, fond.pos);
