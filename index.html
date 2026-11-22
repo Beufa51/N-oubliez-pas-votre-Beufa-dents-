@@ -11,13 +11,17 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div class="mousse" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <main id="app">
 
   <!-- ACCUEIL -->
   <section id="ecran-accueil" class="ecran actif">
     <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
-    <h1 class="titre">N'oubliez pas votre <span>Beufa dents</span></h1>
-    <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
+    <h1 class="titre logo">N'oubliez pas votre <span>Beufa dents</span></h1>
+    <div class="accueil-hero">
+      <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
+      <div id="salut" class="salut-bulle">Salut&nbsp;! On se brosse les dents&nbsp;?</div>
+    </div>
 
     <div class="suivi">
       <span id="serie" class="serie">🔥 0</span>
@@ -26,32 +30,32 @@
     </div>
 
     <div class="carte">
-      <h2>Qui se brosse les dents&nbsp;?</h2>
+      <h2><span>👋</span> Qui se brosse les dents&nbsp;?</h2>
       <div id="profils" class="profils"></div>
 
-      <h2>Mode</h2>
-      <div class="choix" id="choix-mode">
+      <h2><span>🎮</span> Mode</h2>
+      <div class="choix acc-rose" id="choix-mode">
         <button class="option actif" data-mode="classique" type="button">
-          <strong>Classique</strong><small>Minuteur + zones</small>
+          <span class="ico">🪥</span><strong>Classique</strong><small>Minuteur + zones</small>
         </button>
         <button class="option" data-mode="beufa" type="button">
-          <strong>Beufa dents</strong><small>Poses &amp; photos</small>
+          <span class="ico">📸</span><strong>Beufa dents</strong><small>Poses &amp; photos</small>
         </button>
       </div>
 
-      <h2>Durée</h2>
-      <div class="choix" id="choix-duree">
-        <button class="option" data-duree="60" type="button"><strong>1 min</strong><small>Express</small></button>
-        <button class="option actif" data-duree="120" type="button"><strong>2 min</strong><small>Recommandé</small></button>
+      <h2><span>⏱️</span> Durée</h2>
+      <div class="choix acc-jaune" id="choix-duree">
+        <button class="option" data-duree="60" type="button"><span class="ico">⚡</span><strong>1 min</strong><small>Express</small></button>
+        <button class="option actif" data-duree="120" type="button"><span class="ico">⭐</span><strong>2 min</strong><small>Recommandé</small></button>
       </div>
 
-      <h2>Caméra</h2>
-      <div class="choix" id="choix-camera">
-        <button class="option actif" data-camera="0" type="button"><strong>Sans</strong><small>Schéma seul</small></button>
-        <button class="option" data-camera="1" type="button"><strong>Miroir</strong><small>Je me vois brosser</small></button>
+      <h2><span>📷</span> Caméra</h2>
+      <div class="choix acc-violet" id="choix-camera">
+        <button class="option actif" data-camera="0" type="button"><span class="ico">🙈</span><strong>Sans</strong><small>Schéma seul</small></button>
+        <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Je me vois brosser</small></button>
       </div>
 
-      <button id="btn-demarrer" class="gros-bouton" type="button">C'est parti !</button>
+      <button id="btn-demarrer" class="gros-bouton bouton-go" type="button">C'est parti&nbsp;! 🚀</button>
     </div>
   </section>
 
@@ -60,6 +64,11 @@
     <header class="entete">
       <div class="minuteur">
         <svg viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <linearGradient id="degrade-anneau" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#ff5c8a"/><stop offset=".5" stop-color="#ffb703"/><stop offset="1" stop-color="#14b8c4"/>
+            </linearGradient>
+          </defs>
           <circle class="anneau-fond" cx="60" cy="60" r="52"/>
           <circle id="anneau" class="anneau" cx="60" cy="60" r="52"/>
         </svg>
@@ -83,7 +92,7 @@
       <img id="mascotte" class="mascotte" src="assets/mascotte/png/pose-mains-hanches.png" alt="">
     </div>
 
-    <button id="btn-arreter" class="lien" type="button">Arrêter</button>
+    <button id="btn-arreter" class="lien btn-arreter" type="button">⏹ Arrêter</button>
 
     <div id="pause" class="pause" hidden>
       <div class="pause-boite">
@@ -140,7 +149,7 @@
   <section id="ecran-album" class="ecran">
     <div class="album-haut">
       <button id="btn-album-retour" class="btn-rond-clair" type="button" aria-label="Retour à l'accueil">←</button>
-      <h1 class="titre">Mon album</h1>
+      <h1 class="titre logo-fin">Mon album</h1>
       <span></span>
     </div>
     <div id="album-stats" class="album-stats"></div>
@@ -154,7 +163,7 @@
   <!-- FIN -->
   <section id="ecran-fin" class="ecran">
     <div class="confettis" id="confettis" aria-hidden="true"></div>
-    <h1 id="fin-titre" class="titre">Bravo&nbsp;!</h1>
+    <h1 id="fin-titre" class="titre logo-fin">Bravo&nbsp;!</h1>
     <img id="fin-mascotte" class="mascotte-accueil fin-danse" src="assets/mascotte/png/pose-pouce.png" alt="Beufa danse de joie">
     <div id="fin-carte" class="fin-carte" hidden>
       <div id="fin-carte-titre" class="fin-carte-titre">Nouvelle carte&nbsp;!</div>

@@ -183,6 +183,15 @@
     plus.innerHTML = '<span class="avatar">+</span><span class="profil-nom">Ajouter</span>';
     box.appendChild(plus);
     if (typeof majSuivi === "function") majSuivi();
+    majSalut(act);
+  }
+  function majSalut(act) {
+    const h = new Date().getHours(), nom = act ? " " + act.prenom : "";
+    const adulte = window.BeufaJeu.estAdulte(act);
+    const moment = h < 11 ? (adulte ? `Bonjour${nom} ! Un brossage pour bien démarrer ?` : `Coucou${nom} ! On réveille ces dents ?`)
+      : h < 18 ? (adulte ? `Salut${nom} ! Deux minutes de brillance ?` : `Salut${nom} ! On chasse les microbes ?`)
+      : (adulte ? `Bonsoir${nom} ! Le brossage du soir, et au lit.` : `Bonsoir${nom} ! On brosse avant dodo ?`);
+    $("#salut").textContent = moment.replace(/ ([?!])/g, "\u00a0$1");
   }
   $("#profils").addEventListener("click", e => {
     const b = e.target.closest(".profil"); if (!b) return;

@@ -138,6 +138,10 @@ Pas de publication sur le Play Store.
   - **Au-dessus de 16 ans, ton adulte** : défis plus « pub de dentifrice / yoga / agent secret » que « gros yeux / robot »,
     encouragements sobres (« Impeccable. », « Ton dentiste serait fier. »), « bactéries éliminées » au lieu de « microbes vaincus ».
   - L'âge est demandé avant le premier brossage. Reprise automatique du prénom et de l'album de la version précédente.
+- [x] **Interface plus fun** (session 8) : police ronde Fredoka (intégrée, licence OFL, marche hors ligne), fond « mousse »
+  avec des bulles qui montent, titre façon logo, Beufa qui salue avec une bulle (selon l'heure, le prénom et le ton),
+  choix en grosses pastilles colorées avec emojis et coche, boutons « bonbon » roses, minuteur en dégradé,
+  pauses et titres dans l'ambiance du studio.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

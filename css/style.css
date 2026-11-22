@@ -1,6 +1,13 @@
+@font-face {
+  font-family: "Fredoka"; src: url("../assets/fonts/fredoka.woff2") format("woff2");
+  font-weight: 300 700; font-display: swap;
+}
 :root {
-  --fond-1: #e6fbfd;
-  --fond-2: #b9eef3;
+  --fond-1: #8ae9f0;
+  --fond-2: #ffe1ec;
+  --jaune: #ffc93c;
+  --violet: #7c4dff;
+  --rose-vif: #ff5c8a;
   --turquoise: #14b8c4;
   --turquoise-fonce: #0b8f9a;
   --encre: #12343b;
@@ -11,9 +18,9 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; margin: 0; }
 body {
-  font-family: ui-rounded, "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Fredoka", ui-rounded, "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--encre);
-  background: linear-gradient(180deg, var(--fond-1), var(--fond-2));
+  background: linear-gradient(170deg, var(--fond-1) 0%, #c4f5f8 45%, var(--fond-2) 100%);
   background-attachment: fixed;
   overflow: hidden;
   user-select: none;
@@ -490,8 +497,199 @@ body {
 .vision-actions .gros-bouton { display: block; text-align: center; text-decoration: none; font-size: 1.1rem; padding: 12px; }
 .vision-actions .lien { color: #fff; }
 
+
+/* =====================================================================
+   THÈME FUN : mousse, couleurs vives, boutons bonbon
+   ===================================================================== */
+button, input { font-family: inherit; }
+
+/* bulles de mousse qui montent doucement en fond */
+.mousse { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.mousse i {
+  position: absolute; bottom: -80px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.95) 0 12%, rgba(255,255,255,.35) 13% 55%, rgba(255,255,255,.08) 70%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); animation: bulle-monte linear infinite;
+}
+.mousse i:nth-child(1)  { left: 4%;  width: 34px; height: 34px; animation-duration: 17s; animation-delay: -2s; }
+.mousse i:nth-child(2)  { left: 14%; width: 18px; height: 18px; animation-duration: 12s; animation-delay: -9s; }
+.mousse i:nth-child(3)  { left: 24%; width: 52px; height: 52px; animation-duration: 22s; animation-delay: -14s; }
+.mousse i:nth-child(4)  { left: 36%; width: 22px; height: 22px; animation-duration: 14s; animation-delay: -5s; }
+.mousse i:nth-child(5)  { left: 47%; width: 40px; height: 40px; animation-duration: 19s; animation-delay: -11s; }
+.mousse i:nth-child(6)  { left: 58%; width: 16px; height: 16px; animation-duration: 11s; animation-delay: -3s; }
+.mousse i:nth-child(7)  { left: 67%; width: 60px; height: 60px; animation-duration: 25s; animation-delay: -18s; }
+.mousse i:nth-child(8)  { left: 76%; width: 26px; height: 26px; animation-duration: 15s; animation-delay: -7s; }
+.mousse i:nth-child(9)  { left: 85%; width: 44px; height: 44px; animation-duration: 20s; animation-delay: -1s; }
+.mousse i:nth-child(10) { left: 93%; width: 20px; height: 20px; animation-duration: 13s; animation-delay: -10s; }
+.mousse i:nth-child(11) { left: 52%; width: 28px; height: 28px; animation-duration: 18s; animation-delay: -16s; }
+.mousse i:nth-child(12) { left: 9%;  width: 46px; height: 46px; animation-duration: 23s; animation-delay: -20s; }
+@keyframes bulle-monte {
+  0% { transform: translate(0, 0) scale(.8); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(18px, -55vh) scale(1); }
+  100% { transform: translate(-12px, -115vh) scale(1.1); opacity: .2; }
+}
+#app { z-index: 1; }
+
+/* titres façon logo */
+.titre { font-weight: 700; letter-spacing: .01em; }
+.titre.logo { font-size: clamp(1.15rem, 5.2vw, 1.5rem); color: var(--encre); }
+.titre.logo span, .logo-fin {
+  display: block; font-size: clamp(2.3rem, 11vw, 3.2rem); font-weight: 700; line-height: 1; color: #fff;
+  -webkit-text-stroke: 7px var(--turquoise-fonce); paint-order: stroke fill;
+  text-shadow: 0 5px 0 var(--rose-vif), 0 10px 18px rgba(11,143,154,.3);
+  transform: rotate(-3deg); margin-top: 2px;
+}
+.logo-fin { font-size: clamp(2rem, 10vw, 2.8rem); transform: rotate(-2deg); }
+
+/* accueil : Beufa et sa bulle */
+.accueil-hero { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px; margin: 2px 0 4px; }
+#ecran-accueil .accueil-hero .mascotte-accueil { height: min(16dvh, 150px); margin: 0; animation: coucou 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes coucou { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg) translateY(-4px); } }
+.salut-bulle {
+  position: relative; max-width: 58%; background: #fff; border-radius: 22px; padding: 10px 14px; font-weight: 600; font-size: 1.02rem;
+  line-height: 1.25; box-shadow: 0 6px 0 rgba(11,143,154,.15), 0 10px 22px rgba(11,143,154,.18); border: 3px solid #fff;
+  animation: pop .5s .3s cubic-bezier(.3,1.6,.5,1) both;
+}
+.salut-bulle::before { content: ""; position: absolute; left: -13px; top: 50%; margin-top: -9px; border: 9px solid transparent; border-right: 14px solid #fff; border-left: 0; }
+
+/* panneau blanc des réglages */
+.carte {
+  background: rgba(255,255,255,.88); border: 3px solid #fff; border-radius: 30px;
+  box-shadow: 0 8px 0 rgba(11,143,154,.12), 0 18px 40px rgba(11,143,154,.18);
+}
+.carte h2, #ecran-accueil .carte h2 {
+  text-transform: none; letter-spacing: 0; font-size: 1.05rem; font-weight: 600; color: var(--encre); margin: 6px 0 6px;
+}
+.carte h2 span { display: inline-block; margin-right: 2px; }
+
+/* options : grosses pastilles colorées */
+.choix { --acc: var(--turquoise); --acc-clair: #e3fafc; --acc-ombre: var(--turquoise-fonce); }
+.choix.acc-rose { --acc: var(--rose-vif); --acc-clair: #ffe3ec; --acc-ombre: #d13d6b; }
+.choix.acc-jaune { --acc: #ffa62b; --acc-clair: #fff3d6; --acc-ombre: #d9822b; }
+.choix.acc-violet { --acc: var(--violet); --acc-clair: #ece4ff; --acc-ombre: #5a35c9; }
+.option {
+  position: relative; align-items: center; text-align: center; border: 3px solid #eef7f8; border-radius: 20px; padding: 8px 6px 9px;
+  box-shadow: 0 4px 0 #dcecee; transition: transform .12s, box-shadow .12s, background .2s, border-color .2s;
+}
+.option .ico { font-size: 1.35rem; line-height: 1.05; }
+#ecran-accueil .titre.logo span { font-size: clamp(2.1rem, 10vw, 2.8rem); }
+#ecran-accueil .suivi { margin: 0 0 8px; }
+@media (max-height: 800px) {
+  #ecran-accueil .option small { display: none; }
+  #ecran-accueil .accueil-hero .mascotte-accueil { height: min(13dvh, 120px); }
+  .salut-bulle { font-size: .92rem; padding: 8px 12px; }
+}
+.option { padding: 6px 6px 7px; gap: 0; }
+#ecran-accueil .carte { padding: 10px 14px 14px; }
+#ecran-accueil .gros-bouton { margin-top: 6px; padding: 14px; }
+.profil { padding: 6px 8px 5px; }
+.profil .avatar { width: 38px; height: 38px; }
+.option strong { font-size: 1.1rem; font-weight: 600; }
+.option small { font-size: .74rem; font-weight: 500; }
+.option:active { transform: translateY(3px); box-shadow: 0 1px 0 #dcecee; }
+.option.actif { border-color: var(--acc); background: var(--acc-clair); box-shadow: 0 4px 0 var(--acc-ombre); animation: choisi .35s cubic-bezier(.3,1.6,.5,1); }
+.option.actif::after {
+  content: "✓"; position: absolute; top: -9px; right: -7px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--acc); color: #fff; font-weight: 700; font-size: .85rem; box-shadow: 0 2px 0 var(--acc-ombre);
+}
+.option.actif .ico { animation: sautille 1.2s ease-in-out infinite; }
+@keyframes choisi { 0% { transform: scale(.92); } 100% { transform: none; } }
+@keyframes sautille { 0%, 100% { transform: none; } 50% { transform: translateY(-3px) rotate(-6deg); } }
+
+/* boutons bonbon */
+.gros-bouton {
+  font-weight: 700; font-size: 1.35rem; letter-spacing: .01em; border-radius: 999px;
+  background: linear-gradient(180deg, #ff8fb1 0%, var(--rose-vif) 55%, #f0457a 100%);
+  box-shadow: 0 7px 0 #c9346a, 0 12px 22px rgba(240,69,122,.35); text-shadow: 0 2px 0 rgba(160,30,70,.35);
+  position: relative; overflow: hidden;
+}
+.gros-bouton::before { content: ""; position: absolute; left: 12%; right: 12%; top: 6px; height: 34%; border-radius: 999px; background: rgba(255,255,255,.35); }
+.gros-bouton:active { transform: translateY(5px); box-shadow: 0 2px 0 #c9346a; }
+.bouton-go { animation: appel 2.4s ease-in-out infinite; }
+@keyframes appel { 0%, 82%, 100% { transform: none; } 86% { transform: rotate(-2deg) scale(1.03); } 90% { transform: rotate(2deg) scale(1.03); } 94% { transform: rotate(-1deg); } }
+.vision-actions .gros-bouton + .gros-bouton { background: linear-gradient(180deg, #4fe0ea, var(--turquoise)); box-shadow: 0 7px 0 var(--turquoise-fonce); text-shadow: none; }
+
+/* suivi : pastilles colorées */
+.serie { background: linear-gradient(180deg, #fff4e0, #ffe0b8); color: #d9480f; border: 2px solid #fff; }
+.serie.eteinte { background: #fff; color: #8aa; }
+.moments i { border: 2px solid #fff; }
+#m-matin.fait { background: linear-gradient(180deg, #ffe27a, var(--jaune)); color: #7a4a00; }
+#m-soir.fait { background: linear-gradient(180deg, #9b7bff, var(--violet)); color: #fff; }
+.btn-album { background: linear-gradient(180deg, #e3fafc, #bdf0f5); border: 2px solid #fff; color: var(--turquoise-fonce); }
+.serie, .moments i, .btn-album { box-shadow: 0 3px 0 rgba(11,143,154,.15); font-weight: 600; }
+
+/* profils */
+.profil { border-radius: 20px; box-shadow: 0 4px 0 #dcecee; border-color: #eef7f8; }
+.profil.actif { border-color: var(--turquoise); background: #e3fafc; box-shadow: 0 4px 0 var(--turquoise-fonce); }
+.profil .avatar { width: 42px; height: 42px; font-weight: 700; font-size: 1.3rem; box-shadow: inset 0 -4px 0 rgba(0,0,0,.15), 0 0 0 3px #fff; }
+.profil-nom { font-weight: 600; }
+
+/* boutons ronds */
+.btn-son, .btn-rond, .btn-rond-clair { box-shadow: 0 4px 0 rgba(11,143,154,.25); border: 2px solid #fff; }
+
+/* ----- écran de brossage ----- */
+.entete {
+  background: rgba(255,255,255,.9); border: 3px solid #fff; border-radius: 28px; padding: 8px 10px 8px 8px;
+  box-shadow: 0 6px 0 rgba(11,143,154,.12), 0 12px 26px rgba(11,143,154,.15); margin-bottom: 8px;
+}
+.minuteur { width: 96px; height: 96px; }
+.anneau-fond { fill: #fff; stroke: #e6f6f8; stroke-width: 12; }
+.anneau { stroke: url(#degrade-anneau); stroke-width: 12; }
+.temps { font-weight: 700; font-size: 1.65rem; color: var(--encre); }
+.zone-nom { font-weight: 700; font-size: 1.55rem; }
+.face-nom {
+  display: inline-block; margin-top: 3px; padding: 2px 10px; border-radius: 14px; background: var(--rose-vif); color: #fff;
+  font-weight: 600; font-size: .95rem;
+}
+.points i { width: 14px; height: 14px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.08); }
+.points i.on { background: linear-gradient(180deg, #ffd166, #ffa62b); }
+.score { background: #e6f9dc; border-radius: 999px; padding: 1px 10px; font-weight: 700; font-size: .95rem; margin-top: 5px; }
+#bouche .carte-bouche { fill: rgba(255,255,255,.9); stroke: #fff; stroke-width: 3; }
+.bouche-txt { font-weight: 600; }
+.astuce {
+  border: 3px solid #fff; font-weight: 600; font-size: 1rem; border-radius: 22px;
+  box-shadow: 0 5px 0 rgba(11,143,154,.15), 0 10px 20px rgba(11,143,154,.18);
+}
+.btn-arreter {
+  margin-top: 6px; text-decoration: none; background: rgba(255,255,255,.75); border-radius: 999px; padding: 6px 14px;
+  font-weight: 600; color: var(--turquoise-fonce); box-shadow: 0 3px 0 rgba(11,143,154,.15);
+}
+
+/* pause (mode Classique) : même ambiance que le studio */
+.pause { background: radial-gradient(circle at 50% 45%, #ffffff 0, #c9f4f7 40%, #8ae9f0 100%); overflow: hidden; }
+.pause::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+  background: repeating-conic-gradient(rgba(255,255,255,.45) 0 10deg, transparent 10deg 20deg); animation: rayons 14s linear infinite;
+}
+.pause-boite { position: relative; }
+.pause-titre {
+  font-weight: 700; color: #fff; font-size: clamp(2.2rem, 11vw, 3rem);
+  -webkit-text-stroke: 7px var(--turquoise-fonce); paint-order: stroke fill; text-shadow: 0 5px 0 var(--rose-vif);
+}
+.pause-compte { font-weight: 700; color: #fff; -webkit-text-stroke: 6px var(--rose-vif); paint-order: stroke fill; }
+.pause-suite { font-weight: 600; background: #fff; border-radius: 18px; padding: 8px 14px; display: inline-block; box-shadow: 0 5px 0 rgba(11,143,154,.15); }
+
+/* studio / installation / révélation : polices et cartes */
+.studio-haut, .prepa-carte, .bulle, .demo-consigne, .demo-brosse { font-weight: 600; }
+.prepa-carte h2 { font-weight: 700; }
+.demo-titre, .rev-titre { font-weight: 700; -webkit-text-stroke: 7px var(--turquoise-fonce); paint-order: stroke fill; text-shadow: 0 5px 0 var(--rose-vif), 0 10px 18px rgba(0,0,0,.2); }
+
+/* fin */
+#ecran-fin .fin-texte { font-weight: 600; margin-top: 12px; }
+.fin-carte-titre { font-weight: 700; }
+.fin-zones span, .fin-stats span, .album-stats span { font-weight: 600; border: 2px solid #fff; box-shadow: 0 3px 0 rgba(11,143,154,.15); }
+.montages, .album-cal { background: rgba(255,255,255,.88); border: 3px solid #fff; border-radius: 26px; box-shadow: 0 6px 0 rgba(11,143,154,.12); }
+.montages h2 { text-transform: none; letter-spacing: 0; font-size: 1.05rem; font-weight: 600; color: var(--encre); }
+
+/* fiche utilisateur */
+.fiche-boite { border: 4px solid #fff; box-shadow: 0 8px 0 rgba(11,143,154,.2), 0 20px 40px rgba(0,0,0,.3); }
+.fiche-boite h2 { font-weight: 700; }
+.fiche-champ > span { text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 600; color: var(--encre); }
+.fiche-champ input { font-weight: 600; }
+
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before { animation: none !important; }
+  .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
 }
