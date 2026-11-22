@@ -1051,10 +1051,7 @@
   $("#btn-album-retour").addEventListener("click", () => { majSuivi(); montrer("accueil"); });
   majProfils();
 
-  /* ---------- intro : le générique « Votre plus beau sourire » ----------
-     La chanson se joue une fois en entier ; si on reste sur l'intro, l'orchestre seul
-     (8 mesures sans paroles, entre les deux phrases de l'animateur) tourne en boucle. */
-  const BOUCLE = { debut: 7.187, fin: 22.371 };
+  /* ---------- intro : le générique « Votre plus beau sourire », joué une seule fois ---------- */
   const musique = { tampon: null, source: null, gain: null, lancee: false };
   let chargementMusique = null;
   function chargerMusique() {
@@ -1068,17 +1065,17 @@
       .catch(() => null);
     return chargementMusique;
   }
-  function brancher(boucle) {
+  function brancher() {
     const src = audio.createBufferSource(); src.buffer = musique.tampon; src.connect(musique.gain);
-    if (boucle) { src.loop = true; src.loopStart = BOUCLE.debut; src.loopEnd = BOUCLE.fin; src.start(0, BOUCLE.debut); }
-    else { src.start(); src.onended = () => { if (musique.source === src && phase === "intro") brancher(true); }; }
+    src.start();
+    src.onended = () => { if (musique.source === src) musique.source = null; };   // fin de la chanson : silence
     musique.source = src;
   }
   function jouerMusique() {
     if (!sonActif || phase !== "intro" || !musique.tampon || musique.source) return;
     if (audio.state !== "running") return;
     musique.gain = audio.createGain(); musique.gain.gain.value = .85; musique.gain.connect(audio.destination);
-    brancher(false); musique.lancee = true; $("#intro-son").hidden = true;
+    brancher(); musique.lancee = true; $("#intro-son").hidden = true;
   }
   function arreterMusique(fondu = .6) {
     const src = musique.source, g = musique.gain;
