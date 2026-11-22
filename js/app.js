@@ -79,7 +79,7 @@
 
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
-  const ecrans = { accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin"), album: $("#ecran-album") };
+  const ecrans = { intro: $("#ecran-intro"), accueil: $("#ecran-accueil"), brossage: $("#ecran-brossage"), fin: $("#ecran-fin"), album: $("#ecran-album") };
   const JEU = window.BeufaJeu;
   const elTemps = $("#temps"), elAnneau = $("#anneau"), elZone = $("#zone-nom"), elFace = $("#face-nom");
   const elPoints = [...document.querySelectorAll("#points i")];
@@ -89,7 +89,7 @@
 
   /* ---------- état ---------- */
   let duree = 120;
-  let phase = "accueil";           // accueil | brosse | pause | fin
+  let phase = "intro";             // intro | accueil | prepa | brosse | pause | fin
   let ecoule = 0, tPause = 0, prochainePause = PAUSE_TOUTES_LES;
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
   let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false;
@@ -157,6 +157,7 @@
     if (!e.target.closest(".btn-son")) return;
     sonActif = !sonActif; ecrireReglage("son", sonActif); majBoutonsSon();
     if (sonActif) { debloquerSon(); bip(660, .1); } else taire();
+    majMusique();
   });
   majBoutonsSon();
 
@@ -1049,7 +1050,75 @@
   $("#btn-album").addEventListener("click", ouvrirAlbum);
   $("#btn-album-retour").addEventListener("click", () => { majSuivi(); montrer("accueil"); });
   majProfils();
-  if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);
+
+  /* ---------- intro : le générique « Votre plus beau sourire » ----------
+     La chanson se joue une fois en entier ; si on reste sur l'intro, l'orchestre seul
+     (8 mesures sans paroles, entre les deux phrases de l'animateur) tourne en boucle. */
+  const BOUCLE = { debut: 7.187, fin: 22.371 };
+  const musique = { tampon: null, source: null, gain: null, lancee: false };
+  let chargementMusique = null;
+  function chargerMusique() {
+    if (!chargementMusique) chargementMusique = fetch("assets/intro.mp3")
+      .then(r => r.arrayBuffer())
+      .then(ab => {
+        audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+        return new Promise((ok, ko) => audio.decodeAudioData(ab, ok, ko));
+      })
+      .then(t => (musique.tampon = t))
+      .catch(() => null);
+    return chargementMusique;
+  }
+  function brancher(boucle) {
+    const src = audio.createBufferSource(); src.buffer = musique.tampon; src.connect(musique.gain);
+    if (boucle) { src.loop = true; src.loopStart = BOUCLE.debut; src.loopEnd = BOUCLE.fin; src.start(0, BOUCLE.debut); }
+    else { src.start(); src.onended = () => { if (musique.source === src && phase === "intro") brancher(true); }; }
+    musique.source = src;
+  }
+  function jouerMusique() {
+    if (!sonActif || phase !== "intro" || !musique.tampon || musique.source) return;
+    if (audio.state !== "running") return;
+    musique.gain = audio.createGain(); musique.gain.gain.value = .85; musique.gain.connect(audio.destination);
+    brancher(false); musique.lancee = true; $("#intro-son").hidden = true;
+  }
+  function arreterMusique(fondu = .6) {
+    const src = musique.source, g = musique.gain;
+    if (!src) return;
+    musique.source = null; src.onended = null;
+    try { g.gain.setTargetAtTime(0, audio.currentTime, fondu / 3); src.stop(audio.currentTime + fondu); } catch (e) {}
+  }
+  function majMusique() {
+    if (phase !== "intro") return;
+    if (sonActif) { if (audio && audio.state !== "running") audio.resume().then(jouerMusique).catch(() => {}); else jouerMusique(); }
+    else { arreterMusique(.3); $("#intro-son").hidden = true; }
+  }
+  // essai de lecture automatique ; si le navigateur l'interdit, on invite à toucher l'écran
+  chargerMusique().then(() => {
+    if (!musique.tampon || phase !== "intro" || !sonActif) return;
+    audio.resume().catch(() => {}).then(() => setTimeout(() => {
+      if (audio.state === "running") jouerMusique();
+      else if (phase === "intro") $("#intro-son").hidden = false;
+    }, 150));
+  });
+  function quitterIntro() {
+    arreterMusique(); phase = "accueil"; montrer("accueil");
+    if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);
+  }
+  ecrans.intro.addEventListener("click", e => {
+    if (e.target.closest(".btn-son")) return;
+    const surBouton = !!e.target.closest("#btn-intro");
+    // premier toucher alors que la musique était bloquée : on la lance et on reste sur l'intro
+    if (sonActif && !musique.lancee && musique.tampon) {
+      debloquerSon();
+      audio.resume().then(jouerMusique).catch(() => {});
+      if (surBouton && $("#intro-son").hidden && audio.state === "running") return quitterIntro();
+      return;
+    }
+    if (surBouton) quitterIntro();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (phase !== "intro" || !audio) return;
+    if (document.hidden) audio.suspend().catch(() => {}); else audio.resume().catch(() => {});
+  });
 
   $("#btn-demarrer").addEventListener("click", demarrer);
   $("#btn-arreter").addEventListener("click", arreter);

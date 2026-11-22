@@ -875,6 +875,33 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .age button { background: rgba(255,255,255,.12); color: #fff; }
 .fiche-erreur, .lien.danger { color: #ff7a9a; }
 
+/* ----- intro (générique) ----- */
+#ecran-intro { justify-content: center; gap: 14px; }
+#ecran-intro::before {
+  content: ""; position: fixed; left: 50%; top: 40%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax; z-index: -1;
+  background: repeating-conic-gradient(rgba(255,214,110,.11) 0 9deg, transparent 9deg 18deg); animation: rayons 18s linear infinite;
+  pointer-events: none;
+}
+.intro-scene { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.intro-titre {
+  width: min(94%, 470px); height: auto; border-radius: 6.5% / 10.5%; transform: rotate(-2deg);
+  /* 2 temps à 126,45 BPM = 0,949 s : le panneau bat avec la musique */
+  animation: titre-bat .949s ease-out infinite;
+}
+@keyframes titre-bat {
+  0% { transform: rotate(-2deg) scale(1.035); filter: drop-shadow(0 0 22px rgba(255,190,80,1)) drop-shadow(0 10px 18px rgba(0,0,0,.4)); }
+  35%, 100% { transform: rotate(-2deg) scale(1); filter: drop-shadow(0 0 10px rgba(255,170,80,.65)) drop-shadow(0 10px 18px rgba(0,0,0,.4)); }
+}
+.intro-mascotte { height: min(30dvh, 260px); width: auto; margin-top: -6px; transform-origin: 50% 100%; animation: intro-danse .949s ease-in-out infinite alternate; }
+@keyframes intro-danse { from { transform: rotate(-7deg) translateY(0); } to { transform: rotate(7deg) translateY(-8px); } }
+.intro-son {
+  margin: 0; padding: 8px 16px; border-radius: 999px; font-weight: 600; background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.3);
+  animation: clignote-doux 1.2s ease-in-out infinite alternate;
+}
+.intro-son[hidden] { display: none; }
+@keyframes clignote-doux { from { opacity: .55; } to { opacity: 1; } }
+.intro-bouton { max-width: 360px; animation: appel 2.4s ease-in-out infinite; }
+
 /* petits écrans : l'accueil doit tenir sans défiler */
 @media (max-height: 760px) {
   .titre-image { width: min(50%, 240px); }
@@ -882,7 +909,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
   .profil small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan, #ecran-intro::before, .intro-titre, .intro-mascotte, .intro-son, .intro-bouton { animation: none !important; }
   .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
