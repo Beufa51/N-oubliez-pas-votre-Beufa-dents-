@@ -74,6 +74,12 @@
     ecrireBrut(CLE_PROFILS, p);
     try { localStorage.removeItem("beufa-journal-" + id); } catch (e) {}
   }
+  // derniers réglages choisis (mode, durée, caméra, photos), retenus pour chaque utilisateur
+  function reglerProfil(id, r) {
+    const p = profils(), x = p.liste.find(y => y.id === id);
+    if (!x) return;
+    x.reglages = Object.assign({}, x.reglages, r); ecrireBrut(CLE_PROFILS, p);
+  }
   // au-dessus de 16 ans, Beufa change de ton
   const estAdulte = (x = profilActif()) => !!x && x.age > 16;
 
@@ -148,6 +154,6 @@
 
   window.BeufaJeu = {
     CARTES, lire, serie, serieApres, choisirCarte, enregistrer, carteEl, cleJour, moment,
-    profils, profilActif, choisirProfil, enregistrerProfil, supprimerProfil, estAdulte
+    profils, profilActif, choisirProfil, enregistrerProfil, supprimerProfil, estAdulte, reglerProfil
   };
 })();

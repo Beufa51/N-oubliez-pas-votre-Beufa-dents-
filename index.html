@@ -15,10 +15,10 @@
 <main id="app">
 
   <!-- DÉMARRAGE : un appui pour autoriser le son, puis l'intro en musique -->
-  <section id="ecran-demarrage" class="ecran actif" role="button" tabindex="0" aria-label="Appuyez sur l'écran pour commencer">
+  <section id="ecran-demarrage" class="ecran actif" role="button" tabindex="0" aria-label="Appuie sur l'écran pour commencer">
     <div class="demarrage-texte">
       <span class="demarrage-doigt" aria-hidden="true">👆</span>
-      <strong>Appuyez sur l'écran</strong>
+      <strong>Appuie sur l'écran</strong>
     </div>
   </section>
 
@@ -67,10 +67,19 @@
         <button class="option actif" data-duree="120" type="button"><span class="ico">⭐</span><strong>2 min</strong><small>Recommandé</small></button>
       </div>
 
-      <h2><span>📷</span> Caméra</h2>
-      <div class="choix acc-violet" id="choix-camera">
-        <button class="option actif" data-camera="0" type="button"><span class="ico">🙈</span><strong>Sans</strong><small>Schéma seul</small></button>
-        <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Je me vois brosser</small></button>
+      <div id="bloc-camera">
+        <h2><span>📷</span> Caméra</h2>
+        <div class="choix acc-violet" id="choix-camera">
+          <button class="option actif" data-camera="0" type="button"><span class="ico">🙈</span><strong>Sans</strong><small>Schéma seul</small></button>
+          <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Je me vois brosser</small></button>
+        </div>
+      </div>
+      <div id="bloc-photos" hidden>
+        <h2><span>📸</span> Photos</h2>
+        <div class="choix acc-violet" id="choix-photos">
+          <button class="option" data-photos="2" type="button"><span class="ico">⚡</span><strong>2 photos</strong><small>Rapide</small></button>
+          <button class="option actif" data-photos="4" type="button"><span class="ico">🎬</span><strong>4 photos</strong><small>Le grand show</small></button>
+        </div>
       </div>
 
       <button id="btn-demarrer" class="gros-bouton bouton-go" type="button">C'est parti&nbsp;! 🚀</button>

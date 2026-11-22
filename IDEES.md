@@ -164,6 +164,18 @@ Pas de publication sur le Play Store.
 - [x] **Mises à jour visibles tout de suite** (session 9) : la copie hors ligne prend désormais toujours la dernière version
   en ligne des pages, scripts et styles quand il y a du réseau (la copie ne sert qu'hors ligne), télécharge sans passer par
   le cache du navigateur, et l'appli se recharge seule quand une nouvelle version s'installe (jamais en plein brossage).
+- [x] Retours du test (session 10) : pendant le brossage avec la caméra, **schéma en petit en bas à gauche** (la caméra du
+  téléphone est en haut, le visage aussi), Beufa plus petit, carte surprise à droite. Studio photo : **4 s pour se placer**
+  (ovale doré qui clignote, « Place-toi ! », « Mets ta tête dans l'ovale, et fais la pose ! ») avant le 3-2-1 : on voit la
+  caméra environ 7 s avant la photo au lieu de 3.
+- [x] **Audit fun / pratique / envie** (session 10, note 6/10) — points 2, 3, 4 et 9 faits :
+  - **réglages retenus par utilisateur** (mode, durée, caméra, photos) ; **générique une fois par jour**, ensuite « Appuie
+    sur l'écran » mène droit à l'accueil ;
+  - **musique de fond tout bas pendant le brossage** (sous la voix de Beufa), arrêtée pour la fanfare de fin ;
+  - mode Beufa dents **« 2 photos » (rapide) ou « 4 photos » (le grand show)** : la rubrique Photos remplace Caméra dans ce mode ;
+  - **« tu » partout** (« Appuie sur l'écran ») et textes clés plus gros pour être lus de loin.
+- [ ] Reste de l'audit (session 10) : tes photos (priorité 1), journal photo (planche BD du jour gardée dans l'album),
+  progression après les 21 cartes, défi famille / récompenses des parents, ta voix enregistrée.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

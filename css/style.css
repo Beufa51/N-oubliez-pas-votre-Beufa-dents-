@@ -860,6 +860,31 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .rev-tampon.pan { animation: pan .35s cubic-bezier(.5,0,.75,0) both; }
 @keyframes pan { from { transform: scale(3) rotate(-30deg); opacity: 0; } 80% { transform: scale(.95) rotate(-12deg); opacity: .95; } to { transform: rotate(-12deg); opacity: .9; } }
 
+/* brossage avec la caméra : la caméra du téléphone est en haut, le visage aussi ;
+   le schéma passe en petit en bas à gauche, Beufa rétrécit, la carte surprise passe à droite */
+.scene.avec-camera.vue-miroir #bouche { top: auto; bottom: 96px; left: 4px; width: 34%; max-width: 170px; }
+.scene.avec-camera.vue-miroir .mascotte { height: min(21dvh, 180px); }
+.scene.avec-camera.vue-miroir .mystere { left: auto; right: 4px; bottom: calc(min(21dvh, 180px) + 8px); transform: rotate(4deg); }
+.scene.avec-camera.vue-miroir .mystere, .scene.avec-camera.vue-miroir .mystere .carte-beufa { --l: 62px; }
+
+/* studio : temps de placement avant le 3-2-1 */
+.cadre.placement .cadre-tete { border-color: var(--or); box-shadow: 0 0 0 3px rgba(255,200,61,.5), 0 0 22px rgba(255,200,61,.8); animation: ovale-appel .8s ease-in-out infinite alternate; }
+@keyframes ovale-appel { from { transform: scale(1); } to { transform: scale(1.05); } }
+.studio-compte:not(:empty) { min-height: 1em; }
+.etape-photo .studio-compte { font-size: min(36vw, 200px); }
+.cadre.placement ~ .studio-compte { font-size: clamp(2.2rem, 11vw, 3.4rem); -webkit-text-stroke: 4px var(--magenta); }
+
+/* textes lisibles de loin (téléphone posé près du lavabo) */
+.zone-nom { font-size: 1.75rem; }
+.face-nom { font-size: 1.05rem; }
+.astuce { font-size: 1.12rem; line-height: 1.25; }
+.studio-haut { font-size: 1.3rem; }
+.bulle { font-size: 1.25rem; }
+.bulle.reaction { font-size: 1.45rem; }
+.pause-suite { font-size: 1.25rem; }
+.demo-consigne { font-size: clamp(1.35rem, 6.8vw, 2rem); }
+.prepa-carte li { font-size: 1.08rem; }
+
 /* les bulles et cartes blanches gardent un texte foncé */
 .salut-bulle, .astuce, .pause-suite, .prepa-carte, .cadre-tete span, .toast, .apercu, .visionneuse .lien { color: var(--encre); }
 .visionneuse .lien { color: #fff; }
@@ -921,7 +946,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
   .profil small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan, #ecran-intro::before, .intro-titre, .intro-son, .intro-bouton, .demarrage-doigt, .demarrage-texte strong { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan, #ecran-intro::before, .intro-titre, .intro-son, .intro-bouton, .demarrage-doigt, .demarrage-texte strong, .cadre.placement .cadre-tete { animation: none !important; }
   .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
