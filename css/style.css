@@ -838,6 +838,28 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .jour.auj { background: rgba(46,230,255,.15); box-shadow: inset 0 0 0 2px var(--cyan); }
 .vignette { border-color: var(--or-clair); }
 
+/* caméra pendant le brossage : image entière, pas de zoom */
+.scene.avec-camera #camera { object-fit: contain; background: rgba(5,8,40,.55); }
+/* ovale de la tête toujours debout, quel que soit le format de la caméra */
+.cadre-tete { width: auto; height: 46%; aspect-ratio: 3 / 4; }
+.prepa .cadre-tete { left: 50%; width: auto; transform: translateX(-50%); top: 20%; height: 50%; }
+
+/* tampon du jour pendant la révélation */
+.rev-tampon {
+  position: absolute; bottom: 6%; width: 30%; aspect-ratio: 1; border-radius: 50%; color: #e0243c;
+  border: 5px solid #e0243c; box-shadow: inset 0 0 0 4px rgba(255,255,255,0), inset 0 0 0 7px #e0243c;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.05;
+  transform: rotate(-12deg); opacity: .9; container-type: inline-size; background: rgba(255,255,255,.12);
+}
+.rev-tampon[hidden] { display: none; }
+.rev-tampon.cote-droite { left: 6%; }
+.rev-tampon.cote-gauche { right: 6%; }
+.rev-tampon b { font-weight: 700; font-size: 17cqw; border-bottom: 2px solid #e0243c; padding-bottom: 2%; }
+.rev-tampon span { font-weight: 700; font-size: 11cqw; margin-top: 4%; }
+.rev-tampon small { font-weight: 700; font-size: 8cqw; margin-top: 3%; }
+.rev-tampon.pan { animation: pan .35s cubic-bezier(.5,0,.75,0) both; }
+@keyframes pan { from { transform: scale(3) rotate(-30deg); opacity: 0; } 80% { transform: scale(.95) rotate(-12deg); opacity: .95; } to { transform: rotate(-12deg); opacity: .9; } }
+
 /* les bulles et cartes blanches gardent un texte foncé */
 .salut-bulle, .astuce, .pause-suite, .prepa-carte, .cadre-tete span, .toast, .apercu, .visionneuse .lien { color: var(--encre); }
 .visionneuse .lien { color: #fff; }
@@ -860,7 +882,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
   .profil small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before, .rev-tampon.pan { animation: none !important; }
   .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }

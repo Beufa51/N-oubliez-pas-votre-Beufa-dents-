@@ -147,6 +147,9 @@ Pas de publication sur le Play Store.
 - [x] **Thème « plateau télé »** accordé au panneau-titre : nuit bleue / violette avec halos magenta et cyan, paillettes qui
   tombent et étoiles qui scintillent, panneaux en verre sombre bordés de néon, boutons dorés façon enseigne, titres dorés
   lumineux, sélections qui s'allument en néon ; halo blanc autour de Beufa pour qu'il ressorte ; bulles de BD gardées blanches.
+- [x] Retours du test (session 9) : caméra du brossage en image entière (plus de zoom), ovale « Ta tête ici » toujours debout,
+  caméra demandée sans format imposé. **Tampon du jour** « BROSSÉ ! + date + matin/soir » sur la dernière photo (coup de tampon
+  pendant la révélation) : pas besoin d'une image par jour. Les 21 cartes de l'album marchent avec les emojis, les images Gemini restent facultatives.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

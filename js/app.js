@@ -290,7 +290,8 @@
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("indisponible");
       flux = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 }, aspectRatio: { ideal: 3 / 4 } }, audio: false
+        // pas de format imposé : le téléphone donne son image entière, dans le sens où on le tient
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false
       });
       elCamera.srcObject = flux;
       await elCamera.play().catch(() => {});
@@ -741,7 +742,33 @@
     x.closePath(); x.fill(); x.restore();
   }
 
-  function composer({ pose, img, bulle }) {
+  // tampon « BROSSÉ ! » avec la date, façon coup de tampon encreur
+  function infosTampon() {
+    const d = new Date();
+    return {
+      date: d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }).replace(".", "").toUpperCase(),
+      moment: window.BeufaJeu.moment(d) === "matin" ? "★ MATIN ★" : "★ SOIR ★"
+    };
+  }
+  function tamponCanvas(x, cx, cy, r) {
+    const t = infosTampon(), k = Math.ceil(r * 2 + 24);
+    const o = document.createElement("canvas"); o.width = o.height = k;
+    const g = o.getContext("2d"), m = k / 2;
+    g.strokeStyle = g.fillStyle = "#e0243c";
+    g.lineWidth = r * .07; g.beginPath(); g.arc(m, m, r, 0, 7); g.stroke();
+    g.lineWidth = r * .025; g.beginPath(); g.arc(m, m, r * .82, 0, 7); g.stroke();
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = `900 ${r * .34}px Fredoka, ui-rounded, system-ui, sans-serif`; g.fillText("BROSSÉ !", m, m - r * .3);
+    g.fillRect(m - r * .62, m - r * .07, r * 1.24, r * .03);
+    g.font = `800 ${r * .2}px Fredoka, ui-rounded, system-ui, sans-serif`; g.fillText(t.date, m, m + r * .14);
+    g.font = `800 ${r * .15}px Fredoka, ui-rounded, system-ui, sans-serif`; g.fillText(t.moment, m, m + r * .44);
+    // encre irrégulière
+    g.globalCompositeOperation = "destination-out";
+    for (let i = 0; i < 260; i++) { g.globalAlpha = Math.random() * .6; g.beginPath(); g.arc(Math.random() * k, Math.random() * k, Math.random() * r * .035 + 1, 0, 7); g.fill(); }
+    x.save(); x.translate(cx, cy); x.rotate(-.2); x.globalAlpha = .9; x.drawImage(o, -m, -m); x.restore();
+  }
+
+  function composer({ pose, img, bulle, tampon }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
@@ -762,6 +789,10 @@
       [[-.55, .1, 26, "#ffd166"], [.5, .02, 20, "#fff"], [-.35, .35, 16, "#8fe3ea"], [.55, .4, 24, "#ff7aa2"]]
         .forEach(([dx, dy, r, c]) => etoile(x, cx + dx * w, py + dy * h, r, c));
       if (bulle) bulleCanvas(x, bulle, pose.cote === "droite" ? W * .66 : W * .34, Math.max(70, py - 70), pose.cote === "droite" ? 1 : -1);
+    }
+    if (tampon) {   // côté utilisateur, en bas
+      const r = Math.max(W, H) * .12;
+      tamponCanvas(x, pose.cote === "droite" ? r + W * .06 : W - r - W * .06, H - BANDE - r - H * .03, r);
     }
     // bandeau souvenir
     x.fillStyle = "rgba(255,255,255,.88)"; x.fillRect(0, H - BANDE, W, BANDE);
@@ -881,7 +912,8 @@
     $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
     const avecPh = photos.length > 0;
-    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose }));
+    if (avecPh) photos[photos.length - 1].tampon = true;   // le tampon du jour, sur la dernière photo
+    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon }));
     const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
     montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
     montrer("fin");
@@ -914,6 +946,8 @@
     elRevPart.style.bottom = (createur ? 0 : PART.bas * 100) + "%";
     elRevPart.className = `rev-part cote-${r.pose.cote}`;
     elRevScene.className = "rev-scene"; rejouer(elRevScene, "apparait");
+    const elT = $("#rev-tampon"); elT.hidden = true; elT.className = `rev-tampon cote-${r.pose.cote}`;
+    if (r.tampon) { const t = infosTampon(); $("#rev-tampon-date").textContent = t.date; $("#rev-tampon-moment").textContent = t.moment; }
     $("#rev-suite").textContent = revI < revs.length - 1 ? "Photo suivante" : "Voir ma récompense";
     // roulement de tambour… puis le partenaire arrive
     for (let k = 0; k < 8; k++) bip(180 + k * 12, .05, k * .11);
@@ -921,6 +955,10 @@
       elRevPart.classList.add("arrive");
       bip(784, .12); bip(1047, .12, .12); bip(1319, .2, .24); vibrer([60, 40, 120]);
       if (revI === 0) parler(createur ? "Surprise ! On s'est brossé les dents ensemble !" : "Surprise ! C'est moi, Beufa !");
+      if (r.tampon) revT = setTimeout(() => {
+        const elT = $("#rev-tampon"); elT.hidden = false; rejouer(elT, "pan");
+        bip(90, .18); bip(140, .1, .02); vibrer(90);
+      }, 1300);
     }, 1100);
   }
   $("#rev-suite").addEventListener("click", () => {
