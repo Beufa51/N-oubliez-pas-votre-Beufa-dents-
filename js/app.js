@@ -439,6 +439,7 @@
   async function demarrer() {
     const qui = window.BeufaJeu.profilActif();
     if (!qui || !qui.age) return ouvrirFiche(qui, demarrer);
+    arreterFond();
     $("#btn-demarrer").disabled = true;
     debloquerSon();
     if (mode === "beufa") pleinEcran(true);
@@ -489,7 +490,7 @@
   function arreter() {
     pleinEcran(false);
     cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil"; taire();
-    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil");
+    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil"); jouerFond();
   }
 
   const avecPhotos = () => mode === "beufa" && !!flux;
@@ -1051,10 +1052,7 @@
   $("#btn-album-retour").addEventListener("click", () => { majSuivi(); montrer("accueil"); });
   majProfils();
 
-  /* ---------- intro : le générique « Votre plus beau sourire » ----------
-     La chanson se joue une fois en entier ; si on reste sur l'intro, l'orchestre seul
-     (8 mesures sans paroles, entre les deux phrases de l'animateur) tourne en boucle. */
-  const BOUCLE = { debut: 7.187, fin: 22.371 };
+  /* ---------- intro : le générique « Votre plus beau sourire », joué une seule fois ---------- */
   const musique = { tampon: null, source: null, gain: null, lancee: false };
   let chargementMusique = null;
   function chargerMusique() {
@@ -1068,17 +1066,17 @@
       .catch(() => null);
     return chargementMusique;
   }
-  function brancher(boucle) {
+  function brancher() {
     const src = audio.createBufferSource(); src.buffer = musique.tampon; src.connect(musique.gain);
-    if (boucle) { src.loop = true; src.loopStart = BOUCLE.debut; src.loopEnd = BOUCLE.fin; src.start(0, BOUCLE.debut); }
-    else { src.start(); src.onended = () => { if (musique.source === src && phase === "intro") brancher(true); }; }
+    src.start();
+    src.onended = () => { if (musique.source === src) musique.source = null; };   // fin de la chanson : silence
     musique.source = src;
   }
   function jouerMusique() {
     if (!sonActif || phase !== "intro" || !musique.tampon || musique.source) return;
     if (audio.state !== "running") return;
     musique.gain = audio.createGain(); musique.gain.gain.value = .85; musique.gain.connect(audio.destination);
-    brancher(false); musique.lancee = true; $("#intro-son").hidden = true;
+    brancher(); musique.lancee = true; $("#intro-son").hidden = true;
   }
   function arreterMusique(fondu = .6) {
     const src = musique.source, g = musique.gain;
@@ -1087,12 +1085,13 @@
     try { g.gain.setTargetAtTime(0, audio.currentTime, fondu / 3); src.stop(audio.currentTime + fondu); } catch (e) {}
   }
   function majMusique() {
+    if (phase === "accueil") return sonActif ? jouerFond() : arreterFond(.3);
     if (phase !== "intro") return;
     if (sonActif) { if (audio && audio.state !== "running") audio.resume().then(jouerMusique).catch(() => {}); else jouerMusique(); }
     else { arreterMusique(.3); $("#intro-son").hidden = true; }
   }
-  // la chanson se charge pendant l'écran « Appuyez sur l'écran »
-  chargerMusique();
+  // la chanson se charge pendant l'écran « Appuyez sur l'écran », puis la musique de fond
+  chargerMusique().then(() => chargerFond());
   // l'appui autorise le son (règle des téléphones) : on passe à l'intro et la musique démarre
   function lancerIntro() {
     if (phase !== "demarrage") return;
@@ -1108,8 +1107,50 @@
   }
   ecrans.demarrage.addEventListener("click", lancerIntro);
   ecrans.demarrage.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lancerIntro(); } });
+  /* ---------- musique de fond de l'interface : « Game Show Groove » (sans paroles) ----------
+     Elle démarre avec son intro, puis tourne en boucle sur 85 mesures de groove (129 BPM),
+     de 3,516 s à 161,652 s : on ne rejoue jamais l'intro ni la coupure de la fin.
+     Elle joue sur l'accueil et l'album, s'arrête pendant le brossage et reprend où elle en était. */
+  const FOND = { debut: 3.516, fin: 161.652, volume: .38 };
+  const fond = { tampon: null, source: null, gain: null, depart: 0, pos: 0 };
+  let chargementFond = null;
+  function chargerFond() {
+    if (!chargementFond) chargementFond = fetch("assets/fond.mp3")
+      .then(r => r.arrayBuffer())
+      .then(ab => {
+        audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+        return new Promise((ok, ko) => audio.decodeAudioData(ab, ok, ko));
+      })
+      .then(t => (fond.tampon = t))
+      .catch(() => null);
+    return chargementFond;
+  }
+  function positionFond() {
+    let p = audio.currentTime - fond.depart;
+    if (p > FOND.fin) p = FOND.debut + ((p - FOND.debut) % (FOND.fin - FOND.debut));
+    return p;
+  }
+  function jouerFond() {
+    if (!sonActif || phase !== "accueil" || fond.source || !audio) return;
+    if (!fond.tampon) { chargerFond().then(() => { if (fond.tampon) jouerFond(); }); return; }
+    if (audio.state !== "running") { audio.resume().then(() => { if (audio.state === "running") jouerFond(); }).catch(() => {}); return; }
+    const g = audio.createGain(); g.gain.value = 0; g.connect(audio.destination);
+    g.gain.setTargetAtTime(FOND.volume, audio.currentTime, .4);          // fondu d'entrée
+    const src = audio.createBufferSource(); src.buffer = fond.tampon;
+    src.loop = true; src.loopStart = FOND.debut; src.loopEnd = FOND.fin;
+    src.connect(g); src.start(0, fond.pos);
+    fond.depart = audio.currentTime - fond.pos; fond.source = src; fond.gain = g;
+  }
+  function arreterFond(fondu = .6) {
+    const src = fond.source, g = fond.gain;
+    if (!src) return;
+    fond.pos = positionFond(); fond.source = null;
+    try { g.gain.setTargetAtTime(0, audio.currentTime, fondu / 3); src.stop(audio.currentTime + fondu); } catch (e) {}
+  }
+
   function quitterIntro() {
     arreterMusique(); phase = "accueil"; montrer("accueil");
+    jouerFond();
     if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);
   }
   ecrans.intro.addEventListener("click", e => {
@@ -1125,13 +1166,13 @@
     if (surBouton) quitterIntro();
   });
   document.addEventListener("visibilitychange", () => {
-    if (phase !== "intro" || !audio) return;
+    if ((phase !== "intro" && phase !== "accueil") || !audio) return;
     if (document.hidden) audio.suspend().catch(() => {}); else audio.resume().catch(() => {});
   });
 
   $("#btn-demarrer").addEventListener("click", demarrer);
   $("#btn-arreter").addEventListener("click", arreter);
-  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); majSuivi(); montrer("accueil"); });
+  $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); majSuivi(); montrer("accueil"); jouerFond(); });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) taire();
     if (!document.hidden && (phase === "brosse" || phase === "pause")) garderEcran();
