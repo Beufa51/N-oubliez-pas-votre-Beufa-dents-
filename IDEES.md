@@ -169,8 +169,8 @@ Pas de publication sur le Play Store.
   (ovale doré qui clignote, « Place-toi ! », « Mets ta tête dans l'ovale, et fais la pose ! ») avant le 3-2-1 : on voit la
   caméra environ 7 s avant la photo au lieu de 3.
 - [x] **Audit fun / pratique / envie** (session 10, note 6/10) — points 2, 3, 4 et 9 faits :
-  - **réglages retenus par utilisateur** (mode, durée, caméra, photos) ; **générique une fois par jour**, ensuite « Appuie
-    sur l'écran » mène droit à l'accueil ;
+  - **réglages retenus par utilisateur** (mode, durée, caméra, photos) ; le générique passe **à chaque ouverture**
+    (choix du créateur, on le passe avec « Appuie pour continuer ») ;
   - **musique de fond tout bas pendant le brossage** (sous la voix de Beufa), arrêtée pour la fanfare de fin ;
   - mode Beufa dents **« 2 photos » (rapide) ou « 4 photos » (le grand show)** : la rubrique Photos remplace Caméra dans ce mode ;
   - **« tu » partout** (« Appuie sur l'écran ») et textes clés plus gros pour être lus de loin.
