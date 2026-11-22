@@ -541,9 +541,21 @@ button, input { font-family: inherit; }
 }
 .logo-fin { font-size: clamp(2rem, 10vw, 2.8rem); transform: rotate(-2deg); }
 
+/* accueil : panneau lumineux du titre */
+.titre-image { margin: 0; width: min(68%, 320px); flex: 0 0 auto; line-height: 0; transform: rotate(-2deg); }
+.titre-image img {
+  width: 100%; height: auto; display: block; border-radius: 6.5% / 10.5%;
+  filter: drop-shadow(0 0 10px rgba(255,170,80,.75)) drop-shadow(0 8px 14px rgba(11,60,120,.35));
+  animation: neon 3.2s ease-in-out infinite;
+}
+@keyframes neon {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,170,80,.6)) drop-shadow(0 8px 14px rgba(11,60,120,.35)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 16px rgba(255,190,90,.95)) drop-shadow(0 8px 14px rgba(11,60,120,.35)); transform: scale(1.02); }
+}
+
 /* accueil : Beufa et sa bulle */
-.accueil-hero { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px; margin: 2px 0 4px; }
-#ecran-accueil .accueil-hero .mascotte-accueil { height: min(16dvh, 150px); margin: 0; animation: coucou 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.accueil-hero { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px; margin: -4px 0 4px; }
+#ecran-accueil .accueil-hero .mascotte-accueil { height: min(11dvh, 110px); margin: 0; animation: coucou 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
 @keyframes coucou { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg) translateY(-4px); } }
 .salut-bulle {
   position: relative; max-width: 58%; background: #fff; border-radius: 22px; padding: 10px 14px; font-weight: 600; font-size: 1.02rem;
@@ -574,9 +586,10 @@ button, input { font-family: inherit; }
 .option .ico { font-size: 1.35rem; line-height: 1.05; }
 #ecran-accueil .titre.logo span { font-size: clamp(2.1rem, 10vw, 2.8rem); }
 #ecran-accueil .suivi { margin: 0 0 8px; }
-@media (max-height: 800px) {
+@media (max-height: 860px) {
+  .titre-image { width: min(58%, 280px); }
   #ecran-accueil .option small { display: none; }
-  #ecran-accueil .accueil-hero .mascotte-accueil { height: min(13dvh, 120px); }
+  #ecran-accueil .accueil-hero .mascotte-accueil { height: min(10dvh, 90px); }
   .salut-bulle { font-size: .92rem; padding: 8px 12px; }
 }
 .option { padding: 6px 6px 7px; gap: 0; }
@@ -687,8 +700,14 @@ button, input { font-family: inherit; }
 .fiche-champ > span { text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 600; color: var(--encre); }
 .fiche-champ input { font-weight: 600; }
 
+/* petits écrans : l'accueil doit tenir sans défiler */
+@media (max-height: 760px) {
+  .titre-image { width: min(50%, 240px); }
+  .profil .avatar { width: 32px; height: 32px; font-size: 1.05rem; }
+  .profil small { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img { animation: none !important; }
   .mousse { display: none; }
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }

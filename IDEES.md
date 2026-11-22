@@ -142,6 +142,8 @@ Pas de publication sur le Play Store.
   avec des bulles qui montent, titre façon logo, Beufa qui salue avec une bulle (selon l'heure, le prénom et le ton),
   choix en grosses pastilles colorées avec emojis et coche, boutons « bonbon » roses, minuteur en dégradé,
   pauses et titres dans l'ambiance du studio.
+- [x] **Panneau-titre** fourni par le créateur (« N'oubliez votre ~~brosse~~ Beufa dents », style néon et paillettes) en haut de l'accueil :
+  recadré sur le panneau (coins arrondis transparents), `assets/titre.webp`, léger halo néon qui pulse.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
