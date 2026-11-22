@@ -1179,6 +1179,17 @@
   });
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    // nouvelle version installée : on recharge tout seul, mais jamais en plein brossage
+    const avaitUnControleur = !!navigator.serviceWorker.controller;
+    let rechargee = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!avaitUnControleur || rechargee) return;
+      const recharger = () => { if (!rechargee) { rechargee = true; location.reload(); } };
+      if (phase === "demarrage" || phase === "intro" || phase === "accueil") return recharger();
+      const attente = setInterval(() => { if (phase === "accueil") { clearInterval(attente); recharger(); } }, 2000);
+    });
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+      .then(r => r.update())
+      .catch(() => {});
   }
 })();

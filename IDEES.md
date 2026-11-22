@@ -161,6 +161,9 @@ Pas de publication sur le Play Store.
   en 112 kb/s). Démarre avec son intro puis boucle sur 85 mesures de groove (3,516 s → 161,652 s, 129 BPM ; points trouvés
   par ressemblance du son). Joue sur l'accueil et l'album, fondu d'entrée, s'arrête pendant le brossage et reprend où elle
   en était ; 🔊/🔇 respecté ; pause si l'appli passe en arrière-plan.
+- [x] **Mises à jour visibles tout de suite** (session 9) : la copie hors ligne prend désormais toujours la dernière version
+  en ligne des pages, scripts et styles quand il y a du réseau (la copie ne sert qu'hors ligne), télécharge sans passer par
+  le cache du navigateur, et l'appli se recharge seule quand une nouvelle version s'installe (jamais en plein brossage).
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
