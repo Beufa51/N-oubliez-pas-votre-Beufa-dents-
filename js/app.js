@@ -1126,10 +1126,7 @@
   function lancerIntro() {
     if (phase !== "demarrage") return;
     debloquerSon();
-    // le générique ne passe qu'au premier lancement de la journée ; ensuite, un appui mène droit à l'accueil
-    const auj = window.BeufaJeu.cleJour(new Date());
-    if (lireReglage("intro-vue", "") === auj) return quitterIntro();
-    ecrireReglage("intro-vue", auj);
+    try { localStorage.removeItem("beufa-intro-vue"); } catch (e) {}   // ancien réglage « une fois par jour », plus utilisé
     phase = "intro"; montrer("intro");
     if (!sonActif) return;
     Promise.all([audio.resume().catch(() => {}), chargerMusique()]).then(() => {
