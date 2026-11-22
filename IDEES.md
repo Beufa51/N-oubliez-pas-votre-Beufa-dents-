@@ -178,8 +178,12 @@ Pas de publication sur le Play Store.
   progression après les 21 cartes, défi famille / récompenses des parents, ta voix enregistrée.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
-- [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;
-  accueil trop long sur petit écran ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des boutons de choix.
+- [ ] Petits restes du 1er audit (séries, matin/soir, réglages retenus et planche BD déjà faits) : accueil qui défile un peu
+  sur très petit écran (iPhone SE) ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des choix.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
+- [ ] Images Gemini facultatives : Beufa déguisé pour les 21 cartes (fond vert #00FF00, même style que les poses),
+  icône de l'appli dans le style du panneau néon (carrée, sans texte), pose « check de poing ».
+- À vérifier sur le téléphone du créateur : affichage de la caméra (image entière ou bande étroite si elle filme à
+  l'horizontale), raccord de la boucle de la musique de fond.
 - [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).
