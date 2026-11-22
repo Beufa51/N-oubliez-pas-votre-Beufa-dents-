@@ -16,13 +16,38 @@
     "Petits va-et-vient sur le dessus des dents"
   ];
   const TOUTES_POSES = ["pouce", "coeur", "main-levee", "pointe-du-doigt", "pensif", "bras-croises", "mains-hanches"];
-  // mini-défis lancés à chaque changement de zone (faisables en brossant)
-  const DEFIS = [
-    "Brosse en faisant les gros yeux !", "Brosse sur un seul pied !", "Petits cercles comme un robot : bip, bip !",
-    "Brosse en dansant !", "Brosse en faisant un clin d'œil !", "Brosse au ralenti, tout doux !",
-    "Lève les sourcils en brossant !", "Brosse en marchant sur place !", "Brosse en faisant le dos rond comme un chat !"
-  ];
-  const BRAVOS = ["Super !", "Bien joué !", "Continue comme ça !", "Tu gères !", "Ça brille déjà !"];
+  /* ---------- deux tons : enfant, et adulte (au-dessus de 16 ans) ---------- */
+  const TONS = {
+    enfant: {
+      // mini-défis lancés à chaque changement de zone (faisables en brossant)
+      defis: [
+        "Brosse en faisant les gros yeux !", "Brosse sur un seul pied !", "Petits cercles comme un robot : bip, bip !",
+        "Brosse en dansant !", "Brosse en faisant un clin d'œil !", "Brosse au ralenti, tout doux !",
+        "Lève les sourcils en brossant !", "Brosse en marchant sur place !", "Brosse en faisant le dos rond comme un chat !"
+      ],
+      bravos: ["Super !", "Bien joué !", "Continue comme ça !", "Tu gères !", "Ça brille déjà !"],
+      reactions: ["Trop bien !", "Magnifique !", "Quelle star !", "Top photo !", "On est trop beaux !"],
+      bulles: ["Dents de star !", "Équipe Beufa !", "On brille !", "Trop stylé !", "Sourire XXL !"],
+      microbes: "microbes vaincus",
+      fin: (n, carte, nouvelle) => ` Tu as vaincu ${n} microbes, et tu gagnes la carte ${carte}${nouvelle ? "" : ", encore elle"} !`,
+      serie: n => ` ${n} jours d'affilée, continue !`
+    },
+    adulte: {
+      defis: [
+        "Brosse avec ta main gauche… ou droite, l'autre quoi !", "Brosse comme dans une pub de dentifrice, regard caméra.",
+        "Équilibre sur un pied, version yoga.", "Lève un sourcil, façon agent secret.", "Quelques squats en brossant, pourquoi pas ?",
+        "Petits cercles lents : c'est ta méditation du jour.", "Dos droit, épaules basses : posture de champion.",
+        "Brosse en fredonnant ta chanson préférée dans ta tête.", "Fixe ton reflet avec un air très sérieux."
+      ],
+      bravos: ["Impeccable.", "Belle technique.", "Rien à redire.", "Travail de pro.", "Ton dentiste serait fier."],
+      reactions: ["Photo de couverture !", "Classe.", "On dirait une pub !", "Parfait.", "Celle-là, on l'encadre."],
+      bulles: ["Sourire de pub !", "Duo de choc", "Brossage validé", "La classe", "Team Beufa"],
+      microbes: "bactéries éliminées",
+      fin: (n, carte, nouvelle) => ` ${n} bactéries éliminées. ${nouvelle ? "Nouvelle carte" : "Encore une fois la carte"} : ${carte}.`,
+      serie: n => ` ${n} jours d'affilée, belle régularité.`
+    }
+  };
+  const ton = () => TONS[window.BeufaJeu.estAdulte() ? "adulte" : "enfant"];
   const hasard = t => t[Math.floor(Math.random() * t.length)];
 
   /* ---------- mode Beufa dents : gabarits de montage ----------
@@ -34,8 +59,6 @@
   const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
   const POSE_CLIC = POSE_PREP + POSE_COMPTE;
   const POSE_DUREE = POSE_CLIC + POSE_APRES;
-  const REACTIONS = ["Trop bien !", "Magnifique !", "Quelle star !", "Top photo !", "On est trop beaux !"];
-  const BULLES_MONTAGE = ["Dents de star !", "Équipe Beufa !", "On brille !", "Trop stylé !", "Sourire XXL !"];
   const POSES_BEUFA = [
     { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !" },
     { id: "pouce",         mascotte: "pouce",           cote: "gauche", consigne: "Pouce en l'air !" },
@@ -137,12 +160,87 @@
   });
   majBoutonsSon();
 
-  /* ---------- prénom (facultatif, gardé sur le téléphone) ---------- */
-  const elPrenom = $("#prenom");
-  let prenom = String(lireReglage("prenom", "") || "");
-  elPrenom.value = prenom;
-  elPrenom.addEventListener("input", () => { prenom = elPrenom.value.trim().slice(0, 16); ecrireReglage("prenom", prenom); });
-  elPrenom.addEventListener("keydown", e => { if (e.key === "Enter") elPrenom.blur(); });
+  /* ---------- utilisateurs : prénom + âge, gardés sur le téléphone ---------- */
+  let prenom = "";
+  const COULEURS = ["#14b8c4", "#ff7aa2", "#f5a623", "#7c4dff", "#2e9d4f", "#e63946"];
+  function majProfils() {
+    const P = window.BeufaJeu.profils(), act = window.BeufaJeu.profilActif();
+    prenom = act ? act.prenom : "";
+    const box = $("#profils"); box.innerHTML = "";
+    P.liste.forEach((x, i) => {
+      const b = document.createElement("button"); b.type = "button";
+      b.className = "profil" + (x.id === P.actif ? " actif" : ""); b.dataset.id = x.id;
+      b.setAttribute("aria-pressed", String(x.id === P.actif));
+      const a = document.createElement("span"); a.className = "avatar"; a.style.background = COULEURS[i % COULEURS.length];
+      a.textContent = (x.prenom[0] || "?").toUpperCase();
+      const n = document.createElement("span"); n.className = "profil-nom"; n.textContent = x.prenom;
+      const g = document.createElement("small"); g.textContent = x.age ? `${x.age} ans` : "âge ?";
+      b.append(a, n, g);
+      if (x.id === P.actif) { const e = document.createElement("span"); e.className = "profil-edit"; e.textContent = "✏️"; e.setAttribute("aria-hidden", "true"); b.append(e); }
+      box.appendChild(b);
+    });
+    const plus = document.createElement("button"); plus.type = "button"; plus.className = "profil ajouter";
+    plus.innerHTML = '<span class="avatar">+</span><span class="profil-nom">Ajouter</span>';
+    box.appendChild(plus);
+    if (typeof majSuivi === "function") majSuivi();
+    majSalut(act);
+  }
+  function majSalut(act) {
+    const h = new Date().getHours(), nom = act ? " " + act.prenom : "";
+    const adulte = window.BeufaJeu.estAdulte(act);
+    const moment = h < 11 ? (adulte ? `Bonjour${nom} ! Un brossage pour bien démarrer ?` : `Coucou${nom} ! On réveille ces dents ?`)
+      : h < 18 ? (adulte ? `Salut${nom} ! Deux minutes de brillance ?` : `Salut${nom} ! On chasse les microbes ?`)
+      : (adulte ? `Bonsoir${nom} ! Le brossage du soir, et au lit.` : `Bonsoir${nom} ! On brosse avant dodo ?`);
+    $("#salut").textContent = moment.replace(/ ([?!])/g, "\u00a0$1");
+  }
+  $("#profils").addEventListener("click", e => {
+    const b = e.target.closest(".profil"); if (!b) return;
+    if (b.classList.contains("ajouter")) return ouvrirFiche(null);
+    if (b.classList.contains("actif")) return ouvrirFiche(window.BeufaJeu.profilActif());
+    window.BeufaJeu.choisirProfil(b.dataset.id); majProfils(); bip(660, .06);
+  });
+
+  // fiche : prénom + âge ; au-dessus de 16 ans, le ton change
+  const elFiche = $("#fiche"), elFichePrenom = $("#fiche-prenom"), elFicheAge = $("#fiche-age");
+  let ficheId = null, apresFiche = null;
+  function majTon() {
+    const a = parseInt(elFicheAge.value, 10);
+    $("#fiche-ton").textContent = !a ? "" : a > 16 ? "🎩 Beufa prendra un ton adulte." : "🎈 Beufa prendra un ton rigolo pour enfant.";
+  }
+  function ouvrirFiche(x, suite = null) {
+    ficheId = x ? x.id : null; apresFiche = suite;
+    const aucun = !window.BeufaJeu.profils().liste.length;
+    $("#fiche-titre").textContent = x ? `Profil de ${x.prenom}` : aucun ? "Qui se brosse les dents ?" : "Nouveau brosseur";
+    elFichePrenom.value = x ? x.prenom : "";
+    elFicheAge.value = x && x.age ? x.age : "";
+    $("#fiche-supprimer").hidden = !x;
+    $("#fiche-annuler").hidden = aucun;
+    $("#fiche-erreur").hidden = true;
+    majTon(); elFiche.hidden = false;
+    setTimeout(() => (x && !x.age ? elFicheAge : elFichePrenom).focus(), 50);
+  }
+  function fermerFiche() { elFiche.hidden = true; }
+  elFicheAge.addEventListener("input", majTon);
+  [elFichePrenom, elFicheAge].forEach(i => i.addEventListener("input", () => { $("#fiche-erreur").hidden = true; }));
+  $("#age-moins").addEventListener("click", () => { elFicheAge.value = Math.max(1, (parseInt(elFicheAge.value, 10) || 8) - 1); majTon(); });
+  $("#age-plus").addEventListener("click", () => { elFicheAge.value = Math.min(120, (parseInt(elFicheAge.value, 10) || 7) + 1); majTon(); });
+  $("#fiche-annuler").addEventListener("click", fermerFiche);
+  $("#fiche-supprimer").addEventListener("click", () => {
+    const x = window.BeufaJeu.profilActif();
+    if (!x || !confirm(`Supprimer le profil de ${x.prenom}, avec son album et ses séries ?`)) return;
+    window.BeufaJeu.supprimerProfil(x.id); fermerFiche(); majProfils();
+    if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);
+  });
+  $("#fiche-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const nom = elFichePrenom.value.trim(), age = parseInt(elFicheAge.value, 10);
+    const err = !nom ? "Il manque le prénom." : !(age >= 1 && age <= 120) ? "Il manque l'âge." : "";
+    if (err) { const p = $("#fiche-erreur"); p.textContent = err; p.hidden = false; return; }
+    window.BeufaJeu.enregistrerProfil({ id: ficheId, prenom: nom, age });
+    fermerFiche(); majProfils(); bip(784, .08);
+    if (apresFiche) { const f = apresFiche; apresFiche = null; f(); }
+  });
+
   const avecPrenom = (debut, fin = "") => prenom ? `${debut} ${prenom}${fin}` : `${debut}${fin}`;
 
   const ZONES_VOIX = ["en haut à gauche", "en haut à droite", "en bas à droite", "en bas à gauche"];
@@ -337,6 +435,8 @@
 
   /* ---------- brossage ---------- */
   async function demarrer() {
+    const qui = window.BeufaJeu.profilActif();
+    if (!qui || !qui.age) return ouvrirFiche(qui, demarrer);
     $("#btn-demarrer").disabled = true;
     debloquerSon();
     if (mode === "beufa") pleinEcran(true);
@@ -443,7 +543,7 @@
       for (let k = 0; k < z; k++) devoiler(k);
       if (derniereZone !== -1 && phase === "brosse") {
         bip(740, .12); vibrer(120);
-        defiActuel = hasard(DEFIS); defiJusqua = ecoule + Math.min(8, duree / 12);
+        defiActuel = hasard(ton().defis); defiJusqua = ecoule + Math.min(8, duree / 12);
         parler(`Maintenant, ${ZONES_VOIX[z]} ! Défi : ${defiActuel}`);
         animerMascotte();
       }
@@ -452,7 +552,7 @@
     if (p !== dernierPoint) {
       if (dernierPoint !== -1 && phase === "brosse" && z === derniereZone) {
         bip(520, .06);
-        if (!zoneAnnoncee && !avantPhoto) parler(`${hasard(BRAVOS)} ${FACES_VOIX[p][0].toUpperCase() + FACES_VOIX[p].slice(1)} !`);
+        if (!zoneAnnoncee && !avantPhoto) parler(`${hasard(ton().bravos)} ${FACES_VOIX[p][0].toUpperCase() + FACES_VOIX[p].slice(1)} !`);
         if (!zoneAnnoncee) animerMascotte();
       }
       dernierPoint = p;
@@ -467,7 +567,7 @@
           if (n > 0) {
             bip(600, .08); vibrer(40); parler(String(n));
             elStudioCompte.classList.remove("pop"); void elStudioCompte.offsetWidth; elStudioCompte.classList.add("pop");
-            elPartenaire.className = "partenaire danse";
+            rejouer(elPartenaire, "battement");
           }
         }
       } else {
@@ -561,13 +661,15 @@
     elDemoImg.src = IMG(p.mascotte);
     elDemoConsigne.textContent = p.consigne;
     elStudioHaut.textContent = p.consigne;
+    $("#studio-guide").src = IMG(p.mascotte);
     elStudioCompte.textContent = "";
+    // la place du partenaire reste vide : sa photo n'apparaîtra qu'après le brossage (surprise)
     const partenaire = p.createur || p.imgMascotte;
-    elPartenaire.src = partenaire.src;
     elPartenaire.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
     elPartenaire.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
-    elPartenaire.className = "partenaire";
-    elBulle.textContent = "À toi !"; elBulle.classList.remove("reaction");
+    elPartenaire.style.aspectRatio = partenaire.naturalWidth ? `${partenaire.naturalWidth} / ${partenaire.naturalHeight}` : "305 / 738";
+    elPartenaire.className = "zone-surprise";
+    elBulle.textContent = "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
     etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
@@ -598,13 +700,13 @@
     const x = c.getContext("2d");
     x.translate(c.width, 0); x.scale(-1, 1);
     x.drawImage(v, 0, 0, c.width, c.height);
-    photos.push({ pose: poseActuelle, img: c, bulle: BULLES_MONTAGE[Math.floor(Math.random() * BULLES_MONTAGE.length)] });
+    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles) });
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
-    elBulle.textContent = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
-    parler("Clic ! " + (Math.random() < .5 ? avecPrenom(elBulle.textContent.replace(/ !$/, ""), " !") : elBulle.textContent));
+    elBulle.textContent = hasard(ton().reactions);
+    parler("Clic ! " + (Math.random() < .5 ? avecPrenom(elBulle.textContent.replace(/ ?[!.]$/, ""), " !") : elBulle.textContent));
     elBulle.classList.add("reaction"); rejouer(elBulle, "pop");
-    elPartenaire.className = "partenaire"; rejouer(elPartenaire, "saute");
+    elPartenaire.classList.remove("battement");
     rejouer(elFlash, "go");
     bip(1200, .05); bip(900, .08, .05); vibrer(60);
   }
@@ -678,6 +780,7 @@
   function viderGalerie() {
     souvenirs.forEach(s => URL.revokeObjectURL(s.url));
     souvenirs = []; elGalerie.innerHTML = ""; elMontages.hidden = true;
+    if (typeof elRev !== "undefined") { elRev.hidden = true; clearTimeout(revT); revFin = null; }
     ecrans.fin.classList.remove("avec-photos"); elVision.hidden = true;
   }
 
@@ -777,14 +880,55 @@
     vibrer([200, 100, 200, 100, 400]);
     $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
-    montrerCarteGagnee(res);
-    feter(photos.length > 0, res);
-    confettis(); montrer("fin");
+    const avecPh = photos.length > 0;
+    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose }));
+    const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
+    montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
+    montrer("fin");
     afficherMontages();
+    if (avecPh) lancerRevelation(revs, recompense); else recompense();
   }
 
   // petite fanfare, Beufa qui danse, les 4 zones validées une à une
   let danseT = 0;
+  /* ---------- révélation : la photo du créateur complète celle de l'utilisateur ---------- */
+  const elRev = $("#revelation"), elRevUser = $("#rev-user"), elRevPart = $("#rev-part"), elRevScene = $("#rev-scene");
+  let revs = [], revI = 0, revT = 0, revFin = null;
+  function lancerRevelation(liste, fin) {
+    revs = liste; revI = 0; revFin = fin; elRev.hidden = false;
+    const pts = $("#rev-points"); pts.innerHTML = "";
+    liste.forEach(() => pts.appendChild(document.createElement("i")));
+    montrerRev();
+  }
+  function montrerRev() {
+    clearTimeout(revT);
+    const r = revs[revI], createur = !!r.pose.createur, part = r.pose.createur || r.pose.imgMascotte;
+    $("#rev-titre").textContent = revI === 0 ? "Surprise\u00a0!" : "Et là\u00a0?";
+    $("#rev-sous").textContent = revI === 0 ? "Quelqu'un a gardé ta photo pour la compléter…" : "Photo " + (revI + 1) + " sur " + revs.length;
+    document.querySelectorAll("#rev-points i").forEach((p, i) => p.classList.toggle("on", i <= revI));
+    elRevScene.style.aspectRatio = String(r.ratio);
+    elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
+    elRevUser.src = r.url;
+    elRevPart.src = part.src;
+    elRevPart.style.height = (createur ? PART.createurH : PART.mascotteH) * 100 + "%";
+    elRevPart.style.bottom = (createur ? 0 : PART.bas * 100) + "%";
+    elRevPart.className = `rev-part cote-${r.pose.cote}`;
+    elRevScene.className = "rev-scene"; rejouer(elRevScene, "apparait");
+    $("#rev-suite").textContent = revI < revs.length - 1 ? "Photo suivante" : "Voir ma récompense";
+    // roulement de tambour… puis le partenaire arrive
+    for (let k = 0; k < 8; k++) bip(180 + k * 12, .05, k * .11);
+    revT = setTimeout(() => {
+      elRevPart.classList.add("arrive");
+      bip(784, .12); bip(1047, .12, .12); bip(1319, .2, .24); vibrer([60, 40, 120]);
+      if (revI === 0) parler(createur ? "Surprise ! On s'est brossé les dents ensemble !" : "Surprise ! C'est moi, Beufa !");
+    }, 1100);
+  }
+  $("#rev-suite").addEventListener("click", () => {
+    if (++revI < revs.length) return montrerRev();
+    clearTimeout(revT); elRev.hidden = true; taire();
+    if (revFin) { const f = revFin; revFin = null; f(); }
+  });
+
   function montrerCarteGagnee(res) {
     const boite = $("#fin-carte-boite"), bloc = $("#fin-carte");
     boite.innerHTML = ""; bloc.hidden = !res;
@@ -793,7 +937,7 @@
     if (!res) return;
     $("#fin-carte-titre").textContent = res.nouvelle ? (carteSession.rare ? "Carte RARE\u00a0!" : "Nouvelle carte\u00a0!") : `Encore elle\u00a0! (×${res.exemplaires})`;
     const c = JEU.carteEl(carteSession); c.classList.add("retourne"); boite.appendChild(c);
-    [`🦠 ${microbes} microbes vaincus`, `🔥 ${res.serie} jour${res.serie > 1 ? "s" : ""} d'affilée`]
+    [`🦠 ${microbes} ${ton().microbes}`, `🔥 ${res.serie} jour${res.serie > 1 ? "s" : ""} d'affilée`]
       .concat(res.deuxFois ? ["☀️🌙 Matin et soir !"] : [])
       .forEach((t, i) => { const b = document.createElement("span"); b.textContent = t; b.style.animationDelay = (.6 + i * .25) + "s"; st.appendChild(b); });
   }
@@ -806,8 +950,8 @@
       const d = document.createElement("span"); d.textContent = "✓ " + z; d.style.animationDelay = (1.1 + i * .35) + "s";
       elZ.appendChild(d); bip(880 + i * 110, .1, 1.1 + i * .35);
     });
-    const carte = res ? ` Tu as vaincu ${microbes} microbes, et tu gagnes la carte ${carteSession.nom}${res.nouvelle ? "" : ", encore elle"} !` : "";
-    const serie = res && res.serie > 1 ? ` ${res.serie} jours d'affilée, continue !` : "";
+    const carte = res ? ton().fin(microbes, carteSession.nom, res.nouvelle) : "";
+    const serie = res && res.serie > 1 ? ton().serie(res.serie) : "";
     setTimeout(() => parler(avecPrenom("Bravo", " !") + carte + serie + (avecPhotos ? " Et regarde notre bande dessinée !" : "")), 900);
     const el = $("#fin-mascotte"), danse = ["pouce", "main-levee", "coeur", "mains-hanches"];
     let k = 0; clearInterval(danseT);
@@ -866,7 +1010,8 @@
   }
   $("#btn-album").addEventListener("click", ouvrirAlbum);
   $("#btn-album-retour").addEventListener("click", () => { majSuivi(); montrer("accueil"); });
-  majSuivi();
+  majProfils();
+  if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);
 
   $("#btn-demarrer").addEventListener("click", demarrer);
   $("#btn-arreter").addEventListener("click", arreter);

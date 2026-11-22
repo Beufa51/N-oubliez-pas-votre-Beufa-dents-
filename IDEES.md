@@ -128,6 +128,25 @@ Pas de publication sur le Play Store.
   - **calendrier** matin / soir (14 jours), **série de jours**, record, total de brossages et de microbes ; barre de suivi sur l'accueil.
   - Tout est enregistré sur le téléphone (rien sur un serveur). Une carte n'est gagnée que si le brossage va jusqu'au bout.
 - [x] Rappels par notification : **abandonnés** (décision du créateur, peu fiables dans une appli web).
+- [x] Concept photo précisé (session 7) : la **mascotte guide** (elle montre le geste), le **créateur est la surprise**.
+  - Pendant la photo : Beufa en petit dans la consigne en haut, et une **place gardée** en pointillés (« Place gardée pour une surprise ») là où le créateur apparaîtra ; sa photo n'est jamais montrée avant.
+  - Après le brossage : écran **« Surprise ! »** pour chaque photo : la photo de l'utilisateur, roulement de tambour, puis la photo du créateur glisse et vient la compléter. Ensuite seulement : carte gagnée, planche BD.
+  - Tant que les photos du créateur ne sont pas déposées dans `assets/createur/`, c'est Beufa qui arrive à leur place.
+  - L'utilisateur peut être un **adulte** (le premier en sera un).
+- [x] **Utilisateurs** (session 7) : on choisit « Qui se brosse les dents ? » sur l'accueil (prénom + âge, bouton « Ajouter »,
+  ✏️ pour modifier ou supprimer). Chaque utilisateur a **son album, sa série et son calendrier**.
+  - **Au-dessus de 16 ans, ton adulte** : défis plus « pub de dentifrice / yoga / agent secret » que « gros yeux / robot »,
+    encouragements sobres (« Impeccable. », « Ton dentiste serait fier. »), « bactéries éliminées » au lieu de « microbes vaincus ».
+  - L'âge est demandé avant le premier brossage. Reprise automatique du prénom et de l'album de la version précédente.
+- [x] **Interface plus fun** (session 8) : police ronde Fredoka (intégrée, licence OFL, marche hors ligne), fond « mousse »
+  avec des bulles qui montent, titre façon logo, Beufa qui salue avec une bulle (selon l'heure, le prénom et le ton),
+  choix en grosses pastilles colorées avec emojis et coche, boutons « bonbon » roses, minuteur en dégradé,
+  pauses et titres dans l'ambiance du studio.
+- [x] **Panneau-titre** fourni par le créateur (« N'oubliez votre ~~brosse~~ Beufa dents », style néon et paillettes) en haut de l'accueil :
+  recadré sur le panneau (coins arrondis transparents), `assets/titre.webp`, léger halo néon qui pulse.
+- [x] **Thème « plateau télé »** accordé au panneau-titre : nuit bleue / violette avec halos magenta et cyan, paillettes qui
+  tombent et étoiles qui scintillent, panneaux en verre sombre bordés de néon, boutons dorés façon enseigne, titres dorés
+  lumineux, sélections qui s'allument en néon ; halo blanc autour de Beufa pour qu'il ressorte ; bulles de BD gardées blanches.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
 - [ ] Reste de l'audit : séries de jours / badges / matin-soir et réglages mémorisés ; « Tout enregistrer » pour les photos ;

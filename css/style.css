@@ -1,6 +1,13 @@
+@font-face {
+  font-family: "Fredoka"; src: url("../assets/fonts/fredoka.woff2") format("woff2");
+  font-weight: 300 700; font-display: swap;
+}
 :root {
-  --fond-1: #e6fbfd;
-  --fond-2: #b9eef3;
+  --fond-1: #8ae9f0;
+  --fond-2: #ffe1ec;
+  --jaune: #ffc93c;
+  --violet: #7c4dff;
+  --rose-vif: #ff5c8a;
   --turquoise: #14b8c4;
   --turquoise-fonce: #0b8f9a;
   --encre: #12343b;
@@ -11,9 +18,9 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; margin: 0; }
 body {
-  font-family: ui-rounded, "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Fredoka", ui-rounded, "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--encre);
-  background: linear-gradient(180deg, var(--fond-1), var(--fond-2));
+  background: linear-gradient(170deg, var(--fond-1) 0%, #c4f5f8 45%, var(--fond-2) 100%);
   background-attachment: fixed;
   overflow: hidden;
   user-select: none;
@@ -266,13 +273,6 @@ body {
 }
 
 /* ----- prénom, Beufa vivant, défis ----- */
-.prenom { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; }
-.prenom span { font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--turquoise-fonce); font-weight: 800; white-space: nowrap; }
-.prenom input {
-  flex: 1; min-width: 0; border: 3px solid transparent; border-radius: 14px; padding: 9px 12px; font: inherit; font-weight: 700;
-  font-size: 1rem; color: var(--encre); background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.08);
-}
-.prenom input:focus { outline: none; border-color: var(--turquoise); }
 .mascotte { height: min(30dvh, 270px); }
 .mascotte.saute { animation: saute-m .6s ease-out; }
 @keyframes saute-m { 0% { transform: none; } 35% { transform: translateY(-18%) rotate(-6deg) scale(1.08); } 100% { transform: none; } }
@@ -292,7 +292,10 @@ body {
 .vignette.bd img { aspect-ratio: auto; }
 
 /* ----- accueil : suivi ----- */
-#ecran-accueil .mascotte-accueil { height: min(27dvh, 250px); }
+#ecran-accueil .mascotte-accueil { height: min(20dvh, 190px); margin: 2px 0; }
+#ecran-accueil .titre { margin-top: 2px; }
+#ecran-accueil .carte h2 { margin: 4px 0 6px; }
+#ecran-accueil .choix { margin-bottom: 6px; }
 .suivi { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 2px 0 10px; }
 .serie, .moments i, .btn-album {
   display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 7px 11px; font-weight: 800; font-size: .85rem;
@@ -397,6 +400,87 @@ body {
 .fin-stats span { background: #fff; border-radius: 999px; padding: 5px 11px; font-weight: 800; font-size: .9rem; box-shadow: 0 2px 8px rgba(11,143,154,.2); animation: pop .45s cubic-bezier(.3,1.6,.5,1) both; }
 #ecran-fin .fin-texte { margin: 4px 0 6px; }
 
+/* ----- place gardée pour la surprise (pendant la photo) ----- */
+.zone-surprise {
+  position: absolute; width: auto; border: 4px dashed rgba(255,255,255,.95); border-radius: 28px; background: rgba(255,255,255,.16);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px;
+  color: #fff; font-weight: 900; font-size: .9rem; line-height: 1.15; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,.5);
+  box-shadow: 0 0 0 2px rgba(11,143,154,.35);
+}
+.zone-surprise span { font-size: 2rem; }
+.cadre.cote-droite .zone-surprise { right: 2%; }
+.cadre.cote-gauche .zone-surprise { left: 2%; }
+.cadre.avec-createur.cote-droite .zone-surprise { right: 0; }
+.cadre.avec-createur.cote-gauche .zone-surprise { left: 0; }
+.zone-surprise.battement { animation: battement .5s ease-out; }
+@keyframes battement { 40% { transform: scale(1.04); background: rgba(255,255,255,.32); } }
+.studio-haut { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.studio-haut img { height: 40px; width: auto; margin: -4px 0; }
+
+/* ----- révélation après le brossage ----- */
+.revelation {
+  position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #ffffff 0, #c9f4f7 38%, #14b8c4 100%);
+}
+.revelation[hidden] { display: none; }
+.revelation::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+  background: repeating-conic-gradient(rgba(255,255,255,.35) 0 10deg, transparent 10deg 20deg); animation: rayons 14s linear infinite;
+}
+.revelation > * { position: relative; }
+.rev-titre { font-size: clamp(2rem, 10vw, 3rem); font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 4px 0 #0b8f9a, 0 8px 18px rgba(0,0,0,.25); }
+.rev-sous { font-weight: 800; font-size: 1.05rem; color: var(--encre); text-align: center; }
+.rev-scene { position: relative; border: 6px solid #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.3); background: #0b3a40; }
+.rev-scene.apparait { animation: pop .5s cubic-bezier(.3,1.5,.5,1) both; }
+.rev-user { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rev-part { position: absolute; width: auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); transition: transform .75s cubic-bezier(.3,1.45,.5,1); }
+.rev-part.cote-droite { right: 0; transform: translateX(130%); }
+.rev-part.cote-gauche { left: 0; transform: translateX(-130%); }
+.rev-part.arrive { transform: none; }
+.rev-points { display: flex; gap: 6px; }
+.rev-points i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.6); }
+.rev-points i.on { background: #ff5c8a; }
+.revelation .gros-bouton { max-width: 340px; }
+
+/* ----- utilisateurs ----- */
+.profils { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; margin-bottom: 4px; scrollbar-width: none; }
+.profils::-webkit-scrollbar { display: none; }
+.profil {
+  position: relative; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 72px;
+  border: 3px solid transparent; border-radius: 16px; padding: 8px 8px 6px; background: #fff; font: inherit; color: inherit;
+  cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.profil.actif { border-color: var(--turquoise); background: #e3fafc; }
+.profil .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 1.2rem; }
+.profil.ajouter .avatar { background: #dff3f5; color: var(--turquoise-fonce); border: 2px dashed #9fd7dd; }
+.profil-nom { font-weight: 800; font-size: .9rem; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profil small { font-size: .7rem; opacity: .65; }
+.profil-edit { position: absolute; top: 2px; right: 4px; font-size: .75rem; }
+
+.fiche { position: fixed; inset: 0; z-index: 40; background: rgba(18,52,59,.55); display: grid; place-items: center; padding: 16px; }
+.fiche[hidden] { display: none; }
+.fiche-boite {
+  width: 100%; max-width: 380px; background: #fff; border-radius: 24px; padding: 18px 18px 12px; box-shadow: 0 16px 40px rgba(0,0,0,.3);
+  animation: pop .4s cubic-bezier(.3,1.5,.5,1) both;
+}
+.fiche-boite h2 { margin: 0 0 12px; text-align: center; font-size: 1.3rem; font-weight: 900; color: #e0457a; }
+.fiche-champ { display: block; margin-bottom: 12px; }
+.fiche-champ > span { display: block; margin-bottom: 4px; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--turquoise-fonce); font-weight: 800; }
+.fiche-champ input {
+  width: 100%; border: 3px solid #dff3f5; border-radius: 14px; padding: 10px 12px; font: inherit; font-weight: 800; font-size: 1.1rem; color: var(--encre);
+}
+.fiche-champ input:focus { outline: none; border-color: var(--turquoise); }
+.age { display: flex; gap: 8px; align-items: center; }
+.age input { text-align: center; -moz-appearance: textfield; }
+.age input::-webkit-inner-spin-button, .age input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.age button { flex: 0 0 48px; height: 48px; border: 0; border-radius: 50%; background: #e3fafc; color: var(--turquoise-fonce); font-size: 1.5rem; font-weight: 900; cursor: pointer; }
+.fiche-ton { margin: 0 0 8px; min-height: 1.2em; font-weight: 700; font-size: .9rem; text-align: center; }
+.fiche-erreur { margin: 0 0 8px; color: #d62828; font-weight: 800; text-align: center; }
+.fiche-liens { display: flex; justify-content: space-between; margin-top: 4px; }
+.lien.danger { color: #d62828; }
+.lien[hidden] { display: none; }
+
 /* ----- fin : galerie des montages ----- */
 #ecran-fin.avec-photos { justify-content: flex-start; }
 #ecran-fin.avec-photos .mascotte-accueil { height: min(16dvh, 140px); }
@@ -413,7 +497,371 @@ body {
 .vision-actions .gros-bouton { display: block; text-align: center; text-decoration: none; font-size: 1.1rem; padding: 12px; }
 .vision-actions .lien { color: #fff; }
 
+
+/* =====================================================================
+   THÈME FUN : mousse, couleurs vives, boutons bonbon
+   ===================================================================== */
+button, input { font-family: inherit; }
+
+/* bulles de mousse qui montent doucement en fond */
+.mousse { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.mousse i {
+  position: absolute; bottom: -80px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.95) 0 12%, rgba(255,255,255,.35) 13% 55%, rgba(255,255,255,.08) 70%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); animation: bulle-monte linear infinite;
+}
+.mousse i:nth-child(1)  { left: 4%;  width: 34px; height: 34px; animation-duration: 17s; animation-delay: -2s; }
+.mousse i:nth-child(2)  { left: 14%; width: 18px; height: 18px; animation-duration: 12s; animation-delay: -9s; }
+.mousse i:nth-child(3)  { left: 24%; width: 52px; height: 52px; animation-duration: 22s; animation-delay: -14s; }
+.mousse i:nth-child(4)  { left: 36%; width: 22px; height: 22px; animation-duration: 14s; animation-delay: -5s; }
+.mousse i:nth-child(5)  { left: 47%; width: 40px; height: 40px; animation-duration: 19s; animation-delay: -11s; }
+.mousse i:nth-child(6)  { left: 58%; width: 16px; height: 16px; animation-duration: 11s; animation-delay: -3s; }
+.mousse i:nth-child(7)  { left: 67%; width: 60px; height: 60px; animation-duration: 25s; animation-delay: -18s; }
+.mousse i:nth-child(8)  { left: 76%; width: 26px; height: 26px; animation-duration: 15s; animation-delay: -7s; }
+.mousse i:nth-child(9)  { left: 85%; width: 44px; height: 44px; animation-duration: 20s; animation-delay: -1s; }
+.mousse i:nth-child(10) { left: 93%; width: 20px; height: 20px; animation-duration: 13s; animation-delay: -10s; }
+.mousse i:nth-child(11) { left: 52%; width: 28px; height: 28px; animation-duration: 18s; animation-delay: -16s; }
+.mousse i:nth-child(12) { left: 9%;  width: 46px; height: 46px; animation-duration: 23s; animation-delay: -20s; }
+@keyframes bulle-monte {
+  0% { transform: translate(0, 0) scale(.8); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(18px, -55vh) scale(1); }
+  100% { transform: translate(-12px, -115vh) scale(1.1); opacity: .2; }
+}
+#app { z-index: 1; }
+
+/* titres façon logo */
+.titre { font-weight: 700; letter-spacing: .01em; }
+.titre.logo { font-size: clamp(1.15rem, 5.2vw, 1.5rem); color: var(--encre); }
+.titre.logo span, .logo-fin {
+  display: block; font-size: clamp(2.3rem, 11vw, 3.2rem); font-weight: 700; line-height: 1; color: #fff;
+  -webkit-text-stroke: 7px var(--turquoise-fonce); paint-order: stroke fill;
+  text-shadow: 0 5px 0 var(--rose-vif), 0 10px 18px rgba(11,143,154,.3);
+  transform: rotate(-3deg); margin-top: 2px;
+}
+.logo-fin { font-size: clamp(2rem, 10vw, 2.8rem); transform: rotate(-2deg); }
+
+/* accueil : panneau lumineux du titre */
+.titre-image { margin: 0; width: min(68%, 320px); flex: 0 0 auto; line-height: 0; transform: rotate(-2deg); }
+.titre-image img {
+  width: 100%; height: auto; display: block; border-radius: 6.5% / 10.5%;
+  filter: drop-shadow(0 0 10px rgba(255,170,80,.75)) drop-shadow(0 8px 14px rgba(11,60,120,.35));
+  animation: neon 3.2s ease-in-out infinite;
+}
+@keyframes neon {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,170,80,.6)) drop-shadow(0 8px 14px rgba(11,60,120,.35)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 16px rgba(255,190,90,.95)) drop-shadow(0 8px 14px rgba(11,60,120,.35)); transform: scale(1.02); }
+}
+
+/* accueil : Beufa et sa bulle */
+.accueil-hero { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px; margin: -4px 0 4px; }
+#ecran-accueil .accueil-hero .mascotte-accueil { height: min(11dvh, 110px); margin: 0; animation: coucou 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes coucou { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg) translateY(-4px); } }
+.salut-bulle {
+  position: relative; max-width: 58%; background: #fff; border-radius: 22px; padding: 10px 14px; font-weight: 600; font-size: 1.02rem;
+  line-height: 1.25; box-shadow: 0 6px 0 rgba(11,143,154,.15), 0 10px 22px rgba(11,143,154,.18); border: 3px solid #fff;
+  animation: pop .5s .3s cubic-bezier(.3,1.6,.5,1) both;
+}
+.salut-bulle::before { content: ""; position: absolute; left: -13px; top: 50%; margin-top: -9px; border: 9px solid transparent; border-right: 14px solid #fff; border-left: 0; }
+
+/* panneau blanc des réglages */
+.carte {
+  background: rgba(255,255,255,.88); border: 3px solid #fff; border-radius: 30px;
+  box-shadow: 0 8px 0 rgba(11,143,154,.12), 0 18px 40px rgba(11,143,154,.18);
+}
+.carte h2, #ecran-accueil .carte h2 {
+  text-transform: none; letter-spacing: 0; font-size: 1.05rem; font-weight: 600; color: var(--encre); margin: 6px 0 6px;
+}
+.carte h2 span { display: inline-block; margin-right: 2px; }
+
+/* options : grosses pastilles colorées */
+.choix { --acc: var(--turquoise); --acc-clair: #e3fafc; --acc-ombre: var(--turquoise-fonce); }
+.choix.acc-rose { --acc: var(--rose-vif); --acc-clair: #ffe3ec; --acc-ombre: #d13d6b; }
+.choix.acc-jaune { --acc: #ffa62b; --acc-clair: #fff3d6; --acc-ombre: #d9822b; }
+.choix.acc-violet { --acc: var(--violet); --acc-clair: #ece4ff; --acc-ombre: #5a35c9; }
+.option {
+  position: relative; align-items: center; text-align: center; border: 3px solid #eef7f8; border-radius: 20px; padding: 8px 6px 9px;
+  box-shadow: 0 4px 0 #dcecee; transition: transform .12s, box-shadow .12s, background .2s, border-color .2s;
+}
+.option .ico { font-size: 1.35rem; line-height: 1.05; }
+#ecran-accueil .titre.logo span { font-size: clamp(2.1rem, 10vw, 2.8rem); }
+#ecran-accueil .suivi { margin: 0 0 8px; }
+@media (max-height: 860px) {
+  .titre-image { width: min(58%, 280px); }
+  #ecran-accueil .option small { display: none; }
+  #ecran-accueil .accueil-hero .mascotte-accueil { height: min(10dvh, 90px); }
+  .salut-bulle { font-size: .92rem; padding: 8px 12px; }
+}
+.option { padding: 6px 6px 7px; gap: 0; }
+#ecran-accueil .carte { padding: 10px 14px 14px; }
+#ecran-accueil .gros-bouton { margin-top: 6px; padding: 14px; }
+.profil { padding: 6px 8px 5px; }
+.profil .avatar { width: 38px; height: 38px; }
+.option strong { font-size: 1.1rem; font-weight: 600; }
+.option small { font-size: .74rem; font-weight: 500; }
+.option:active { transform: translateY(3px); box-shadow: 0 1px 0 #dcecee; }
+.option.actif { border-color: var(--acc); background: var(--acc-clair); box-shadow: 0 4px 0 var(--acc-ombre); animation: choisi .35s cubic-bezier(.3,1.6,.5,1); }
+.option.actif::after {
+  content: "✓"; position: absolute; top: -9px; right: -7px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--acc); color: #fff; font-weight: 700; font-size: .85rem; box-shadow: 0 2px 0 var(--acc-ombre);
+}
+.option.actif .ico { animation: sautille 1.2s ease-in-out infinite; }
+@keyframes choisi { 0% { transform: scale(.92); } 100% { transform: none; } }
+@keyframes sautille { 0%, 100% { transform: none; } 50% { transform: translateY(-3px) rotate(-6deg); } }
+
+/* boutons bonbon */
+.gros-bouton {
+  font-weight: 700; font-size: 1.35rem; letter-spacing: .01em; border-radius: 999px;
+  background: linear-gradient(180deg, #ff8fb1 0%, var(--rose-vif) 55%, #f0457a 100%);
+  box-shadow: 0 7px 0 #c9346a, 0 12px 22px rgba(240,69,122,.35); text-shadow: 0 2px 0 rgba(160,30,70,.35);
+  position: relative; overflow: hidden;
+}
+.gros-bouton::before { content: ""; position: absolute; left: 12%; right: 12%; top: 6px; height: 34%; border-radius: 999px; background: rgba(255,255,255,.35); }
+.gros-bouton:active { transform: translateY(5px); box-shadow: 0 2px 0 #c9346a; }
+.bouton-go { animation: appel 2.4s ease-in-out infinite; }
+@keyframes appel { 0%, 82%, 100% { transform: none; } 86% { transform: rotate(-2deg) scale(1.03); } 90% { transform: rotate(2deg) scale(1.03); } 94% { transform: rotate(-1deg); } }
+.vision-actions .gros-bouton + .gros-bouton { background: linear-gradient(180deg, #4fe0ea, var(--turquoise)); box-shadow: 0 7px 0 var(--turquoise-fonce); text-shadow: none; }
+
+/* suivi : pastilles colorées */
+.serie { background: linear-gradient(180deg, #fff4e0, #ffe0b8); color: #d9480f; border: 2px solid #fff; }
+.serie.eteinte { background: #fff; color: #8aa; }
+.moments i { border: 2px solid #fff; }
+#m-matin.fait { background: linear-gradient(180deg, #ffe27a, var(--jaune)); color: #7a4a00; }
+#m-soir.fait { background: linear-gradient(180deg, #9b7bff, var(--violet)); color: #fff; }
+.btn-album { background: linear-gradient(180deg, #e3fafc, #bdf0f5); border: 2px solid #fff; color: var(--turquoise-fonce); }
+.serie, .moments i, .btn-album { box-shadow: 0 3px 0 rgba(11,143,154,.15); font-weight: 600; }
+
+/* profils */
+.profil { border-radius: 20px; box-shadow: 0 4px 0 #dcecee; border-color: #eef7f8; }
+.profil.actif { border-color: var(--turquoise); background: #e3fafc; box-shadow: 0 4px 0 var(--turquoise-fonce); }
+.profil .avatar { width: 42px; height: 42px; font-weight: 700; font-size: 1.3rem; box-shadow: inset 0 -4px 0 rgba(0,0,0,.15), 0 0 0 3px #fff; }
+.profil-nom { font-weight: 600; }
+
+/* boutons ronds */
+.btn-son, .btn-rond, .btn-rond-clair { box-shadow: 0 4px 0 rgba(11,143,154,.25); border: 2px solid #fff; }
+
+/* ----- écran de brossage ----- */
+.entete {
+  background: rgba(255,255,255,.9); border: 3px solid #fff; border-radius: 28px; padding: 8px 10px 8px 8px;
+  box-shadow: 0 6px 0 rgba(11,143,154,.12), 0 12px 26px rgba(11,143,154,.15); margin-bottom: 8px;
+}
+.minuteur { width: 96px; height: 96px; }
+.anneau-fond { fill: #fff; stroke: #e6f6f8; stroke-width: 12; }
+.anneau { stroke: url(#degrade-anneau); stroke-width: 12; }
+.temps { font-weight: 700; font-size: 1.65rem; color: var(--encre); }
+.zone-nom { font-weight: 700; font-size: 1.55rem; }
+.face-nom {
+  display: inline-block; margin-top: 3px; padding: 2px 10px; border-radius: 14px; background: var(--rose-vif); color: #fff;
+  font-weight: 600; font-size: .95rem;
+}
+.points i { width: 14px; height: 14px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.08); }
+.points i.on { background: linear-gradient(180deg, #ffd166, #ffa62b); }
+.score { background: #e6f9dc; border-radius: 999px; padding: 1px 10px; font-weight: 700; font-size: .95rem; margin-top: 5px; }
+#bouche .carte-bouche { fill: rgba(255,255,255,.9); stroke: #fff; stroke-width: 3; }
+.bouche-txt { font-weight: 600; }
+.astuce {
+  border: 3px solid #fff; font-weight: 600; font-size: 1rem; border-radius: 22px;
+  box-shadow: 0 5px 0 rgba(11,143,154,.15), 0 10px 20px rgba(11,143,154,.18);
+}
+.btn-arreter {
+  margin-top: 6px; text-decoration: none; background: rgba(255,255,255,.75); border-radius: 999px; padding: 6px 14px;
+  font-weight: 600; color: var(--turquoise-fonce); box-shadow: 0 3px 0 rgba(11,143,154,.15);
+}
+
+/* pause (mode Classique) : même ambiance que le studio */
+.pause { background: radial-gradient(circle at 50% 45%, #ffffff 0, #c9f4f7 40%, #8ae9f0 100%); overflow: hidden; }
+.pause::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+  background: repeating-conic-gradient(rgba(255,255,255,.45) 0 10deg, transparent 10deg 20deg); animation: rayons 14s linear infinite;
+}
+.pause-boite { position: relative; }
+.pause-titre {
+  font-weight: 700; color: #fff; font-size: clamp(2.2rem, 11vw, 3rem);
+  -webkit-text-stroke: 7px var(--turquoise-fonce); paint-order: stroke fill; text-shadow: 0 5px 0 var(--rose-vif);
+}
+.pause-compte { font-weight: 700; color: #fff; -webkit-text-stroke: 6px var(--rose-vif); paint-order: stroke fill; }
+.pause-suite { font-weight: 600; background: #fff; border-radius: 18px; padding: 8px 14px; display: inline-block; box-shadow: 0 5px 0 rgba(11,143,154,.15); }
+
+/* studio / installation / révélation : polices et cartes */
+.studio-haut, .prepa-carte, .bulle, .demo-consigne, .demo-brosse { font-weight: 600; }
+.prepa-carte h2 { font-weight: 700; }
+.demo-titre, .rev-titre { font-weight: 700; -webkit-text-stroke: 7px var(--turquoise-fonce); paint-order: stroke fill; text-shadow: 0 5px 0 var(--rose-vif), 0 10px 18px rgba(0,0,0,.2); }
+
+/* fin */
+#ecran-fin .fin-texte { font-weight: 600; margin-top: 12px; }
+.fin-carte-titre { font-weight: 700; }
+.fin-zones span, .fin-stats span, .album-stats span { font-weight: 600; border: 2px solid #fff; box-shadow: 0 3px 0 rgba(11,143,154,.15); }
+.montages, .album-cal { background: rgba(255,255,255,.88); border: 3px solid #fff; border-radius: 26px; box-shadow: 0 6px 0 rgba(11,143,154,.12); }
+.montages h2 { text-transform: none; letter-spacing: 0; font-size: 1.05rem; font-weight: 600; color: var(--encre); }
+
+/* fiche utilisateur */
+.fiche-boite { border: 4px solid #fff; box-shadow: 0 8px 0 rgba(11,143,154,.2), 0 20px 40px rgba(0,0,0,.3); }
+.fiche-boite h2 { font-weight: 700; }
+.fiche-champ > span { text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 600; color: var(--encre); }
+.fiche-champ input { font-weight: 600; }
+
+
+/* =====================================================================
+   THÈME « PLATEAU TÉLÉ » : accordé au panneau-titre (nuit, néons, paillettes dorées)
+   ===================================================================== */
+:root {
+  --nuit: #0d1250; --nuit-2: #2a0d5e; --verre: rgba(22, 26, 96, .72); --verre-bord: rgba(120, 220, 255, .35);
+  --or: #ffc83d; --or-clair: #ffe58a; --or-fonce: #c0730a; --magenta: #ff3fa4; --cyan: #2ee6ff; --texte: #f4f6ff;
+}
+body {
+  color: var(--texte);
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 18%, rgba(70, 110, 255, .55), transparent 70%),
+    radial-gradient(circle at 8% 85%, rgba(255, 63, 164, .45), transparent 40%),
+    radial-gradient(circle at 95% 60%, rgba(46, 230, 255, .28), transparent 38%),
+    linear-gradient(170deg, #16207a 0%, var(--nuit) 50%, var(--nuit-2) 100%);
+  background-attachment: fixed;
+}
+/* paillettes qui scintillent et tombent doucement (les anciennes bulles de mousse) */
+.mousse i {
+  bottom: auto; top: -20px; width: 6px !important; height: 6px !important; border-radius: 2px; box-shadow: none;
+  background: var(--or); animation-name: paillette; opacity: .85;
+}
+.mousse i:nth-child(3n) { background: var(--cyan); }
+.mousse i:nth-child(4n) { background: var(--magenta); width: 5px !important; height: 8px !important; }
+.mousse i:nth-child(5n) { background: #fff; border-radius: 50%; }
+@keyframes paillette {
+  0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(-14px, 55vh) rotate(200deg); opacity: .9; }
+  70% { opacity: .25; } 75% { opacity: 1; }
+  100% { transform: translate(10px, 112vh) rotate(420deg); opacity: 0; }
+}
+body::before {   /* petites étoiles fixes qui scintillent */
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent), radial-gradient(1px 1px at 28% 8%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 44% 34%, #ffe58a, transparent), radial-gradient(1px 1px at 63% 12%, #fff, transparent),
+    radial-gradient(2px 2px at 80% 28%, #fff, transparent), radial-gradient(1px 1px at 91% 8%, #ffe58a, transparent),
+    radial-gradient(1.5px 1.5px at 6% 55%, #fff, transparent), radial-gradient(1px 1px at 22% 72%, #ffe58a, transparent),
+    radial-gradient(1.5px 1.5px at 72% 66%, #fff, transparent), radial-gradient(1px 1px at 88% 82%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 38% 90%, #fff, transparent), radial-gradient(1px 1px at 55% 78%, #ffe58a, transparent);
+  animation: scintille 3s ease-in-out infinite alternate;
+}
+@keyframes scintille { from { opacity: .45; } to { opacity: 1; } }
+
+/* Beufa est noir : un halo pour qu'il ressorte sur la nuit */
+.mascotte, .mascotte-accueil, .pause-img, .demo-img, .prepa-mascotte, .partenaire, .rev-part {
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.9)) drop-shadow(0 0 14px rgba(140,200,255,.55));
+}
+
+/* titres dorés lumineux, comme le panneau */
+.logo-fin, .demo-titre, .rev-titre, .pause-titre, .album-haut .titre {
+  color: var(--or-clair); -webkit-text-stroke: 6px #7a3500; paint-order: stroke fill;
+  text-shadow: 0 0 12px rgba(255,190,60,.85), 0 0 28px rgba(255,120,40,.5), 0 5px 0 #4a1a00;
+}
+.pause-compte { -webkit-text-stroke: 6px var(--magenta); text-shadow: 0 0 18px rgba(255,63,164,.8); }
+
+/* panneaux en verre sombre bordés de néon */
+.carte, .entete, .montages, .album-cal, .fiche-boite {
+  background: var(--verre); border: 2px solid var(--verre-bord); color: var(--texte);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 0 22px rgba(46,230,255,.22), 0 14px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.carte h2, #ecran-accueil .carte h2, .montages h2, .album-cal h2 { color: var(--texte); }
+.montages small { color: rgba(244,246,255,.7); }
+
+/* choix : tuiles sombres, la sélection s'allume en néon */
+.choix.acc-rose { --acc: var(--magenta); --acc-clair: rgba(255,63,164,.22); --acc-ombre: #a0145e; }
+.choix.acc-jaune { --acc: var(--or); --acc-clair: rgba(255,200,61,.2); --acc-ombre: var(--or-fonce); }
+.choix.acc-violet { --acc: var(--cyan); --acc-clair: rgba(46,230,255,.18); --acc-ombre: #0a7d95; }
+.option, .profil {
+  background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: var(--texte); box-shadow: 0 4px 0 rgba(0,0,0,.35);
+}
+.option:active { box-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.option.actif { box-shadow: 0 4px 0 var(--acc-ombre), 0 0 16px var(--acc); }
+.option.actif::after { color: #1a1040; }
+.profil.actif { background: rgba(46,230,255,.16); border-color: var(--cyan); box-shadow: 0 4px 0 #0a7d95, 0 0 14px rgba(46,230,255,.6); }
+.profil.ajouter .avatar { background: rgba(255,255,255,.08); color: var(--cyan); border-color: rgba(46,230,255,.5); }
+.profil .avatar { box-shadow: inset 0 -4px 0 rgba(0,0,0,.2), 0 0 0 3px rgba(255,255,255,.85); }
+
+/* boutons dorés façon enseigne lumineuse */
+.gros-bouton {
+  color: #3d1600; text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  background: linear-gradient(180deg, #fff1a8 0%, var(--or) 45%, #ff9a1f 100%);
+  box-shadow: 0 6px 0 #a85a00, 0 0 22px rgba(255,180,50,.6), 0 12px 24px rgba(0,0,0,.35);
+}
+.gros-bouton:active { box-shadow: 0 2px 0 #a85a00, 0 0 18px rgba(255,180,50,.6); }
+.vision-actions .gros-bouton + .gros-bouton { background: linear-gradient(180deg, #8ff4ff, var(--cyan)); box-shadow: 0 6px 0 #0a7d95, 0 0 18px rgba(46,230,255,.5); color: #06303a; }
+
+/* pastilles du haut */
+.serie, .moments i, .btn-album, .score, .fin-zones span, .fin-stats span, .album-stats span, .btn-arreter {
+  background: rgba(255,255,255,.1); color: var(--texte); border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 3px 0 rgba(0,0,0,.3);
+}
+.serie { color: #ffb066; border-color: rgba(255,154,60,.6); }
+.serie.eteinte { color: rgba(244,246,255,.55); background: rgba(255,255,255,.06); }
+#m-matin.fait { background: linear-gradient(180deg, #fff1a8, var(--or)); color: #5a2a00; border-color: #fff1a8; box-shadow: 0 0 12px rgba(255,200,61,.6); }
+#m-soir.fait { background: linear-gradient(180deg, #a98bff, #6a3cff); color: #fff; border-color: #c9b6ff; box-shadow: 0 0 12px rgba(124,77,255,.7); }
+.btn-album { color: var(--cyan); border-color: rgba(46,230,255,.5); }
+.score { color: #8cff6a; border-color: rgba(140,255,106,.45); }
+.btn-son, .btn-rond, .btn-rond-clair { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.studio .btn-rond { background: rgba(10,14,60,.6); }
+.lien { color: var(--cyan); }
+
+/* brossage */
+.anneau-fond { fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.14); }
+.temps, .zone-nom { color: #fff; }
+.face-nom { background: var(--magenta); box-shadow: 0 0 12px rgba(255,63,164,.6); }
+.points i { background: rgba(255,255,255,.18); }
+.points i.on { box-shadow: 0 0 8px rgba(255,200,61,.8); }
+#bouche .carte-bouche { fill: rgba(255,255,255,.94); stroke: var(--cyan); stroke-width: 3; }
+.scene.avec-camera.vue-miroir #bouche { box-shadow: 0 0 16px rgba(46,230,255,.5); }
+.tuiles i { background: linear-gradient(135deg, var(--magenta), #6a3cff); border-color: rgba(255,255,255,.4); }
+
+/* écrans pleins : même nuit de spectacle avec projecteurs */
+.pause, .studio-demo, .revelation {
+  background: radial-gradient(circle at 50% 42%, #3a4cff 0, #1a1f8a 38%, var(--nuit) 72%, var(--nuit-2) 100%);
+}
+.pause::before, .studio-demo::before, .revelation::before {
+  background: repeating-conic-gradient(rgba(255,214,110,.13) 0 10deg, transparent 10deg 20deg);
+}
+.studio { background: linear-gradient(180deg, #16207a, var(--nuit-2)); }
+.prepa { background: linear-gradient(180deg, #16207a, var(--nuit-2)); }
+.rev-sous { color: var(--texte); }
+.rev-scene { border-color: var(--or-clair); box-shadow: 0 0 24px rgba(255,200,61,.6), 0 12px 30px rgba(0,0,0,.4); }
+.rev-points i { background: rgba(255,255,255,.3); }
+.rev-points i.on { background: var(--or); }
+.demo-brosse { background: rgba(255,255,255,.95); }
+
+/* fin et album */
+#ecran-fin .fin-texte { color: var(--texte); }
+.fin-carte-titre { color: var(--magenta); text-shadow: 0 0 12px rgba(255,63,164,.6); }
+.carte-beufa { border-color: rgba(255,255,255,.9); }
+.carte-beufa.cachee { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.25); }
+.carte-beufa.cachee .beufa-fig img { filter: brightness(0) invert(1); opacity: .12; }
+.carte-beufa.cachee .carte-nom { color: rgba(244,246,255,.5); }
+.jour.auj { background: rgba(46,230,255,.15); box-shadow: inset 0 0 0 2px var(--cyan); }
+.vignette { border-color: var(--or-clair); }
+
+/* les bulles et cartes blanches gardent un texte foncé */
+.salut-bulle, .astuce, .pause-suite, .prepa-carte, .cadre-tete span, .toast, .apercu, .visionneuse .lien { color: var(--encre); }
+.visionneuse .lien { color: #fff; }
+.astuce.alerte { color: #fff; }
+.gros-bouton.prepa-bouton { position: absolute; }
+
+/* fiche utilisateur */
+.fiche { background: rgba(5,8,40,.7); }
+.fiche-boite h2 { color: var(--or-clair); }
+.fiche-champ > span { color: var(--texte); }
+.fiche-champ input { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: #fff; }
+.fiche-champ input:focus { border-color: var(--cyan); }
+.age button { background: rgba(255,255,255,.12); color: #fff; }
+.fiche-erreur, .lien.danger { color: #ff7a9a; }
+
+/* petits écrans : l'accueil doit tenir sans défiler */
+@media (max-height: 760px) {
+  .titre-image { width: min(50%, 240px); }
+  .profil .avatar { width: 32px; height: 32px; font-size: 1.05rem; }
+  .profil small { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span { animation: none !important; }
+  .mascotte, .mascotte-accueil, .pause-img, #bouche .dent rect.actif, .pause-compte, .flash.go, .partenaire, .bulle, .apercu, .astuce.alerte, .demo-img, .studio-demo::before, .pop, .studio-compte, .prepa-mascotte, .prepa-carte, .fin-danse, .fin-zones span, .astuce.defi, #bouche .microbe, .score.bump, .carte-beufa.rare::after, .carte-beufa.retourne, .fin-carte-titre, .fin-stats span, .zone-surprise, .revelation::before, .rev-scene.apparait, .mousse i, .accueil-hero .mascotte-accueil, .salut-bulle, .option.actif, .option.actif .ico, .bouton-go, .pause::before, .titre-image img, body::before { animation: none !important; }
+  .mousse { display: none; }
+  .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
 }
