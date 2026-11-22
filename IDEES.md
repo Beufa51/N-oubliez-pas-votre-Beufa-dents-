@@ -178,6 +178,8 @@ Pas de publication sur le Play Store.
   progression après les 21 cartes, défi famille / récompenses des parents, ta voix enregistrée.
 - [ ] Audit fun n°2, reste : Beufa qui évolue (porte ses déguisements, content / boudeur), autocollants sur les photos,
   récompenses fixées par les parents, musique de 2 min, masques/chapeaux sur le visage (étape 5).
+- [x] Brossage avec caméra : image **collée en haut** de la zone (plus de bande vide au-dessus) ; le vide éventuel passe en bas,
+  sous le schéma, la bulle et Beufa.
 - [ ] Petits restes du 1er audit (séries, matin/soir, réglages retenus et planche BD déjà faits) : accueil qui défile un peu
   sur très petit écran (iPhone SE) ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des choix.
 - [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).

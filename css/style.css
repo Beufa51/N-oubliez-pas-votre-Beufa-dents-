@@ -839,7 +839,9 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .vignette { border-color: var(--or-clair); }
 
 /* caméra pendant le brossage : image entière, pas de zoom */
-.scene.avec-camera #camera { object-fit: contain; background: rgba(5,8,40,.55); }
+.scene.avec-camera #camera { object-fit: contain; object-position: 50% 0; background: transparent; }
+/* image collée en haut : le vide éventuel passe en bas, sous le schéma, la bulle et Beufa */
+.scene.avec-camera.vue-miroir #camera { border-radius: 24px 24px 0 0; }
 /* ovale de la tête toujours debout, quel que soit le format de la caméra */
 .cadre-tete { width: auto; height: 46%; aspect-ratio: 3 / 4; }
 .prepa .cadre-tete { left: 50%; width: auto; transform: translateX(-50%); top: 20%; height: 50%; }
