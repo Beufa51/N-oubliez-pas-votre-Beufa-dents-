@@ -14,8 +14,27 @@
 <div class="mousse" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <main id="app">
 
+  <!-- DÉMARRAGE : un appui pour autoriser le son, puis l'intro en musique -->
+  <section id="ecran-demarrage" class="ecran actif" role="button" tabindex="0" aria-label="Appuyez sur l'écran pour commencer">
+    <div class="demarrage-texte">
+      <span class="demarrage-doigt" aria-hidden="true">👆</span>
+      <strong>Appuyez sur l'écran</strong>
+    </div>
+  </section>
+
+  <!-- INTRO : panneau-titre + générique en musique -->
+  <section id="ecran-intro" class="ecran">
+    <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
+    <div class="intro-scene">
+      <img class="intro-titre" src="assets/titre.webp" width="800" height="495" alt="N'oubliez pas votre brosse… Beufa dents !">
+      <img class="intro-mascotte" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa danse">
+    </div>
+    <p id="intro-son" class="intro-son" hidden>🔊 Touche l'écran pour lancer la musique</p>
+    <button id="btn-intro" class="gros-bouton intro-bouton" type="button">Appuie pour continuer&nbsp;▶</button>
+  </section>
+
   <!-- ACCUEIL -->
-  <section id="ecran-accueil" class="ecran actif">
+  <section id="ecran-accueil" class="ecran">
     <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
     <h1 class="titre-image"><img src="assets/titre.webp" width="800" height="495" alt="N'oubliez pas votre brosse… Beufa dents !"></h1>
     <div class="accueil-hero">
@@ -185,6 +204,7 @@
       <div id="rev-scene" class="rev-scene">
         <img id="rev-user" class="rev-user" alt="Ta photo">
         <img id="rev-part" class="rev-part" alt="">
+        <div id="rev-tampon" class="rev-tampon" hidden><b>BROSSÉ&nbsp;!</b><span id="rev-tampon-date"></span><small id="rev-tampon-moment"></small></div>
       </div>
       <div id="rev-points" class="rev-points" aria-hidden="true"></div>
       <button id="rev-suite" class="gros-bouton" type="button">Suivant</button>
