@@ -86,7 +86,7 @@
       photo: { tete: [0.048, 0.287, 0.617], hh: 0.223, top: 0.185, dx: 0.196 },
       main: { x: .071, y: .411, taille: .0847, contact: "poing" } },
     { id: "pouce", nom: "Victoire", contour: true,         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
-      consigne: "Fais le V de la victoire, comme l'ombre !", geste: "Pouce en l'air !",
+      consigne: "Fais le V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
       photo: { tete: [0.096, 0.302, 0.56], hh: 0.188, top: 0.224, dx: 0.276 } },
     { id: "coeur", nom: "Cœur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
     { id: "pointe", nom: "Montre du doigt",        mascotte: "pointe-du-doigt", cote: "gauche", emoji: "👉",
@@ -193,7 +193,7 @@
   let phase = "demarrage";         // demarrage | intro | accueil | prepa | brosse | pause | fin
   let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 4, typeBrosse = "manuelle";
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
-  let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false;
+  let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false, seance = false, restePhotos = 0;
 
   function montrer(nom) {
     Object.entries(ecrans).forEach(([k, el]) => el.classList.toggle("actif", k === nom));
@@ -719,12 +719,13 @@
 
   function lancerBrossage() {
     ecoule = 0; tPause = 0; iPause = 0; derniereZone = -1;
-    // pauses : toutes les 30 s ; en mode Beufa dents « 2 photos », une seule au milieu (+ la pose finale)
-    pauses = avecPhotos() && nbPhotos === 2 ? [duree / 2]
-      : [1, 2, 3].map(k => k * PAUSE_TOUTES_LES).filter(t => t < duree); dernierPoint = -1; poseIdx = 0;
-    finale = false; poseActuelle = null; photos = []; viderGalerie();
-    // les poses avec une photo du créateur passent d'abord (c'est la surprise), les autres ensuite
-    poses = melanger(POSES_BEUFA.filter(p => p.photo)).concat(melanger(POSES_BEUFA.filter(p => !p.photo)));
+    /* mode Beufa dents : le brossage n'est plus coupé ; la séance photo (2 ou 4 poses) vient à la fin, en bonus,
+       la dernière pose étant le « sourire brillant » (V + toutes dents dehors). Mode Classique : pauses « Fais comme moi ». */
+    pauses = avecPhotos() ? [] : [1, 2, 3].map(k => k * PAUSE_TOUTES_LES).filter(t => t < duree); dernierPoint = -1; poseIdx = 0;
+    finale = false; seance = false; restePhotos = 0; poseActuelle = null; photos = []; viderGalerie();
+    const sourire = POSES_BEUFA.find(p => p.id === "pouce");
+    const autres = melanger(POSES_BEUFA.filter(p => p.photo && p !== sourire)).concat(melanger(POSES_BEUFA.filter(p => !p.photo)));
+    poses = avecPhotos() ? autres.slice(0, Math.max(0, nbPhotos - 1)).concat([sourire]) : autres;
     elMascotte.src = IMG("mains-hanches");
     fermerPose(); elPause.hidden = true;
     phase = "brosse";
@@ -766,15 +767,15 @@
     if (phase === "brosse") {
       ecoule += dt * vitesseBrossage();   // façon Pokémon Smile : le temps n'avance que si on brosse
       if (ecoule >= duree) {
-        if (!avecPhotos() || finale) return terminer();
-        ecoule = duree; finale = true; commencerPause();     // pose finale
+        if (!avecPhotos()) return terminer();
+        ecoule = duree; seance = true; restePhotos = poses.length; commencerPause();   // séance photo bonus
       } else if (iPause < pauses.length && ecoule >= pauses[iPause]) commencerPause();
     } else if (phase === "pause") {
       tPause += dt;
       if (poseActuelle && !cliche && compteA !== null && tPause >= compteA + POSE_COMPTE) { prendrePhoto(); clicA = tPause; }
       if (poseActuelle ? cliche && tPause >= clicA + POSE_APRES : tPause >= PAUSE_DUREE) {
-        if (finale) return terminer();
-        finirPause();
+        if (seance) { if (--restePhotos > 0) commencerPause(); else return terminer(); }
+        else finirPause();
       }
     }
     majAffichage();
@@ -798,10 +799,11 @@
     elPoints.forEach((d, i) => d.classList.toggle("on", i <= p));
     // en mode Beufa dents, on prévient avant chaque photo
     const avantPhoto = avecPhotos() && phase === "brosse" &&
-      ((iPause < pauses.length && pauses[iPause] - ecoule < 5) || (!finale && duree - ecoule < 5));
+      ((iPause < pauses.length && pauses[iPause] - ecoule < 5) || duree - ecoule < 5);
     const enDefi = !avantPhoto && ecoule < defiJusqua;
     ecrire(elAstuce, avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p]);
     elAstuce.classList.toggle("alerte", avantPhoto);
+    if (avantPhoto && avecPhotos()) ecrire(elAstuce, "🎉 Presque fini ! Ensuite : séance photo avec Beufa 📸");
     elAstuce.classList.toggle("defi", enDefi);
     if (avantPhoto && !alerteDite) { alerteDite = true; parler("Prépare-toi, photo avec moi dans 5 secondes !"); }
     if (!avantPhoto && phase === "brosse") alerteDite = false;
@@ -830,7 +832,7 @@
     if (phase === "pause") {
       if (poseActuelle) {
         if (tPause >= POSE_PREP && etapePose === "demo") passerEnPhoto();
-        if (etapePose === "photo" && compteA === null) placement();
+        if (etapePose === "photo" && compteA === null && !cliche) { if (apparuA === null) placement(); else suivreGeste(); }
         const n = compteA === null || cliche ? 0 : Math.ceil(compteA + POSE_COMPTE - tPause);
         if (n !== dernierCompte) {
           dernierCompte = n;
@@ -932,7 +934,7 @@
   function placement() {
     const t = tPause - POSE_PREP;
     if (!DET.etat.photos) {                       // pas de détection : temps fixe
-      if (t >= PLACE_SANS) commencerCompte();
+      if (t >= PLACE_SANS) apparaitre();
       return;
     }
     const maintenant = performance.now();
@@ -957,10 +959,56 @@
     okDepuis = ok ? okDepuis + dtR : 0;
     elCadre.classList.toggle("bien-place", ok);
     if (msg !== placeMsg) { placeMsg = msg; elStudioCompte.textContent = msg; if (ok) { bip(880, .08); vibrer(30); } }
-    if ((ok && okDepuis >= PLACE_OK && t >= PLACE_MIN) || t >= PLACE_MAX) commencerCompte();
+    if ((ok && okDepuis >= PLACE_OK && t >= PLACE_MIN) || t >= PLACE_MAX) apparaitre();
+  }
+
+  /* ---------- apparition en direct + photo déclenchée par le geste ----------
+     Bien placé : l'ombre devient le vrai créateur, à la taille de la tête de l'utilisateur (mesurée en direct).
+     Poses avec contact : la photo part toute seule quand la main de l'utilisateur touche celle du créateur
+     (« CHECK ! ») ; sinon, au bout de ATTENTE_GESTE s, un 3-2-1. Autres poses : 3-2-1 peu après l'apparition. */
+  const ATTENTE_GESTE = 7;
+  const TEXTE_GESTE = { poing: "👊 Touche son poing !", paume: "✋ Tape dans sa main !", dessous: "🙌 Tape dans ses mains !" };
+  const CRI_GESTE = { poing: "💥 CHECK !", paume: "💥 TOPE LÀ !", dessous: "💥 BIEN JOUÉ !" };
+  let apparuA = null, visageLive = null, gesteA = 0;
+  function ratioStudio() { const v = elStudioVideo; return v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4; }
+  function apparaitre() {
+    const p = poseActuelle;
+    apparuA = tPause; okDepuis = 0;
+    elCadre.classList.remove("placement", "bien-place");
+    if (!p.createur) return commencerCompte();       // Beufa (pas de photo du créateur) : 3-2-1 direct
+    elCadre.classList.add("geste");                  // consignes de geste en texte (pas en gros chiffres)
+    elPartenaire.classList.add("apparu"); rejouer(elPartenaire, "surgit");
+    $("#contour").hidden = true;
+    elBulle.textContent = hasard(["Coucou, c'est moi !", "Surprise !", "Me voilà !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
+    bip(784, .1); bip(1047, .12, .1); bip(1319, .16, .2); vibrer([40, 30, 80]);
+    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : "😄 Prends la pose avec lui !";
+    rejouer(elStudioCompte, "pop");
+  }
+  function suivreGeste() {
+    const p = poseActuelle, t = tPause - apparuA;
+    if (!p.createur || !p.main || !DET.etat.photos) { if (t >= 1.5) commencerCompte(); return; }
+    if (t >= ATTENTE_GESTE) return commencerCompte();
+    const maintenant = performance.now();
+    if (maintenant - gesteA < 200) return;
+    gesteA = maintenant;
+    const ratio = ratioStudio(), v = DET.visage(elStudioVideo);
+    if (v) {                                          // le créateur suit la taille de la tête de l'utilisateur
+      visageLive = { haut: v.haut, h: v.h, cx: 1 - v.cx };
+      elPartenaire.style.cssText = stylePlace(p, ratio, visageLive);
+    }
+    const r = placeCreateur(p, ratio, 1, visageLive);
+    const px = (r.x + p.main.x * r.w) / ratio, py = r.y + p.main.y * r.h;   // sa main (fractions de l'image)
+    const touche = DET.mains(elStudioVideo).some(m => {
+      const ux = 1 - m.x, uy = m.y, dx = (ux - px) * ratio, dy = uy - py, seuil = Math.max(.07, m.taille * 1.3);
+      return p.main.contact === "dessous" ? Math.abs(dx) < seuil * 1.2 && dy < 0 && dy > -seuil * 2.2 : Math.hypot(dx, dy) < seuil;
+    });
+    if (touche) {                                     // contact : photo tout de suite
+      elStudioCompte.textContent = CRI_GESTE[p.main.contact]; rejouer(elStudioCompte, "pop");
+      prendrePhoto(); clicA = tPause;
+    }
   }
   function commencerCompte() {
-    compteA = tPause; elCadre.classList.remove("placement", "bien-place"); elStudioCompte.textContent = "";
+    compteA = tPause; elCadre.classList.remove("placement", "bien-place", "geste"); elStudioCompte.textContent = "";
   }
 
   /* ---------- détection du brossage (js/detection.js), façon Pokémon Smile ----------
@@ -1161,12 +1209,13 @@
 
   function commencerPause() {
     phase = "pause"; tPause = 0;
-    if (!finale) iPause++;
+    if (!seance) iPause++;
+    finale = seance && restePhotos === 1;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
     DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
-      compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = "";
+      compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = ""; apparuA = null; visageLive = null; gesteA = 0;
       return ouvrirPose(poseActuelle);
     }
     elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
@@ -1245,12 +1294,12 @@
 
   function ouvrirPose(p) {
     elStudioVideo.srcObject = flux; elStudioVideo.play().catch(() => {});
-    elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : "Fais comme moi\u00a0!";
+    elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : restePhotos === poses.length ? "Séance photo\u00a0!" : "Fais comme moi\u00a0!";
     elDemoImg.src = IMG(p.mascotte);
     const elEmoji = $("#demo-emoji"), em = p.createur || p.id === "check-poing" ? p.emoji : ""; elEmoji.hidden = !em; elEmoji.textContent = em || "";
     const cons = consigneDe(p);
     montrerApercu(p);
-    elDemoTitre.textContent = p.createur ? (finale ? "Photo finale\u00a0!" : "Voilà la photo qu'on va faire\u00a0!") : elDemoTitre.textContent;
+    elDemoTitre.textContent = p.createur ? (finale ? "Photo finale : sourire brillant\u00a0!" : restePhotos === poses.length ? "Séance photo\u00a0! Voilà la 1re" : "Voilà la photo qu'on va faire\u00a0!") : elDemoTitre.textContent;
     elDemoConsigne.textContent = cons;
     elStudioHaut.textContent = (p.createur && p.emoji ? p.emoji + " " : "") + cons;
     $("#studio-guide").src = IMG(p.mascotte);
@@ -1319,7 +1368,9 @@
     // visage (taille) et main la plus proche du créateur (contact), mesurés une fois sur la photo
     const mains = poseActuelle.main ? DET.mains(c).filter(m => m.y < .95) : [];
     const main = mains.sort((a, b) => poseActuelle.cote === "droite" ? b.x - a.x : a.x - b.x)[0] || null;
-    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles), visage: DET.visage(c), main });
+    // détourage de l'utilisateur pour le mettre dans le décor (en arrière-plan, prêt avant la révélation)
+    const masqueP = decorActuel() ? INC.masquePhoto(c) : null;
+    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles), visage: DET.visage(c), main, masqueP });
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
     elBulle.textContent = hasard(ton().reactions);
@@ -1413,6 +1464,65 @@
     if (!n) return null;
     return { m: m.map(v => v / n), s: q.map((v, k) => Math.sqrt(Math.max(1, v / n - (m[k] / n) ** 2))) };
   }
+  /* ---------- la photo de base : vous deux dans le même décor, + étincelles sur les dents ----------
+     Avec un décor : décor (cadré comme le fond d'écran), utilisateur détouré par-dessus, teinte du décor
+     légèrement appliquée à l'utilisateur ET au créateur (même lumière). Sans décor : sa vraie photo. */
+  const imagesDecor = {};
+  function imageDecor(d) {
+    if (!imagesDecor[d.id]) imagesDecor[d.id] = new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = d.src; });
+    return imagesDecor[d.id];
+  }
+  function teinteDe(img) {
+    const c = document.createElement("canvas"); c.width = c.height = 16;
+    const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0, 16, 16);
+    const d = g.getImageData(0, 0, 16, 16).data, m = [0, 0, 0];
+    for (let i = 0; i < d.length; i += 4) for (let k = 0; k < 3; k++) m[k] += d[i + k];
+    return m.map(v => Math.round(v / 256));
+  }
+  // une teinte posée seulement sur les pixels visibles (pas sur le transparent)
+  function teinter(g, W, H, t, force) {
+    if (!t) return;
+    g.save(); g.globalCompositeOperation = "source-atop"; g.fillStyle = `rgba(${t[0]},${t[1]},${t[2]},${force})`;
+    g.fillRect(0, 0, W, H); g.restore();
+  }
+  // étincelles sur les dents quand l'utilisateur sourit « toutes dents dehors »
+  function etincelles(x, b, W, H) {
+    if (!b || !b.dents) return;
+    const cx = b.x * W, cy = b.y * H, l = b.l * W;
+    x.save(); x.shadowColor = "rgba(255,255,255,.95)"; x.shadowBlur = l * .25;
+    [[-.6, -.15, .32, "#fff"], [.62, -.05, .26, "#fff8c4"], [.08, -.5, .17, "#fff"], [-.2, .38, .14, "#e6fbff"], [.38, .34, .11, "#fff"]]
+      .forEach(([dx, dy, r, c]) => etoile(x, cx + dx * l, cy + dy * l, r * l, c));
+    x.restore();
+  }
+  async function preparerPhotos() {
+    const d = decorActuel(), fond = d ? await imageDecor(d) : null, teinte = fond ? teinteDe(fond) : null;
+    for (const ph of photos) {
+      const W = 1080, H = Math.round(W * ph.img.height / ph.img.width);
+      const c = document.createElement("canvas"); c.width = W; c.height = H;
+      const g = c.getContext("2d");
+      const m = fond && ph.masqueP ? await ph.masqueP : null;
+      if (m) {
+        // décor cadré comme un fond d'écran (couvre toute la photo)
+        const k = Math.max(W / fond.width, H / fond.height), fw = fond.width * k, fh = fond.height * k;
+        g.drawImage(fond, (W - fw) / 2, (H - fh) / 2, fw, fh);
+        // l'utilisateur détouré, à sa place
+        const u = document.createElement("canvas"); u.width = W; u.height = H;
+        const gu = u.getContext("2d"); gu.drawImage(ph.img, 0, 0, W, H);
+        const mc = document.createElement("canvas"); mc.width = m.w; mc.height = m.h;
+        const gm = mc.getContext("2d"), id = gm.createImageData(m.w, m.h);
+        for (let i = 0; i < m.w * m.h; i++) { id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = 255; id.data[i * 4 + 3] = m.alpha[i]; }
+        gm.putImageData(id, 0, 0);
+        gu.globalCompositeOperation = "destination-in"; gu.imageSmoothingQuality = "high"; gu.drawImage(mc, 0, 0, W, H);
+        teinter(gu, W, H, teinte, .1);
+        g.drawImage(u, 0, 0);
+        ph.teinte = teinte;
+      } else g.drawImage(ph.img, 0, 0, W, H);
+      etincelles(g, ph.visage && ph.visage.bouche, W, H);
+      ph.base = c;
+      if (ph.pose.createur) ph.calque = calqueCreateur(ph);
+    }
+  }
+
   function calqueCreateur(ph) {
     const { pose, img, visage, main } = ph, part = pose.createur;
     const W = 1080, H = Math.round(W * img.height / img.width);
@@ -1450,14 +1560,15 @@
         }
       }
     } catch (e) {}
+    teinter(g, W, H, ph.teinte, .1);                   // même lumière que le décor
     return { canvas: c, r };
   }
 
-  function composer({ pose, img, bulle, tampon, visage, calque }) {
+  function composer({ pose, img, bulle, tampon, visage, calque, base }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
-    x.drawImage(img, 0, 0, W, H);
+    x.drawImage(base || img, 0, 0, W, H);
     const estCreateur = !!pose.createur, part = pose.createur || pose.imgMascotte;
     if (estCreateur) {
       // le créateur (calque réaliste) + une ombre douce
@@ -1606,14 +1717,19 @@
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
     const avecPh = photos.length > 0;
     if (avecPh) photos[photos.length - 1].tampon = true;   // le tampon du jour, sur la dernière photo
-    photos.forEach(ph => { if (ph.pose.createur) ph.calque = calqueCreateur(ph); });
-    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon,
-      calque: ph.calque ? ph.calque.canvas.toDataURL("image/webp", .9) : null }));
     const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
     montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
     montrer("fin");
-    afficherMontages();
-    if (avecPh) lancerRevelation(revs, recompense); else recompense();
+    if (!avecPh) return recompense();
+    // développement des photos (décor, détourage, rendu) puis révélation
+    $("#fin-titre").textContent = "📷 Développement…";
+    preparerPhotos().catch(() => {}).then(() => {
+      $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
+      const revs = photos.map(ph => ({ url: (ph.base || ph.img).toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon,
+        calque: ph.calque ? ph.calque.canvas.toDataURL("image/webp", .9) : null }));
+      afficherMontages();
+      lancerRevelation(revs, recompense);
+    });
   }
 
   // petite fanfare, Beufa qui danse, les 4 zones validées une à une

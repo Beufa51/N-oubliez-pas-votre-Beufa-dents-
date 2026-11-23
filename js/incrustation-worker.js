@@ -21,6 +21,12 @@ self.onmessage = async e => {
       self.postMessage({ type: "pret" });
     } catch (err) { self.postMessage({ type: "erreur", message: String(err && err.message || err) }); }
   } else if (m.type === "reset") conf = null;
+  else if (m.type === "photo") {                   // photo fixe (séance photo) : pas de lissage d'une image à l'autre
+    let r = null;
+    try { r = detourerPhoto(m.bmp, m.ts, m.id); } catch (err) {}
+    m.bmp.close();
+    if (r) self.postMessage(r, [r.alpha.buffer]); else self.postMessage({ type: "photo", id: m.id, rien: true });
+  }
   else if (m.type === "image") {
     let r = null;
     try { r = detourer(m.bmp, m.ts); } catch (err) {}
@@ -43,6 +49,20 @@ function detourer(bmp, ts) {
   }
   if (res.close) res.close();
   return Object.assign({ type: "masque", w, h, alpha }, cadrer(alpha, w, h));
+}
+
+function detourerPhoto(bmp, ts, id) {
+  ts = Math.max(ts, dernierTs + 1); dernierTs = ts;
+  const res = seg.segmentForVideo(bmp, ts), ms = res && res.confidenceMasks;
+  if (!ms || !ms.length) return null;
+  const mk = ms[0], w = mk.width, h = mk.height, d = mk.getAsFloat32Array(), alpha = new Uint8ClampedArray(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const a = (d[i] - SEUIL_BAS) / (SEUIL_HAUT - SEUIL_BAS);
+    alpha[i] = a <= 0 ? 0 : a >= 1 ? 255 : a * 255;
+  }
+  if (res.close) res.close();
+  conf = null;                                     // le détourage en direct repart de zéro ensuite
+  return { type: "photo", id, w, h, alpha };
 }
 
 /* cadrage : haut et centre de la tête (dans l'image en miroir), et zoom arrière si on est trop près */

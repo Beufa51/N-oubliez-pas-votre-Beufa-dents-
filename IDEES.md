@@ -268,4 +268,13 @@ Pas de publication sur le Play Store.
   (`--hauteur`, iPhone).
 - [x] **L'utilisateur de retour dans le décor** : détourage dans un Web Worker (`js/incrustation-worker.js`, image 256 px, ~15/s),
   l'affichage ne fait que dessiner (60 images/s mesurées avec la détection en même temps). Fenêtre caméra en attendant.
+- [x] **Audit « pose en duo »** (session 12, note 4/10) et refonte :
+  - **séance photo à la fin**, en bonus (2 ou 4 poses) : le brossage n'est plus coupé ; dernière pose = sourire brillant (V) ;
+  - **le créateur apparaît en direct** dès que l'utilisateur est bien placé (son ombre devient sa vraie photo, à la taille de la
+    tête de l'utilisateur, mesurée en direct) ;
+  - **photo déclenchée par le geste** : main suivie en direct, « 💥 CHECK ! » / « TOPE LÀ ! » au contact ; sinon 3-2-1 après 7 s ;
+  - **tous les deux dans le même décor** : utilisateur détouré sur sa photo (worker de détourage), décor derrière, même teinte
+    appliquée aux deux ; « 📷 Développement… » avant la révélation ;
+  - **étincelles sur les dents** quand l'utilisateur sourit « toutes dents dehors » (bouche repérée sur la photo).
+- [ ] Plus tard : le créateur en mouvement (petites boucles animées détourées) -> mini-GIF du duo (il faut filmer de courts gestes).
 

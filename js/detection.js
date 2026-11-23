@@ -209,7 +209,12 @@
         const lm = (photosModele.detect(source).faceLandmarks || [])[0];
         if (!lm) return null;
         const front = lm[10].y, menton = lm[152].y, haut = front - .22 * (menton - front);
-        return { cx: (lm[234].x + lm[454].x) / 2, haut, h: menton - haut };
+        const W = source.width || source.videoWidth || 1, H = source.height || source.videoHeight || 1;
+        // bouche : centre, largeur (fraction de la largeur) et sourire « toutes dents dehors » (lèvres écartées)
+        const ouverture = (lm[14].y - lm[13].y) / (menton - front);
+        const bouche = { x: (lm[78].x + lm[308].x) / 2, y: (lm[13].y + lm[14].y) / 2,
+          l: Math.hypot((lm[308].x - lm[78].x) * W, (lm[308].y - lm[78].y) * H) / W, dents: ouverture > .045 };
+        return { cx: (lm[234].x + lm[454].x) / 2, haut, h: menton - haut, bouche };
       } catch (e) { return null; }
     },
     /* mains sur une image : [{ x, y, taille }] en fraction de l'image (x, y = centre de la main ;
