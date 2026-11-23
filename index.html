@@ -71,7 +71,7 @@
         <h2><span>📷</span> Caméra</h2>
         <div class="choix acc-violet" id="choix-camera">
           <button class="option actif" data-camera="0" type="button"><span class="ico">🙈</span><strong>Sans</strong><small>Schéma seul</small></button>
-          <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Je me vois brosser</small></button>
+          <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Beufa me voit brosser</small></button>
         </div>
       </div>
       <div id="bloc-photos" hidden>
@@ -79,6 +79,14 @@
         <div class="choix acc-violet" id="choix-photos">
           <button class="option" data-photos="2" type="button"><span class="ico">⚡</span><strong>2 photos</strong><small>Rapide</small></button>
           <button class="option actif" data-photos="4" type="button"><span class="ico">🎬</span><strong>4 photos</strong><small>Le grand show</small></button>
+        </div>
+      </div>
+
+      <div id="bloc-brosse" hidden>
+        <h2><span>🪥</span> Ta brosse</h2>
+        <div class="choix acc-jaune" id="choix-brosse">
+          <button class="option actif" data-brosse="manuelle" type="button"><span class="ico">🪥</span><strong>Manuelle</strong><small>Je frotte</small></button>
+          <button class="option" data-brosse="electrique" type="button"><span class="ico">⚡</span><strong>Électrique</strong><small>Elle vibre</small></button>
         </div>
       </div>
 
@@ -112,6 +120,8 @@
 
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <canvas id="mousse-bouche" class="mousse-bouche" aria-hidden="true" hidden></canvas>
+      <div id="detecteur" class="detecteur" aria-live="polite" hidden></div>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
       <div id="mystere" class="mystere" aria-label="Carte surprise : une partie se dévoile à chaque zone"></div>
       <div id="astuce" class="astuce"></div>
@@ -165,7 +175,7 @@
       <div class="studio-demo">
         <div class="demo-brosse">✋ Pose ta brosse</div>
         <div id="demo-titre" class="demo-titre">Fais comme moi&nbsp;!</div>
-        <img id="demo-img" class="demo-img" alt="Beufa montre la pose">
+        <div class="demo-pose"><img id="demo-img" class="demo-img" alt="Beufa montre la pose"><span id="demo-emoji" class="demo-emoji" hidden></span></div>
         <div id="demo-consigne" class="demo-consigne"></div>
       </div>
       <div id="flash" class="flash" aria-hidden="true"></div>
@@ -254,6 +264,7 @@
 </div>
 
 <script src="js/jeu.js"></script>
+<script src="js/detection.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
