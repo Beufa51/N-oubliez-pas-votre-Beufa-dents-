@@ -6,9 +6,9 @@
 (function () {
   "use strict";
   const BASE = new URL("../assets/vision/", document.currentScript.src).href;
-  const PERIODE = 66;            // ms entre deux détourages (~15 par seconde)
+  let PERIODE = 66;              // ms entre deux détourages (~15 par seconde), rallongé si le téléphone peine
   const etat = { statut: "eteint", image: false, personne: 0 };   // personne : indice du masque « personne »
-  let seg = null, chargement = null, video = null, sortie = null, actif = false, raf = 0, dernier = 0, img = null;
+  let moyenne = 0, seg = null, chargement = null, video = null, sortie = null, actif = false, raf = 0, dernier = 0, img = null;
   const masque = document.createElement("canvas"), gm = masque.getContext("2d", { willReadFrequently: true });
 
   function charger() {
@@ -21,8 +21,9 @@
         baseOptions: { modelAssetPath: BASE + "selfie_segmenter.tflite", delegate: d },
         runningMode: "VIDEO", outputConfidenceMasks: true, outputCategoryMask: false
       });
-      try { seg = await ImageSegmenter.createFromOptions(fichiers, options("GPU")); }
-      catch (e) { seg = await ImageSegmenter.createFromOptions(fichiers, options("CPU")); }
+      // petit modèle (250 Ko) : le processeur suffit et évite de relire le masque depuis la carte graphique
+      // (lent sur téléphone) ; la carte graphique reste libre pour la détection du visage
+      seg = await ImageSegmenter.createFromOptions(fichiers, options("CPU"));
       etat.statut = "pret";
     })().catch(e => { console.warn("Incrustation indisponible", e); etat.statut = "indisponible"; });
     return chargement;
@@ -58,6 +59,7 @@
     if (!actif || !seg || !video || !sortie || video.readyState < 2 || !video.videoWidth || !sortie.width) return;
     if (t - dernier < PERIODE) return;
     dernier = t;
+    const t0 = performance.now();
     try {
       seg.segmentForVideo(video, performance.now(), res => {
         const ms = res.confidenceMasks;
@@ -74,6 +76,10 @@
         }
         gm.putImageData(img, 0, 0);
         dessiner();
+        // téléphone lent : si un détourage prend plus de 25 ms, on en fait moins souvent (jusqu'à ~6 par seconde)
+        const duree = performance.now() - t0;
+        moyenne = moyenne ? moyenne * .9 + duree * .1 : duree;
+        PERIODE = moyenne > 25 ? Math.min(160, PERIODE + 10) : Math.max(66, PERIODE - 5);
       });
     } catch (e) {}
   }

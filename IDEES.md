@@ -229,4 +229,7 @@ Pas de publication sur le Play Store.
   - **même taille** : le visage de l'utilisateur est mesuré sur sa photo, le créateur prend la même taille de tête à la même hauteur ;
   - **placement guidé** : consignes en direct sous la caméra (« 🔙 Recule un peu », « ➡️ Va vers la droite », « ✅ Parfait ! »),
     ovale vert quand c'est bon ; le 3-2-1 ne part que quand on est bien placé depuis 1 s (au plus tard 12 s), 4 s pour lire la pose.
+- [x] Fluidité (session 11, suite 3) : pendant le brossage, plus de paillettes/étoiles animées ni de flou derrière l'en-tête,
+  microbes immobiles avec la caméra, pas de mise en page à chaque image, moins de bulles, détourage sur le processeur
+  et qui ralentit tout seul si le téléphone peine.
 

@@ -147,6 +147,8 @@
 
   function montrer(nom) {
     Object.entries(ecrans).forEach(([k, el]) => el.classList.toggle("actif", k === nom));
+    // pendant le brossage : on coupe les animations de fond (paillettes, étoiles, flou) pour laisser la place à la caméra
+    document.body.classList.toggle("en-brossage", nom === "brossage");
   }
 
   /* ---------- réglages gardés sur le téléphone ---------- */
@@ -823,7 +825,7 @@
   const DEBUG = new URLSearchParams(location.search).has("debug");
   const elDet = $("#detecteur"), elMousse = $("#mousse-bouche"), gM = elMousse.getContext("2d");
   let attente = 0, sansVisage = 0, mauvaisCote = 0, coteDit = -1, relanceA = 2, visageA = 3, conseilJusqua = 0, conseil = "";
-  const bulles = [];
+  const bulles = []; let mousseSale = false;
   const RELANCES = {
     enfant: ["Hé ! Je ne te vois pas brosser !", "Allez, la brosse bouge !", "Les microbes en profitent, brosse !", "Le temps s'arrête si tu ne brosses pas !"],
     adulte: ["Le chrono attend que tu brosses.", "On reprend le brossage ?", "Pas de brossage, pas de chrono."]
@@ -880,7 +882,8 @@
       const dw = v.videoWidth * sc, dh = v.videoHeight * sc, k = Math.min(1.5, window.devicePixelRatio || 1);
       const W = Math.round(Math.min(720, dw * k)), H = Math.round(W * dh / dw);
       if (elIncrust.width !== W || elIncrust.height !== H) { elIncrust.width = W; elIncrust.height = H; }
-      elIncrust.style.cssText = `left:${v.offsetLeft + (ew - dw) / 2}px;top:${v.offsetTop}px;width:${dw}px;height:${dh}px`;
+      const st = `left:${v.offsetLeft + (ew - dw) / 2}px;top:${v.offsetTop}px;width:${dw}px;height:${dh}px`;
+      if (elIncrust.dataset.st !== st) { elIncrust.dataset.st = st; elIncrust.style.cssText = st; }   // pas de mise en page à chaque image
     }
     elScene.classList.toggle("incruste", !!(on && INC.etat.image));
   }
@@ -892,14 +895,20 @@
     if (!voir) { bulles.length = 0; return; }
     const ew = v.offsetWidth, eh = v.offsetHeight, k = Math.min(2, window.devicePixelRatio || 1);
     if (elMousse.width !== Math.round(ew * k) || elMousse.height !== Math.round(eh * k)) { elMousse.width = Math.round(ew * k); elMousse.height = Math.round(eh * k); }
-    elMousse.style.cssText = `left:${v.offsetLeft}px;top:${v.offsetTop}px;width:${ew}px;height:${eh}px`;
+    const st = `left:${v.offsetLeft}px;top:${v.offsetTop}px;width:${ew}px;height:${eh}px`;
+    if (elMousse.dataset.st !== st) { elMousse.dataset.st = st; elMousse.style.cssText = st; }
+    if (!bulles.length && !(d.brosse && d.bouche) && !DEBUG) {   // rien à dessiner : on ne touche pas au canvas
+      if (mousseSale) { gM.setTransform(1, 0, 0, 1, 0, 0); gM.clearRect(0, 0, elMousse.width, elMousse.height); mousseSale = false; }
+      return;
+    }
+    mousseSale = true;
     // image entière (contain) collée en haut, en miroir
     const sc = Math.min(ew / v.videoWidth, eh / v.videoHeight), dw = v.videoWidth * sc, ox = (ew - dw) / 2;
     const ecran = (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
     gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
     if (d.brosse && d.bouche) {
       const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * dw;
-      for (let i = 0; i < 2; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
+      if (Math.random() < .6) for (let i = 0; i < 1; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
         r: L * (.03 + Math.random() * .06), vx: (Math.random() - .5) * L * .6, vy: -L * (.3 + Math.random() * .5), vie: 1 });
     }
     for (let i = bulles.length - 1; i >= 0; i--) {
@@ -911,7 +920,7 @@
       gM.fillStyle = "#fff"; gM.beginPath(); gM.arc(b.x - b.r * .35, b.y - b.r * .35, b.r * .25, 0, 7); gM.fill();
     }
     gM.globalAlpha = 1;
-    if (bulles.length > 120) bulles.splice(0, bulles.length - 120);
+    if (bulles.length > 40) bulles.splice(0, bulles.length - 40);
     if (DEBUG && d.zones) {
       const z = d.zones, rect = (r, coul) => {
         const a = ecran((r.x + r.w) / z.vw, r.y / z.vh), b = ecran(r.x / z.vw, (r.y + r.h) / z.vh);
