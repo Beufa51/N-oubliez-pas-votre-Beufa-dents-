@@ -235,4 +235,8 @@ Pas de publication sur le Play Store.
 - [x] **Aperçu de la photo à faire** (au lieu de Beufa) : ombre du créateur « ? » + place « Toi » (contour ou ovale) + cible.
   **Contour de la pose** de l'utilisateur sur la caméra = photo du créateur en miroir (high five, check, V, dos à dos ;
   `tools/contours.py` -> `assets/createur/contour-<id>.webp`). Pas de contour pour « tape dans mes mains » et « montre du doigt ».
+- [x] Retours du test (session 11, suite 4) : **détection du brossage coupée** (trop lourde avec l'incrustation ; le brossage suit
+  le schéma, chrono normal, « Ma brosse » masqué ; le modèle du visage sert encore aux photos). Remise possible :
+  `DETECTION_BROSSAGE = true` dans `js/app.js`. **Recentrage automatique** de la personne incrustée (tête au centre, en haut),
+  calculé sur le détourage, lissé.
 

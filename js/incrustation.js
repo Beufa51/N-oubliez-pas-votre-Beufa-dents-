@@ -29,10 +29,33 @@
     return chargement;
   }
 
+  /* recentrage : la tête est ramenée au centre (et en haut) de l'image, quelle que soit la place de la personne
+     devant le téléphone ; décalage lissé pour ne pas trembler. ox, oy en fraction de l'image. */
+  const CIBLE_X = .5, CIBLE_HAUT = .1;
+  let ox = 0, oy = 0, cadreVu = false;
+  function cadrer(px, w, h) {
+    let haut = -1;
+    for (let y = 0; y < h && haut < 0; y++) {
+      let n = 0;
+      for (let x = 0; x < w; x++) if (px[(y * w + x) * 4 + 3] > 128) n++;
+      if (n > w * .03) haut = y;
+    }
+    if (haut < 0) return;                                  // personne : on garde le dernier cadrage
+    let sx = 0, n = 0;
+    const fin = Math.min(h, haut + Math.round(h * .15));   // le haut de la tête
+    for (let y = haut; y < fin; y++) for (let x = 0; x < w; x++) if (px[(y * w + x) * 4 + 3] > 128) { sx += x; n++; }
+    if (!n) return;
+    const cx = 1 - sx / n / w;                             // à l'écran, l'image est en miroir
+    const dx = Math.max(-.35, Math.min(.35, CIBLE_X - cx)), dy = Math.max(-.4, Math.min(.15, CIBLE_HAUT - haut / h));
+    const k = cadreVu ? .12 : 1; cadreVu = true;
+    ox += (dx - ox) * k; oy += (dy - oy) * k;
+  }
+
   function dessiner() {
     const c = sortie, g = c.getContext("2d");
     g.save();
     g.clearRect(0, 0, c.width, c.height);
+    g.translate(ox * c.width, oy * c.height);             // recentrage
     g.translate(c.width, 0); g.scale(-1, 1);              // miroir, comme la caméra à l'écran
     g.drawImage(video, 0, 0, c.width, c.height);
     g.globalCompositeOperation = "destination-in";        // on ne garde que la personne
@@ -41,6 +64,7 @@
     g.restore();
     // bords de l'image de la caméra fondus (le corps coupé par le cadre se fond dans le décor)
     g.save(); g.globalCompositeOperation = "destination-out";
+    g.translate(ox * c.width, oy * c.height);             // les bords fondus suivent l'image recentrée
     const fondu = (x0, y0, x1, y1, rx, ry, rw, rh) => {
       const gr = g.createLinearGradient(x0, y0, x1, y1);
       gr.addColorStop(0, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)");
@@ -75,6 +99,7 @@
           img.data[i * 4 + 3] = a <= 0 ? 0 : a >= 1 ? 255 : a * 255;
         }
         gm.putImageData(img, 0, 0);
+        cadrer(img.data, w, h);
         dessiner();
         // téléphone lent : si un détourage prend plus de 25 ms, on en fait moins souvent (jusqu'à ~6 par seconde)
         const duree = performance.now() - t0;
@@ -90,7 +115,7 @@
     // video : la caméra ; canvas : là où dessiner la personne détourée (dimensionné par l'appli)
     demarrer(v, canvas) {
       if (new URLSearchParams(location.search).get("incrustation") === "0") return;
-      video = v; sortie = canvas; actif = true; etat.image = false;
+      video = v; sortie = canvas; actif = true; etat.image = false; ox = oy = 0; cadreVu = false;
       charger();
       cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
     },

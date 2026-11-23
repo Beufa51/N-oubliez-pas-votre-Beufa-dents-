@@ -457,7 +457,7 @@
     const beufa = mode === "beufa";
     $("#bloc-camera").hidden = beufa; $("#bloc-photos").hidden = !beufa;
     cameraVoulue = beufa || cameraChoisie;
-    $("#bloc-brosse").hidden = !cameraVoulue;
+    $("#bloc-brosse").hidden = true;   // « Ma brosse » ne sert qu'à la détection du brossage (coupée)
   }
   // remet les derniers choix de l'utilisateur actif
   function appliquerReglages() {
@@ -503,7 +503,7 @@
       elCamera.srcObject = flux;
       await elCamera.play().catch(() => {});
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
-      DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
+      if (DETECTION_BROSSAGE || mode === "beufa") DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
       if (decorActuel()) INC.prechauffer();
     } catch (e) {
       stopperCamera();
@@ -686,7 +686,7 @@
     volumeFond(); jouerFond();
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
-    if (flux) DET.demarrer(elCamera, typeBrosse);
+    if (flux && DETECTION_BROSSAGE) DET.demarrer(elCamera, typeBrosse);
     if (flux && decorActuel()) INC.demarrer(elCamera, elIncrust);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
     derniere = performance.now();
@@ -846,7 +846,11 @@
     enfant: ["Hé ! Je ne te vois pas brosser !", "Allez, la brosse bouge !", "Les microbes en profitent, brosse !", "Le temps s'arrête si tu ne brosses pas !"],
     adulte: ["Le chrono attend que tu brosses.", "On reprend le brossage ?", "Pas de brossage, pas de chrono."]
   };
-  const detActive = () => flux && DET.etat.statut === "pret";
+  /* Détection du brossage coupée (demande du créateur : trop lourde avec l'incrustation) : le brossage suit le
+     schéma, le chrono avance normalement. Le modèle du visage sert encore aux photos (placement, taille).
+     Pour la remettre : DETECTION_BROSSAGE = true (et réafficher « Ma brosse » dans majModeCamera). */
+  const DETECTION_BROSSAGE = false;
+  const detActive = () => DETECTION_BROSSAGE && flux && DET.etat.statut === "pret";
   function vitesseBrossage() {
     if (!detActive() || attente < 1.2) return 1;
     return attente > 8 ? .5 : 0;
@@ -871,7 +875,7 @@
       }
     }
     // pastille : ce que Beufa voit
-    const montrerPastille = flux && phase === "brosse" && d.statut !== "eteint" && d.statut !== "indisponible";
+    const montrerPastille = DETECTION_BROSSAGE && flux && phase === "brosse" && d.statut !== "eteint" && d.statut !== "indisponible";
     let txt = "", cls = "detecteur";
     if (montrerPastille) {
       if (d.statut === "chargement") txt = "👁️ Beufa ouvre l'œil…";
