@@ -253,3 +253,14 @@ Pas de publication sur le Play Store.
 - [x] **Mode créateur**, dans le menu **⚙️ Options** de l'accueil (« Prendre mes photos de pose », ouvert à tous) : le créateur prend ses photos de pose dans l'appli (caméra avant, mêmes cadre et ovales
   que l'utilisateur, en miroir, 10 s pour se placer) et les enregistre pour le détourage.
 - [ ] Idée : utiliser directement dans l'appli les photos de pose prises par un utilisateur (détourage sur le téléphone).
+- [x] **Audit développeur + UI** (session 11) :
+  - mesure (profilage d'un brossage caméra + décor + détection) : 85 % du temps dans `readPixels` (MediaPipe sur la carte
+    graphique relisait chaque résultat) -> modèles sur le processeur : 7,6 -> 57 images/s dans le navigateur de test ;
+  - analyse du brossage dans un **Web Worker** (`js/detection-worker.js`, image réduite à 480 px) : JavaScript du fil
+    principal 8,6 s -> 0,6 s sur 8 s ; repli automatique sur le fil principal si le worker est impossible ;
+  - modèles des photos (visage en mode image + mains) séparés, chargés seulement en mode Beufa dents ;
+  - plus de lecture de mise en page à chaque image (boîte de la vidéo en cache), textes réécrits seulement s'ils changent ;
+  - UI : décors en 3 colonnes (« + Ma photo » visible), pastille de détection centrée au-dessus de la fenêtre caméra,
+    noms lisibles des poses (« Dos à dos », « Tape dans mes mains »…), plus d'emojis anglais (BACK/SOON) dans les consignes,
+    état « ⏳ Je prépare la caméra magique… / ✅ prête » sur l'écran d'installation.
+
