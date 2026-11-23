@@ -961,7 +961,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .cadre.avec-createur.cote-gauche .cadre-tete { right: 4%; }
 .cadre.avec-createur .zone-surprise { border-radius: 28px 28px 0 0; border-bottom: 0; }
 /* le créateur arrive comme un invité sur un plateau télé : contour blanc (dans l'image) + halo néon */
-.rev-part.createur { filter: drop-shadow(0 0 10px rgba(255, 60, 200, .75)) drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
+.rev-part.createur { filter: drop-shadow(0 6px 10px rgba(0,0,0,.3)); }
 /* geste sans image de Beufa dédiée : gros emoji à côté de lui */
 .demo-pose { position: relative; display: flex; justify-content: center; }
 .demo-emoji {

@@ -1,5 +1,6 @@
-"""Détoure les photos du créateur -> assets/createur/<id>.webp (fond transparent + contour blanc).
+"""Détoure les photos du créateur -> assets/createur/<id>.webp (fond transparent, bord adouci pour un rendu réaliste).
 Usage : python3 tools/createur.py <photo.jpg> <id> [<photo.jpg> <id> ...]
+(CONTOUR > 0 : ancien style « autocollant » avec un contour blanc.)
 Demande : pip install rembg onnxruntime scipy (modèle birefnet-general-lite, ~220 Mo, téléchargé une fois).
 """
 import sys
@@ -9,7 +10,7 @@ from scipy import ndimage
 from rembg import remove, new_session
 
 HAUT = 1400        # hauteur finale (px)
-CONTOUR = 9        # épaisseur du contour blanc (px, à la hauteur finale)
+CONTOUR = 0        # épaisseur d'un contour blanc façon autocollant (0 = aucun, rendu réaliste)
 
 def nettoyer(rgba):
     a = rgba[..., 3].astype(np.float32) / 255
@@ -28,6 +29,15 @@ def nettoyer(rgba):
     rgb[..., 2] = b * (1 - f) + np.minimum(b, r * .82) * f
     rgb[..., 1] = g * (1 - f) + np.minimum(g, r * .9) * f
     return np.dstack([rgb, a * 255]).clip(0, 255).astype(np.uint8)
+
+def adoucir(im):
+    """bord réaliste : on rogne 1 px (liseré du fond d'origine) et on adoucit légèrement la transition"""
+    px = np.asarray(im).copy()
+    a = px[..., 3].astype(np.float32) / 255
+    a = ndimage.grey_erosion(a, size=(3, 3))
+    a = ndimage.gaussian_filter(a, 1.1)
+    px[..., 3] = (a * 255).clip(0, 255).astype(np.uint8)
+    return Image.fromarray(px, "RGBA")
 
 def contour(im):
     a = np.asarray(im)[..., 3] > 40
@@ -54,6 +64,6 @@ for src, ident in zip(args[::2], args[1::2]):
     cut = Image.fromarray(nettoyer(np.asarray(remove(im, session=sess))), "RGBA")
     cut = cut.crop(cut.getbbox())
     cut = cut.resize((round(cut.width * HAUT / cut.height), HAUT), Image.LANCZOS)
-    out = contour(cut)
+    out = contour(cut) if CONTOUR else adoucir(cut)
     out.save(f"assets/createur/{ident}.webp", quality=84, method=6)
     print(ident, out.size)
