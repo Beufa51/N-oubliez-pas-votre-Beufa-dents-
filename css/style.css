@@ -986,3 +986,16 @@ body::before {   /* petites étoiles fixes qui scintillent */
 .detecteur.conseil { background: rgba(170, 20, 120, .9); border-color: #ff7aa2; }
 @keyframes detecteur-appel { from { transform: scale(1); } to { transform: scale(1.07); } }
 @media (prefers-reduced-motion: reduce) { .detecteur.attend { animation: none; } }
+
+/* ---------- accueil : type de brosse en petit interrupteur, « C'est parti » toujours visible ---------- */
+.ligne-brosse > span { white-space: nowrap; }
+.ligne-brosse { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 2px 0 8px; font-weight: 700; font-size: .95rem; }
+.ligne-brosse[hidden] { display: none; }
+.bascule { display: flex; padding: 3px; gap: 3px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); }
+#ecran-accueil .bascule .option {
+  flex: 0 0 auto; min-height: 0; padding: 6px 12px; border-radius: 999px; border: 0; box-shadow: none;
+  font-size: .9rem; font-weight: 700; background: transparent; color: inherit;
+}
+#ecran-accueil .bascule .option::before, #ecran-accueil .bascule .option::after { display: none; }
+#ecran-accueil .bascule .option.actif { background: var(--or); color: var(--encre); box-shadow: 0 0 10px rgba(255,200,61,.6); }
+#ecran-accueil .bouton-go { position: sticky; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 5; }
