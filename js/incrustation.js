@@ -6,7 +6,7 @@
 (function () {
   "use strict";
   const BASE = new URL("../assets/vision/", document.currentScript.src).href;
-  const PERIODE = 40;            // ms entre deux détourages (~25 par seconde)
+  const PERIODE = 66;            // ms entre deux détourages (~15 par seconde)
   const etat = { statut: "eteint", image: false, personne: 0 };   // personne : indice du masque « personne »
   let seg = null, chargement = null, video = null, sortie = null, actif = false, raf = 0, dernier = 0, img = null;
   const masque = document.createElement("canvas"), gm = masque.getContext("2d", { willReadFrequently: true });
