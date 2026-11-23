@@ -823,7 +823,7 @@
   }
   let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
 
-  /* ---------- mode créateur (caché : ouvrir l'appli avec ?createur=1) ----------
+  /* ---------- mode créateur (menu ⚙️ Options > « Prendre mes photos de pose ») ----------
      Le créateur prend ses photos de pose avec la caméra avant, téléphone debout, dans le même cadre que
      l'utilisateur (son ovale à son côté, celui de l'utilisateur en gris), en miroir comme les photos de
      l'utilisateur. Il les enregistre puis les envoie pour le détourage (tools/createur.py). */
@@ -839,8 +839,12 @@
   };
   const elCreateur = $("#ecran-createur"), elCrVideo = $("#createur-video"), elCrApercu = $("#createur-apercu");
   let crFlux = null, crPose = null, crCompte = 0, crBlob = null;
-  if (new URLSearchParams(location.search).has("createur")) $("#btn-createur").hidden = false;
+  const elOptions = $("#options");
+  $("#btn-options").addEventListener("click", () => { elOptions.hidden = false; });
+  $("#options-fermer").addEventListener("click", () => { elOptions.hidden = true; });
+  elOptions.addEventListener("click", e => { if (e.target === elOptions) elOptions.hidden = true; });
   $("#btn-createur").addEventListener("click", () => {
+    elOptions.hidden = true;
     const l = $("#createur-liste"); l.innerHTML = "";
     POSES_BEUFA.forEach(p => {
       const b = document.createElement("button"); b.type = "button"; b.className = "tuile-decor plateau";

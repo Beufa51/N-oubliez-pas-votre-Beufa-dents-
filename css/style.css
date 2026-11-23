@@ -236,7 +236,7 @@ body {
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 
 /* ----- boutons son / fermer ----- */
-.btn-son {
+.btn-son, .btn-options {
   flex: 0 0 auto; align-self: flex-start; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff;
   font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 3px 10px rgba(11,143,154,.25);
 }
@@ -638,7 +638,7 @@ button, input { font-family: inherit; }
 .profil-nom { font-weight: 600; }
 
 /* boutons ronds */
-.btn-son, .btn-rond, .btn-rond-clair { box-shadow: 0 4px 0 rgba(11,143,154,.25); border: 2px solid #fff; }
+.btn-son, .btn-options, .btn-rond, .btn-rond-clair { box-shadow: 0 4px 0 rgba(11,143,154,.25); border: 2px solid #fff; }
 
 /* ----- écran de brossage ----- */
 .entete {
@@ -799,7 +799,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
 #m-soir.fait { background: linear-gradient(180deg, #a98bff, #6a3cff); color: #fff; border-color: #c9b6ff; box-shadow: 0 0 12px rgba(124,77,255,.7); }
 .btn-album { color: var(--cyan); border-color: rgba(46,230,255,.5); }
 .score { color: #8cff6a; border-color: rgba(140,255,106,.45); }
-.btn-son, .btn-rond, .btn-rond-clair { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.btn-son, .btn-options, .btn-rond, .btn-rond-clair { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
 .studio .btn-rond { background: rgba(10,14,60,.6); }
 .lien { color: var(--cyan); }
 
@@ -1152,8 +1152,6 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 @media (prefers-reduced-motion: reduce) { .demo-apercu .ap-contour, .demo-apercu .ap-cible { animation: none; } }
 
 /* ---------- mode créateur ---------- */
-.btn-createur { display: block; margin: 8px auto 0; color: var(--or-clair); }
-.btn-createur[hidden] { display: none; }
 .createur-aide { margin: 4px 0 10px; font-size: .9rem; opacity: .85; text-align: center; max-width: 520px; }
 .createur-liste { width: 100%; max-width: 520px; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; grid-auto-rows: 110px; }
 .createur-liste[hidden], .createur-studio[hidden] { display: none; }
@@ -1172,3 +1170,14 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 .createur-boutons { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; width: 100%; }
 .createur-boutons .gros-bouton { max-width: 300px; }
 .createur-boutons [hidden] { display: none; }
+
+/* ---------- menu Options ---------- */
+.coin-gauche { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 2; }
+.options-boite { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.option-ligne {
+  display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 14px; border-radius: 16px; cursor: pointer;
+  background: rgba(255,255,255,.08); border: 2px solid var(--verre-bord); color: var(--texte); font: inherit;
+}
+.option-ligne b { font-size: 1.1rem; }
+.option-ligne small { opacity: .8; }
+.options-boite .lien { align-self: center; }

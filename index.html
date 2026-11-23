@@ -35,6 +35,7 @@
   <!-- ACCUEIL -->
   <section id="ecran-accueil" class="ecran">
     <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
+    <button id="btn-options" class="btn-options coin-gauche" type="button" aria-label="Options">⚙️</button>
     <h1 class="titre-image"><img src="assets/titre.webp" width="800" height="495" alt="N'oubliez pas votre brosse… Beufa dents !"></h1>
     <div class="accueil-hero">
       <img class="mascotte-accueil" src="assets/mascotte/png/pose-main-levee.png" alt="Beufa, la brosse à dents mascotte, qui salue">
@@ -91,7 +92,6 @@
       </div>
 
     </div>
-    <button id="btn-createur" class="lien btn-createur" type="button" hidden>🎬 Mode créateur : prendre mes photos</button>
     <div class="barre-bas"><button id="btn-demarrer" class="gros-bouton bouton-go" type="button">C'est parti&nbsp;! 🚀</button></div>
   </section>
 
@@ -245,15 +245,25 @@
 
 </main>
 <!-- fiche d'un utilisateur : prénom et âge -->
-<!-- mode créateur (caché, ?createur=1) : le créateur prend ses photos dans les mêmes conditions que l'utilisateur -->
+<!-- menu Options -->
+<div id="options" class="fiche" hidden>
+  <div class="fiche-boite options-boite">
+    <h2>⚙️ Options</h2>
+    <button id="btn-createur" class="option-ligne" type="button"><b>📸 Prendre mes photos de pose</b>
+      <small>Fais tes propres photos de pose (high five, check…) et enregistre-les sur ton téléphone.</small></button>
+    <button id="options-fermer" class="lien" type="button">Fermer</button>
+  </div>
+</div>
+
+<!-- mode créateur (menu Options) : le créateur prend ses photos dans les mêmes conditions que l'utilisateur -->
 <div id="ecran-createur" class="ecran-decor" hidden>
   <div class="decor-haut">
     <button id="createur-retour" class="btn-rond-clair" type="button" aria-label="Retour">←</button>
-    <h2>Mode créateur</h2>
+    <h2>Mes photos de pose</h2>
     <span></span>
   </div>
   <p class="createur-aide">Téléphone debout à hauteur de visage, caméra avant, à la distance où se mettra l'utilisateur.
-    Mets ta tête dans l'ovale doré (ton côté) ; l'ovale gris est la place de l'utilisateur. Appuie, tu as 10 s pour te placer.</p>
+    Mets ta tête dans l'ovale doré ; l'ovale gris est la place de celui qui fera la pose avec toi. Appuie, tu as 10 s pour te placer.</p>
   <div id="createur-liste" class="createur-liste"></div>
   <div id="createur-studio" class="createur-studio" hidden>
     <div id="createur-boite" class="createur-boite">

@@ -250,6 +250,6 @@ Pas de publication sur le Play Store.
   l'utilisateur, léger flou/grain, ombre douce (calque commun révélation + montage).
 - [x] **Contact des mains** : la main de l'utilisateur est repérée sur sa photo (Hand Landmarker, une fois par photo) ; le créateur
   prend la même taille de main et poing contre poing / paume contre paume / paumes sous ses mains. Visage du créateur gardé dans l'image.
-- [x] **Mode créateur** (`?createur=1`) : le créateur prend ses photos de pose dans l'appli (caméra avant, mêmes cadre et ovales
+- [x] **Mode créateur**, dans le menu **⚙️ Options** de l'accueil (« Prendre mes photos de pose », ouvert à tous) : le créateur prend ses photos de pose dans l'appli (caméra avant, mêmes cadre et ovales
   que l'utilisateur, en miroir, 10 s pour se placer) et les enregistre pour le détourage.
-
+- [ ] Idée : utiliser directement dans l'appli les photos de pose prises par un utilisateur (détourage sur le téléphone).
