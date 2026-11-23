@@ -239,4 +239,6 @@ Pas de publication sur le Play Store.
   le schéma, chrono normal, « Ma brosse » masqué ; le modèle du visage sert encore aux photos). Remise possible :
   `DETECTION_BROSSAGE = true` dans `js/app.js`. **Recentrage automatique** de la personne incrustée (tête au centre, en haut),
   calculé sur le détourage, lissé.
+- [x] Incrustation améliorée (session 11, suite 5) : masque plus strict (plus de bout de mur) et lissé d'une image à l'autre,
+  **zoom arrière automatique** si on est trop près, ~12 détourages/s (moins si le téléphone peine), image calculée en 480 px.
 
