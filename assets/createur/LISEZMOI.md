@@ -27,3 +27,10 @@ Les poses avec une photo du créateur passent en premier.
    - `hh` = taille de sa tête, `top` = hauteur de sa tête, `dx` = distance de son visage au bord,
      en fraction de la hauteur de la photo de l'utilisateur (≈ .27, .15, .2).
 4. Ajouter le fichier dans `sw.js` (copie hors ligne).
+
+## Contours de la pose de l'utilisateur
+Pour les gestes « en miroir » (high five, check, V, dos à dos), le contour de ce que doit faire l'utilisateur est ta photo
+retournée : `python3 tools/contours.py` crée `contour-<id>.webp`. Il apparaît sur l'aperçu « Voilà la photo qu'on va faire ! »
+et sur la caméra, calé sur l'ovale de la tête. Pour une nouvelle pose en miroir : ajouter son id dans `tools/contours.py`
+et `contour: true` dans `POSES_BEUFA`.
+
