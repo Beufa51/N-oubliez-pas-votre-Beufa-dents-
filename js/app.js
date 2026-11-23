@@ -74,29 +74,29 @@
      du créateur et une cible (cible = point de sa photo où l'utilisateur doit mettre la main, en fraction).
      geste = consigne sans le créateur (pauses du mode Classique, ou photo absente). */
   const POSES_BEUFA = [
-    { id: "high-five", contour: true,     mascotte: "main-levee",      cote: "droite", emoji: "✋",
+    { id: "high-five", nom: "High five", contour: true,     mascotte: "main-levee",      cote: "droite", emoji: "✋",
       consigne: "Tape dans la main de l'ombre : high five !", geste: "Lève la main : high five !",
       cible: { x: .06, y: .19, texte: "ta main ici" },
       photo: { tete: [0.08, 0.308, 0.557], hh: 0.166, top: 0.221, dx: 0.146 },
       main: { x: .068, y: .142, taille: .0991, contact: "paume" } },
-    { id: "check-poing", contour: true,   mascotte: "main-levee",      cote: "droite", emoji: "👊",
+    { id: "check-poing", nom: "Check", contour: true,   mascotte: "main-levee",      cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
       cible: { x: .06, y: .39, texte: "ton poing ici" },
       photo: { tete: [0.048, 0.287, 0.617], hh: 0.223, top: 0.185, dx: 0.196 },
       main: { x: .071, y: .411, taille: .0847, contact: "poing" } },
-    { id: "pouce", contour: true,         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
+    { id: "pouce", nom: "Victoire", contour: true,         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
       consigne: "Fais le V de la victoire, comme l'ombre !", geste: "Pouce en l'air !",
       photo: { tete: [0.096, 0.302, 0.56], hh: 0.188, top: 0.224, dx: 0.276 } },
-    { id: "coeur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
-    { id: "pointe",        mascotte: "pointe-du-doigt", cote: "gauche", emoji: "👉",
+    { id: "coeur", nom: "Cœur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
+    { id: "pointe", nom: "Montre du doigt",        mascotte: "pointe-du-doigt", cote: "gauche", emoji: "👉",
       consigne: "Montre l'ombre du doigt : c'est toi !", geste: "Montre-moi du doigt !",
       photo: { tete: [0.108, 0.321, 0.42], hh: 0.234, top: 0.253, dx: 0.210 } },
-    { id: "pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
-    { id: "bras-croises", contour: true,  mascotte: "bras-croises",    cote: "droite", emoji: "🔙",
+    { id: "pensif", nom: "Pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
+    { id: "bras-croises", nom: "Dos à dos", contour: true,  mascotte: "bras-croises",    cote: "droite", emoji: "👥",
       consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
       cible: { x: .02, y: .3, texte: "ton dos ici" },
       photo: { tete: [0.035, 0.251, 0.403], hh: 0.216, top: 0.175, dx: 0.190 } },
-    { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", emoji: "🙌",
+    { id: "mains-hanches", nom: "Tape dans mes mains", mascotte: "mains-hanches",   cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
       cible: { x: .2, y: .6, texte: "tes mains ici" },
       photo: { tete: [0.037, 0.266, 0.626], hh: 0.229, top: 0.177, dx: 0.180 },
@@ -528,9 +528,9 @@
       elCamera.srcObject = flux;
       await elCamera.play().catch(() => {});
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
-      if (DETECTION_BROSSAGE || mode === "beufa") DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
-      if (mode === "beufa") DET.prechaufferMains();                     // mains : pour les photos avec contact
-      if (decorActuel()) DET.prechauffer();   // pour garder le visage centré dans la fenêtre
+      // analyse du brossage (worker) : aussi pour garder le visage centré dans la fenêtre caméra
+      if (DETECTION_BROSSAGE || decorActuel()) DET.prechauffer();
+      if (mode === "beufa") DET.prechaufferPhotos();   // visage (placement, taille) et mains (contact) des photos
     } catch (e) {
       stopperCamera();
       toast(mode === "beufa"
@@ -687,8 +687,21 @@
   function ouvrirPrepa() {
     phase = "prepa"; montrer("brossage"); volumeFond(); jouerFond();
     elPrepaVideo.srcObject = flux; elPrepaVideo.play().catch(() => {});
-    elPrepa.hidden = false; placer(elPrepa, elPrepaVideo, elPrepaCadre); garderEcran();
+    elPrepa.hidden = false; placer(elPrepa, elPrepaVideo, elPrepaCadre); garderEcran(); suivrePrepa();
     parler("Pose ton téléphone debout devant toi, et recule un peu, pour qu'on voie ta tête et tes deux mains. Quand tu es prêt, appuie sur le bouton !");
+  }
+  // installation : dire quand la caméra magique (détection des photos) est prête (1er lancement : ~18 Mo)
+  let prepaT = 0;
+  function suivrePrepa() {
+    clearInterval(prepaT);
+    const el = $("#prepa-etat");
+    const maj = () => {
+      const ok = DET.etat.photos;
+      el.textContent = ok ? "✅ Caméra magique prête !" : "⏳ Je prépare la caméra magique… (la 1re fois, ça peut prendre un moment)";
+      el.classList.toggle("ok", ok);
+      if (ok || elPrepa.hidden) clearInterval(prepaT);
+    };
+    maj(); prepaT = setInterval(maj, 500);
   }
   function fermerPrepa() { elPrepa.hidden = true; elPrepaVideo.srcObject = null; }
   elPrepaVideo.addEventListener("loadedmetadata", () => placer(elPrepa, elPrepaVideo, elPrepaCadre));
@@ -759,22 +772,24 @@
 
   function indexZone() { return Math.max(0, Math.min(3, Math.floor(ecoule / (duree / 4)))); }
 
+  // écrire un texte seulement s'il change (évite de refaire le style à chaque image)
+  const ecrire = (el, t) => { if (el.textContent !== t) el.textContent = t; };
   function majAffichage() {
     const reste = Math.max(0, Math.ceil(duree - ecoule));
-    elTemps.textContent = `${Math.floor(reste / 60)}:${String(reste % 60).padStart(2, "0")}`;
+    ecrire(elTemps, `${Math.floor(reste / 60)}:${String(reste % 60).padStart(2, "0")}`);
     elAnneau.style.strokeDashoffset = String(CIRC * (ecoule / duree));
 
     const z = indexZone();
     const dureeZone = duree / 4;
     const p = Math.min(2, Math.floor(((ecoule - z * dureeZone) / dureeZone) * 3));
-    elZone.textContent = ZONES[z];
-    elFace.textContent = FACES[p];
+    ecrire(elZone, ZONES[z]);
+    ecrire(elFace, FACES[p]);
     elPoints.forEach((d, i) => d.classList.toggle("on", i <= p));
     // en mode Beufa dents, on prévient avant chaque photo
     const avantPhoto = avecPhotos() && phase === "brosse" &&
       ((iPause < pauses.length && pauses[iPause] - ecoule < 5) || (!finale && duree - ecoule < 5));
     const enDefi = !avantPhoto && ecoule < defiJusqua;
-    elAstuce.textContent = avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p];
+    ecrire(elAstuce, avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p]);
     elAstuce.classList.toggle("alerte", avantPhoto);
     elAstuce.classList.toggle("defi", enDefi);
     if (avantPhoto && !alerteDite) { alerteDite = true; parler("Prépare-toi, photo avec moi dans 5 secondes !"); }
@@ -848,7 +863,7 @@
     const l = $("#createur-liste"); l.innerHTML = "";
     POSES_BEUFA.forEach(p => {
       const b = document.createElement("button"); b.type = "button"; b.className = "tuile-decor plateau";
-      b.innerHTML = `<i>${p.emoji || "📸"}</i><span>${p.id}${p.createur ? " ✓" : ""}</span>`;
+      b.innerHTML = `<i>${p.emoji || "📸"}</i><span>${p.nom}${p.createur ? " ✓" : ""}</span>`;
       b.addEventListener("click", () => ouvrirCrStudio(p));
       l.appendChild(b);
     });
@@ -863,7 +878,7 @@
   async function ouvrirCrStudio(p) {
     crPose = p; crBlob = null;
     $("#createur-liste").hidden = true; $("#createur-studio").hidden = false;
-    $("#createur-consigne").textContent = `${p.id} — ${CONSIGNES_CREATEUR[p.id] || ""}`;
+    $("#createur-consigne").textContent = `${p.nom} — ${CONSIGNES_CREATEUR[p.id] || ""}`;
     elCrApercu.hidden = true; $("#createur-go").hidden = false; $("#createur-garder").hidden = true; $("#createur-refaire").hidden = true;
     $("#createur-cadre").className = `cadre createur-cote-${p.cote}`;
     try {
@@ -905,7 +920,7 @@
   let compteA = null, clicA = 0, okDepuis = 0, dernierePlace = 0, placeMsg = "";
   function placement() {
     const t = tPause - POSE_PREP;
-    if (DET.etat.statut !== "pret") {             // pas de détection : temps fixe
+    if (!DET.etat.photos) {                       // pas de détection : temps fixe
       if (t >= PLACE_SANS) commencerCompte();
       return;
     }
@@ -920,8 +935,8 @@
       const ocx = (r.left + r.width / 2 - co.left) / co.width, ocy = (r.top + r.height / 2 - co.top) / co.height, ovh = r.height / co.height;
       const fx = 1 - v.cx, fy = v.haut + v.h / 2, taille = v.h / ovh;     // l'écran est en miroir
       const tolX = .09, tolY = .1;
-      if (taille > 1.12) msg = "🔙 Recule un peu";
-      else if (taille < .62) msg = "🔜 Approche-toi";
+      if (taille > 1.12) msg = "👣 Recule un peu";
+      else if (taille < .62) msg = "👣 Approche-toi";
       else if (fx < ocx - tolX) msg = "➡️ Va vers la droite";
       else if (fx > ocx + tolX) msg = "⬅️ Va vers la gauche";
       else if (fy < ocy - tolY) msg = "⬇️ Baisse-toi un peu";
@@ -990,10 +1005,19 @@
     dessinerMousse(dtR, actif);
     majFenetre();
   }
+  /* place de la vidéo dans l'écran, mise en cache : la lire à chaque image forçait le navigateur à refaire
+     la mise en page (audit). Recalculée seulement si la vidéo change de taille ou de vue. */
+  let boiteVid = null;
+  const boiteCam = () => boiteVid || (boiteVid = { ew: elCamera.offsetWidth, eh: elCamera.offsetHeight, ol: elCamera.offsetLeft, ot: elCamera.offsetTop });
+  if (window.ResizeObserver) new ResizeObserver(() => { boiteVid = null; }).observe(elCamera);
+  window.addEventListener("resize", () => { boiteVid = null; });
+  new MutationObserver(() => { boiteVid = null; }).observe(elScene, { attributes: true, attributeFilter: ["class"] });
+
   /* fenêtre caméra posée sur le décor (sans détourage) : un canvas bordé de néon, un peu plus petit que l'image
      de la caméra pour que le décor se voie autour. Le visage (mesuré une fois par seconde) est gardé au centre :
      zoom si on est loin ou trop près du bord, et la fenêtre glisse sur le décor pour suivre la tête. Lissé. */
   const elFenetre = $("#fenetre-cam"), gF = elFenetre.getContext("2d");
+  const HAUT_FEN = 44;    // place au-dessus de la fenêtre pour la pastille de détection (px)
   const TAILLE_FEN = .7;                        // taille de la fenêtre par rapport à l'image entière
   let recadre = null, mesureA = 0, fenGeo = null;             // x, y, t : coin et taille du morceau d'image montré ; dx : glissement
   function majFenetre() {
@@ -1001,17 +1025,17 @@
     const on = !!(flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause") && v.videoWidth);
     elScene.classList.toggle("fenetre", on);
     if (!on) { recadre = null; fenGeo = null; return; }
-    const ew = v.offsetWidth, eh = v.offsetHeight, sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
+    const { ew, eh, ol, ot } = boiteCam(), sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
     const fw = v.videoWidth * sc * TAILLE_FEN, fh = v.videoHeight * sc * TAILLE_FEN, k = Math.min(1.5, window.devicePixelRatio || 1);
     const W = Math.round(Math.min(480, fw * k)), H = Math.round(W * fh / fw);   // 480 px suffisent et allègent
     if (elFenetre.width !== W || elFenetre.height !== H) { elFenetre.width = W; elFenetre.height = H; }
-    const st = `left:${v.offsetLeft + (ew - fw) / 2}px;top:${v.offsetTop + 6}px;width:${fw}px;height:${fh}px`;
+    const st = `left:${ol + (ew - fw) / 2}px;top:${ot + HAUT_FEN}px;width:${fw}px;height:${fh}px`;
     if (elFenetre.dataset.st !== st) { elFenetre.dataset.st = st; elFenetre.style.cssText = st; }   // pas de mise en page à chaque image
     if (!recadre) recadre = { x: 0, y: 0, t: 1, dx: 0, cible: { x: 0, y: 0, t: 1, dx: 0 } };
     const maintenant = performance.now();
-    if (DET.etat.statut === "pret" && maintenant - mesureA > 1000) {
+    if (maintenant - mesureA > 1000) {             // dernière position du visage donnée par l'analyse (worker)
       mesureA = maintenant;
-      const f = DET.visage(v);
+      const f = DET.etat.visage ? DET.etat.cadre : null;
       if (f) {
         const t = Math.max(.55, Math.min(1, f.h / .34));            // la tête fait ~34 % de la hauteur de la fenêtre
         const x = Math.max(0, Math.min(1 - t, f.cx - t / 2));
@@ -1025,7 +1049,7 @@
     const c = recadre.cible, a = .06;
     for (const q of ["x", "y", "t", "dx"]) recadre[q] += (c[q] - recadre[q]) * a;
     elFenetre.style.transform = `translateX(${recadre.dx.toFixed(1)}px)`;   // glissement sans mise en page
-    fenGeo = { x: v.offsetLeft + (ew - fw) / 2 + recadre.dx, y: v.offsetTop + 6, fw, fh, rx: recadre.x, ry: recadre.y, t: recadre.t };
+    fenGeo = { x: ol + (ew - fw) / 2 + recadre.dx, y: ot + HAUT_FEN, fw, fh, rx: recadre.x, ry: recadre.y, t: recadre.t };
     const vw = v.videoWidth, vh = v.videoHeight;
     gF.setTransform(-1, 0, 0, 1, W, 0);                            // miroir
     gF.drawImage(v, recadre.x * vw, recadre.y * vh, recadre.t * vw, recadre.t * vh, 0, 0, W, H);
@@ -1036,9 +1060,9 @@
     const voir = actif && miroir && v.videoWidth;
     elMousse.hidden = !voir;
     if (!voir) { bulles.length = 0; return; }
-    const ew = v.offsetWidth, eh = v.offsetHeight, k = Math.min(2, window.devicePixelRatio || 1);
+    const { ew, eh, ol, ot } = boiteCam(), k = Math.min(2, window.devicePixelRatio || 1);
     if (elMousse.width !== Math.round(ew * k) || elMousse.height !== Math.round(eh * k)) { elMousse.width = Math.round(ew * k); elMousse.height = Math.round(eh * k); }
-    const st = `left:${v.offsetLeft}px;top:${v.offsetTop}px;width:${ew}px;height:${eh}px`;
+    const st = `left:${ol}px;top:${ot}px;width:${ew}px;height:${eh}px`;
     if (elMousse.dataset.st !== st) { elMousse.dataset.st = st; elMousse.style.cssText = st; }
     if (!bulles.length && !(d.brosse && d.bouche) && !DEBUG) {   // rien à dessiner : on ne touche pas au canvas
       if (mousseSale) { gM.setTransform(1, 0, 0, 1, 0, 0); gM.clearRect(0, 0, elMousse.width, elMousse.height); mousseSale = false; }
@@ -1050,7 +1074,7 @@
     // point de l'image brute -> écran ; avec la fenêtre caméra, on suit son recadrage, son zoom et son glissement
     const f = elScene.classList.contains("fenetre") && fenGeo;
     const ecran = f
-      ? (nx, ny) => ({ x: f.x - v.offsetLeft + (1 - (nx - f.rx) / f.t) * f.fw, y: f.y - v.offsetTop + (ny - f.ry) / f.t * f.fh })
+      ? (nx, ny) => ({ x: f.x - ol + (1 - (nx - f.rx) / f.t) * f.fw, y: f.y - ot + (ny - f.ry) / f.t * f.fh })
       : (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
     gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
     if (d.brosse && d.bouche) {
