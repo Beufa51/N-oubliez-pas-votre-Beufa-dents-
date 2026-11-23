@@ -175,7 +175,7 @@
   if (synthese) { choisirVoix(); synthese.addEventListener && synthese.addEventListener("voiceschanged", choisirVoix); }
   function parler(texte, urgent = true) {
     if (!sonActif || !synthese || !texte) return;
-    if (phase === "prepa" || phase === "brosse" || phase === "pause") return;   // pas de voix pendant le brossage (demande du créateur)
+    if (phase === "prepa" || phase === "brosse" || phase === "pause" || phase === "fin") return;   // pas de voix pendant le brossage ni à la fin (demande du créateur)
     try {
       if (urgent) synthese.cancel();
       const u = new SpeechSynthesisUtterance(texte.replace(/…/g, "."));
@@ -311,6 +311,48 @@
     const b = e.target.closest(".option"); if (!b || b.disabled) return;
     choisir($("#choix-mode"), b); mode = b.dataset.mode; retenir({ mode }); majModeCamera();
   });
+  /* ---------- décor du brossage ----------
+     Images dans assets/decors/<id>.webp (portrait, ~1080×1920). Un décor n'apparaît dans le choix que si
+     son image existe : on peut en ajouter ou en retirer sans toucher au reste. */
+  const DECORS = [
+    { id: "plateau",     nom: "Plateau télé" },     // le décor de base (pas d'image)
+    { id: "champignons", nom: "Pays des champignons" },
+    { id: "volcan",      nom: "Volcan" },
+    { id: "neige",       nom: "Village enneigé" },
+    { id: "montagne",    nom: "Montagne" },
+    { id: "lagon",       nom: "Lagon" }
+  ];
+  let decor = "plateau";
+  const elChoixDecor = $("#choix-decor");
+  function majDecors() {
+    const dispo = DECORS.filter(d => d.id === "plateau" || d.ok);
+    $("#bloc-decor").hidden = dispo.length < 2;
+    elChoixDecor.innerHTML = "";
+    dispo.forEach(d => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "option decor" + (d.id === decor ? " actif" : "");
+      b.dataset.decor = d.id; b.title = d.nom; b.setAttribute("aria-label", "Décor : " + d.nom);
+      if (d.ok) b.style.backgroundImage = `url(assets/decors/${d.id}.webp)`;
+      else b.textContent = "📺";
+      elChoixDecor.appendChild(b);
+    });
+    appliquerDecor();
+  }
+  function appliquerDecor() {
+    const d = DECORS.find(x => x.id === decor && (x.ok || x.id === "plateau")) || DECORS[0];
+    ecrans.brossage.style.backgroundImage = d.ok
+      ? `linear-gradient(180deg, rgba(13,18,80,.25), rgba(13,18,80,.55)), url(assets/decors/${d.id}.webp)` : "";
+    ecrans.brossage.classList.toggle("avec-decor", !!d.ok);
+  }
+  DECORS.forEach(d => {
+    if (d.id === "plateau") return;
+    const i = new Image(); i.onload = () => { d.ok = true; majDecors(); }; i.src = `assets/decors/${d.id}.webp`;
+  });
+  elChoixDecor.addEventListener("click", e => {
+    const b = e.target.closest(".option"); if (!b) return;
+    choisir(elChoixDecor, b); decor = b.dataset.decor; retenir({ decor }); appliquerDecor();
+  });
+
   // la brosse ne compte que pour la détection (donc avec la caméra)
   $("#choix-brosse").addEventListener("click", e => {
     const b = e.target.closest(".option"); if (!b) return;
@@ -336,6 +378,7 @@
     cameraChoisie = !!r.camera;
     nbPhotos = r.photos === 2 ? 2 : 4;
     typeBrosse = r.brosse === "electrique" ? "electrique" : "manuelle";
+    decor = r.decor || "plateau"; majDecors();
     choisir($("#choix-brosse"), $(`#choix-brosse [data-brosse="${typeBrosse}"]`));
     choisir($("#choix-mode"), $(`#choix-mode [data-mode="${mode}"]`));
     choisir($("#choix-duree"), $(`#choix-duree [data-duree="${duree}"]`));

@@ -4,7 +4,7 @@
 // - Images, sons, police : copie locale d'abord (lourds et ils changent rarement).
 // - Les fichiers sont toujours téléchargés en contournant le cache du navigateur ({ cache: "reload" }),
 //   sinon une copie vieille de quelques minutes pourrait être gardée par erreur.
-const VERSION = "beufa-v25";
+const VERSION = "beufa-v26";
 // détection du brossage (~18 Mo) : gardée à part, téléchargée seulement au premier brossage avec caméra,
 // et pas re-téléchargée à chaque nouvelle version de l'appli (changer ce nom si on change de modèle)
 const VISION = "beufa-vision-1.2.2";
@@ -39,6 +39,13 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
   if (new URL(req.url).pathname.includes("/assets/vision/")) {
     e.respondWith(caches.open(VISION).then(c => c.match(req).then(r => r || fetch(req).then(rep => {
+      if (rep.ok) c.put(req, rep.clone());
+      return rep;
+    }))));
+    return;
+  }
+  if (new URL(req.url).pathname.includes("/assets/decors/")) {   // décors : gardés après le 1er affichage
+    e.respondWith(caches.open(VERSION).then(c => c.match(req).then(r => r || fetch(req).then(rep => {
       if (rep.ok) c.put(req, rep.clone());
       return rep;
     }))));
