@@ -998,7 +998,6 @@ body::before {   /* petites étoiles fixes qui scintillent */
 }
 #ecran-accueil .bascule .option::before, #ecran-accueil .bascule .option::after { display: none; }
 #ecran-accueil .bascule .option.actif { background: var(--or); color: var(--encre); box-shadow: 0 0 10px rgba(255,200,61,.6); }
-#ecran-accueil .bouton-go { position: sticky; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 5; }
 
 /* ---------- studio : ombre du créateur (surprise gardée) + cible du geste ---------- */
 .zone-surprise.ombre { border: 0; background: none; padding: 0; border-radius: 0; box-shadow: none; }
@@ -1028,3 +1027,26 @@ body::before {   /* petites étoiles fixes qui scintillent */
 }
 @keyframes cible-pulse { from { transform: scale(.9); } to { transform: scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .cible::before { animation: none; } }
+
+/* ---------- bouton principal toujours visible : barre collée en bas de l'écran ---------- */
+.barre-bas {
+  position: sticky; bottom: calc(-1 * max(16px, env(safe-area-inset-bottom))); z-index: 6; flex: 0 0 auto;
+  width: calc(100% + 32px); margin: auto -16px calc(-1 * max(16px, env(safe-area-inset-bottom)));
+  padding: 22px 16px max(14px, env(safe-area-inset-bottom));
+  display: flex; justify-content: center;
+  background: linear-gradient(to top, var(--nuit-2) 0, rgba(42, 13, 94, .92) 55%, rgba(42, 13, 94, 0) 100%);
+}
+.barre-bas .gros-bouton { width: 100%; max-width: 360px; margin: 0; }
+/* écran de fin : centré quand tout tient, défilant (sans rien couper en haut) sinon */
+#ecran-fin { justify-content: flex-start; }
+#ecran-fin > .titre { margin-top: auto; }
+
+/* ---------- décor du brossage ---------- */
+.decors { display: flex; gap: 6px; overflow-x: auto; padding: 3px; scrollbar-width: none; }
+#ecran-accueil .decors .option.decor {
+  flex: 0 0 auto; width: 40px; height: 40px; min-height: 0; padding: 0; border-radius: 50%;
+  background: #1a1f8a center / cover no-repeat; border: 2px solid rgba(255,255,255,.35); font-size: 1.1rem;
+}
+#ecran-accueil .decors .option.decor::before, #ecran-accueil .decors .option.decor::after { display: none; }
+#ecran-accueil .decors .option.decor.actif { border-color: var(--or); box-shadow: 0 0 0 2px var(--or), 0 0 12px rgba(255,200,61,.8); }
+#ecran-brossage.avec-decor { background-position: center; background-size: cover; background-repeat: no-repeat; }
