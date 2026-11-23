@@ -250,5 +250,6 @@ Pas de publication sur le Play Store.
   l'utilisateur, léger flou/grain, ombre douce (calque commun révélation + montage).
 - [x] **Contact des mains** : la main de l'utilisateur est repérée sur sa photo (Hand Landmarker, une fois par photo) ; le créateur
   prend la même taille de main et poing contre poing / paume contre paume / paumes sous ses mains. Visage du créateur gardé dans l'image.
-- [ ] Mode créateur (photos du créateur prises dans l'appli, mêmes conditions que l'utilisateur).
+- [x] **Mode créateur** (`?createur=1`) : le créateur prend ses photos de pose dans l'appli (caméra avant, mêmes cadre et ovales
+  que l'utilisateur, en miroir, 10 s pour se placer) et les enregistre pour le détourage.
 

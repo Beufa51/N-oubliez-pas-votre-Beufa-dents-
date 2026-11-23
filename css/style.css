@@ -1150,3 +1150,25 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 .cadre.avec-contour .cadre-tete { border-width: 3px; }
 .cadre.avec-contour .cadre-tete span { display: none; }
 @media (prefers-reduced-motion: reduce) { .demo-apercu .ap-contour, .demo-apercu .ap-cible { animation: none; } }
+
+/* ---------- mode créateur ---------- */
+.btn-createur { display: block; margin: 8px auto 0; color: var(--or-clair); }
+.btn-createur[hidden] { display: none; }
+.createur-aide { margin: 4px 0 10px; font-size: .9rem; opacity: .85; text-align: center; max-width: 520px; }
+.createur-liste { width: 100%; max-width: 520px; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; grid-auto-rows: 110px; }
+.createur-liste[hidden], .createur-studio[hidden] { display: none; }
+.createur-studio { width: 100%; max-width: 520px; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.createur-boite { position: relative; width: 100%; flex: 1; min-height: 0; }
+.createur-boite video { position: absolute; transform: scaleX(-1); border-radius: 16px; background: #000; }
+.cr-tete { position: absolute; top: 13%; height: 36%; aspect-ratio: 3 / 4; border-radius: 50%; border: 4px dashed rgba(255,255,255,.6); }
+.cr-tete.moi { border-color: var(--or); box-shadow: 0 0 14px rgba(255,200,61,.8); }
+.createur-cote-droite .cr-tete.moi { right: 4%; } .createur-cote-droite .cr-tete.lui { left: 4%; }
+.createur-cote-gauche .cr-tete.moi { left: 4%; } .createur-cote-gauche .cr-tete.lui { right: 4%; }
+.createur-apercu { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: rgba(0,0,0,.6); border-radius: 16px; }
+.createur-apercu[hidden] { display: none; }
+.createur-compte { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+  font-size: min(36vw, 200px); font-weight: 900; color: #fff; -webkit-text-stroke: 5px var(--magenta); paint-order: stroke fill; }
+.createur-consigne { margin: 0; font-weight: 800; text-align: center; }
+.createur-boutons { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; width: 100%; }
+.createur-boutons .gros-bouton { max-width: 300px; }
+.createur-boutons [hidden] { display: none; }

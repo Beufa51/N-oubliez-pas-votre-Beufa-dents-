@@ -823,6 +823,80 @@
   }
   let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
 
+  /* ---------- mode créateur (caché : ouvrir l'appli avec ?createur=1) ----------
+     Le créateur prend ses photos de pose avec la caméra avant, téléphone debout, dans le même cadre que
+     l'utilisateur (son ovale à son côté, celui de l'utilisateur en gris), en miroir comme les photos de
+     l'utilisateur. Il les enregistre puis les envoie pour le détourage (tools/createur.py). */
+  const CONSIGNES_CREATEUR = {
+    "high-five": "Main levée, paume tournée vers l'ovale gris, à hauteur de visage.",
+    "check-poing": "Poing tendu vers l'ovale gris, coude plié, à mi-distance (pas vers l'objectif).",
+    "pouce": "V de la victoire, l'autre main sur la hanche.",
+    "coeur": "Demi-cœur avec tes mains, tourné vers l'ovale gris.",
+    "pointe": "Montre la caméra du doigt, l'air complice.",
+    "pensif": "Main au menton, l'air pensif, tourné vers l'ovale gris.",
+    "bras-croises": "De profil, bras croisés, ton dos tourné vers l'ovale gris.",
+    "mains-hanches": "Paumes vers le haut, mains tendues vers l'ovale gris à hauteur de ventre."
+  };
+  const elCreateur = $("#ecran-createur"), elCrVideo = $("#createur-video"), elCrApercu = $("#createur-apercu");
+  let crFlux = null, crPose = null, crCompte = 0, crBlob = null;
+  if (new URLSearchParams(location.search).has("createur")) $("#btn-createur").hidden = false;
+  $("#btn-createur").addEventListener("click", () => {
+    const l = $("#createur-liste"); l.innerHTML = "";
+    POSES_BEUFA.forEach(p => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "tuile-decor plateau";
+      b.innerHTML = `<i>${p.emoji || "📸"}</i><span>${p.id}${p.createur ? " ✓" : ""}</span>`;
+      b.addEventListener("click", () => ouvrirCrStudio(p));
+      l.appendChild(b);
+    });
+    $("#createur-studio").hidden = true; l.hidden = false; elCreateur.hidden = false; arreterFond();
+  });
+  function fermerCrStudio() {
+    clearInterval(crCompte); if (crFlux) crFlux.getTracks().forEach(t => t.stop()); crFlux = null; elCrVideo.srcObject = null;
+    $("#createur-studio").hidden = true; $("#createur-liste").hidden = false;
+  }
+  $("#createur-retour").addEventListener("click", () => { fermerCrStudio(); elCreateur.hidden = true; jouerFond(); });
+  $("#createur-fermer").addEventListener("click", fermerCrStudio);
+  async function ouvrirCrStudio(p) {
+    crPose = p; crBlob = null;
+    $("#createur-liste").hidden = true; $("#createur-studio").hidden = false;
+    $("#createur-consigne").textContent = `${p.id} — ${CONSIGNES_CREATEUR[p.id] || ""}`;
+    elCrApercu.hidden = true; $("#createur-go").hidden = false; $("#createur-garder").hidden = true; $("#createur-refaire").hidden = true;
+    $("#createur-cadre").className = `cadre createur-cote-${p.cote}`;
+    try {
+      crFlux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1920 }, height: { ideal: 1920 } }, audio: false });
+      elCrVideo.srcObject = crFlux; await elCrVideo.play().catch(() => {});
+    } catch (e) { $("#createur-consigne").textContent = "Caméra indisponible."; }
+  }
+  elCrVideo.addEventListener("loadedmetadata", () => placer($("#createur-boite"), elCrVideo, $("#createur-cadre")));
+  $("#createur-go").addEventListener("click", () => {
+    let n = 10; $("#createur-go").hidden = true; elCrApercu.hidden = true;
+    const el = $("#createur-compte"); el.textContent = n; bip(600, .08);
+    clearInterval(crCompte);
+    crCompte = setInterval(() => {
+      n--;
+      if (n > 0) { el.textContent = n; bip(n <= 3 ? 880 : 600, .08); return; }
+      clearInterval(crCompte); el.textContent = ""; crPhoto();
+    }, 1000);
+  });
+  function crPhoto() {
+    const v = elCrVideo, c = document.createElement("canvas");
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    const g = c.getContext("2d"); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(v, 0, 0);   // en miroir, comme l'utilisateur
+    bip(1200, .05); vibrer(60);
+    c.toBlob(b => {
+      crBlob = b; elCrApercu.src = URL.createObjectURL(b); elCrApercu.hidden = false;
+      $("#createur-garder").hidden = false; $("#createur-refaire").hidden = false;
+    }, "image/jpeg", .95);
+  }
+  $("#createur-refaire").addEventListener("click", () => { elCrApercu.hidden = true; $("#createur-go").hidden = false; $("#createur-garder").hidden = true; $("#createur-refaire").hidden = true; });
+  $("#createur-garder").addEventListener("click", async () => {
+    if (!crBlob) return;
+    const nom = `createur-${crPose.id}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}.jpg`;
+    const f = new File([crBlob], nom, { type: "image/jpeg" });
+    try { if (navigator.canShare && navigator.canShare({ files: [f] })) return await navigator.share({ files: [f], title: nom }); } catch (e) { if (e.name === "AbortError") return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(crBlob); a.download = nom; a.click();
+  });
+
   /* ---------- placement guidé dans le studio photo ---------- */
   let compteA = null, clicA = 0, okDepuis = 0, dernierePlace = 0, placeMsg = "";
   function placement() {
