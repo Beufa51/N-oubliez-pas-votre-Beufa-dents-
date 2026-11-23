@@ -1050,3 +1050,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
 #ecran-accueil .decors .option.decor::before, #ecran-accueil .decors .option.decor::after { display: none; }
 #ecran-accueil .decors .option.decor.actif { border-color: var(--or); box-shadow: 0 0 0 2px var(--or), 0 0 12px rgba(255,200,61,.8); }
 #ecran-brossage.avec-decor { background-position: center; background-size: cover; background-repeat: no-repeat; }
+.decor-plus {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.6);
+  background: rgba(255,255,255,.08); color: #fff; font: 800 1.4rem/1 inherit; cursor: pointer;
+}
