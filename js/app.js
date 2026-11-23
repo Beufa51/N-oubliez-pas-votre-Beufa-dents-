@@ -65,23 +65,38 @@
        tete = [haut des cheveux, menton, centre horizontal] en fraction de l'image ;
      et comment la placer sur la photo de l'utilisateur (unités = hauteur de la photo) :
        hh = hauteur de sa tête, top = haut de sa tête, dx = distance du bord à son visage.
-     Sa photo est toujours collée en bas (le corps est coupé par le bord, comme sur une vraie photo). */
+     Sa photo est toujours collée en bas (le corps est coupé par le bord, comme sur une vraie photo).
+     Avec une photo du créateur, l'utilisateur fait l'AUTRE MOITIÉ du geste (consigne), guidé par l'ombre
+     du créateur et une cible (cible = point de sa photo où l'utilisateur doit mettre la main, en fraction).
+     geste = consigne sans le créateur (pauses du mode Classique, ou photo absente). */
   const POSES_BEUFA = [
-    { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !",
+    { id: "high-five",     mascotte: "main-levee",      cote: "droite", emoji: "✋",
+      consigne: "Tape dans la main de l'ombre : high five !", geste: "Lève la main : high five !",
+      cible: { x: .06, y: .19, texte: "ta main ici" },
       photo: { tete: [.01, .34, .55], hh: .24, top: .17, dx: .15 } },
-    { id: "check-poing",   mascotte: "main-levee",      cote: "droite", consigne: "Tends ton poing : check !", emoji: "👊",
+    { id: "check-poing",   mascotte: "main-levee",      cote: "droite", emoji: "👊",
+      consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
+      cible: { x: .06, y: .39, texte: "ton poing ici" },
       photo: { tete: [.01, .30, .61], hh: .27, top: .15, dx: .2 } },
-    { id: "pouce",         mascotte: "pouce",           cote: "gauche", consigne: "Pouce en l'air !",
+    { id: "pouce",         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
+      consigne: "Fais le V de la victoire, comme l'ombre !", geste: "Pouce en l'air !",
       photo: { tete: [.07, .30, .565], hh: .21, top: .2, dx: .28 } },
     { id: "coeur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
-    { id: "pointe",        mascotte: "pointe-du-doigt", cote: "gauche", consigne: "Montre du doigt la place gardée",
+    { id: "pointe",        mascotte: "pointe-du-doigt", cote: "gauche", emoji: "👉",
+      consigne: "Montre l'ombre du doigt : c'est toi !", geste: "Montre-moi du doigt !",
       photo: { tete: [.06, .26, .43], hh: .22, top: .2, dx: .22 } },
     { id: "pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
-    { id: "bras-croises",  mascotte: "bras-croises",    cote: "droite", consigne: "Croise les bras, l'air sûr de toi",
-      photo: { tete: [.01, .32, .67], hh: .27, top: .15, dx: .2 } },
-    { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en champion !",
+    { id: "bras-croises",  mascotte: "bras-croises",    cote: "droite", emoji: "🔙",
+      consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
+      cible: { x: .02, y: .3, texte: "ton dos ici" },
+      photo: { tete: [.01, .28, .38], hh: .27, top: .15, dx: .2 } },
+    { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", emoji: "🙌",
+      consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
+      cible: { x: .2, y: .6, texte: "tes mains ici" },
       photo: { tete: [.01, .28, .60], hh: .27, top: .15, dx: .2 } }
   ];
+  // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
+  const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
   // proportions communes au cadre-guide (CSS) et au montage (canvas)
   const PART = { mascotteH: .76, bas: .08, marge: .02 };
   POSES_BEUFA.forEach(p => {
@@ -160,6 +175,7 @@
   if (synthese) { choisirVoix(); synthese.addEventListener && synthese.addEventListener("voiceschanged", choisirVoix); }
   function parler(texte, urgent = true) {
     if (!sonActif || !synthese || !texte) return;
+    if (phase === "prepa" || phase === "brosse" || phase === "pause") return;   // pas de voix pendant le brossage (demande du créateur)
     try {
       if (urgent) synthese.cancel();
       const u = new SpeechSynthesisUtterance(texte.replace(/…/g, "."));
@@ -778,8 +794,8 @@
     img.src = IMG(pose.mascotte);
     elPauseTitre.textContent = "Fais comme moi\u00a0!";
     elPauseSuite.innerHTML = "";
-    elPauseSuite.append(pose.consigne, Object.assign(document.createElement("small"), { textContent: `Ensuite : ${ZONES[indexZone()].toLowerCase()}` }));
-    parler(`Pause ! Fais comme moi : ${pose.consigne}`);
+    elPauseSuite.append(pose.geste || pose.consigne, Object.assign(document.createElement("small"), { textContent: `Ensuite : ${ZONES[indexZone()].toLowerCase()}` }));
+    parler(`Pause ! Fais comme moi : ${pose.geste || pose.consigne}`);
     elPause.querySelector(".pause-boite").insertBefore(img, elPauseCompte);
     elPause.hidden = false;
   }
@@ -815,11 +831,19 @@
   function placeGardee() {
     const p = poseStudio; if (!p) return;
     const st = elPartenaire.style;
-    if (p.createur) {   // autour de sa tête et de ses épaules, sans déborder de l'image
+    const elCible = $("#cible");
+    elCible.hidden = true;
+    if (p.createur) {
+      // son ombre, à sa vraie place (la photo reste une surprise) + la cible où mettre la main
       const v = elStudioVideo, ratio = v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4;
-      const r = placeCreateur(p, ratio, 1);
-      const g = Math.max(0, r.tx - .19), d = Math.min(ratio, r.tx + .19), haut = Math.max(.02, r.ty - .04);
-      st.cssText = `left:${g / ratio * 100}%;width:${(d - g) / ratio * 100}%;top:${haut * 100}%;bottom:0;right:auto;height:auto;aspect-ratio:auto`;
+      st.cssText = stylePlace(p, ratio);
+      if (p.cible) {
+        const r = placeCreateur(p, ratio, 1);
+        elCible.style.left = Math.max(6, Math.min(94, (r.x + p.cible.x * r.w) / ratio * 100)) + "%";
+        elCible.style.top = Math.max(6, Math.min(94, (r.y + p.cible.y * r.h) * 100)) + "%";
+        elCible.querySelector("small").textContent = p.cible.texte;
+        elCible.hidden = false;
+      }
     } else {
       const m = p.imgMascotte;
       st.cssText = `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%;aspect-ratio:${m.naturalWidth ? `${m.naturalWidth} / ${m.naturalHeight}` : "305 / 738"}`;
@@ -838,22 +862,25 @@
     elStudioVideo.srcObject = flux; elStudioVideo.play().catch(() => {});
     elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : "Fais comme moi\u00a0!";
     elDemoImg.src = IMG(p.mascotte);
-    const elEmoji = $("#demo-emoji"); elEmoji.hidden = !p.emoji; elEmoji.textContent = p.emoji || "";
-    elDemoConsigne.textContent = p.consigne;
-    elStudioHaut.textContent = (p.emoji ? p.emoji + " " : "") + p.consigne;
+    const elEmoji = $("#demo-emoji"), em = p.createur || p.id === "check-poing" ? p.emoji : ""; elEmoji.hidden = !em; elEmoji.textContent = em || "";
+    const cons = consigneDe(p);
+    elDemoTitre.textContent = p.createur ? (finale ? "Pose finale\u00a0!" : "À toi de jouer\u00a0!") : elDemoTitre.textContent;
+    elDemoConsigne.textContent = cons;
+    elStudioHaut.textContent = (p.createur && p.emoji ? p.emoji + " " : "") + cons;
     $("#studio-guide").src = IMG(p.mascotte);
     elStudioCompte.textContent = "";
     // la place du partenaire reste vide : sa photo n'apparaîtra qu'après le brossage (surprise)
-    elPartenaire.className = "zone-surprise";
+    elPartenaire.className = p.createur ? "zone-surprise ombre" : "zone-surprise";
+    elPartenaire.innerHTML = p.createur ? `<img src="${p.createur.src}" alt=""><b>?</b>` : "<span>✨</span>Place gardée<br>pour une surprise";
     poseStudio = p; placeGardee();
-    elBulle.textContent = "Laisse cette place libre !"; elBulle.classList.remove("reaction");
+    elBulle.textContent = p.createur ? "Qui est-ce ? Fais la pose avec lui !" : "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
     etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
     placerCadre();
     rejouer(elDemoImg, "montre"); rejouer(elDemoTitre, "pop"); rejouer(elDemoConsigne, "pop");
     bip(392, .08, .25); bip(523, .08, .35); bip(659, .12, .45);
-    parler(`${finale ? "Pose finale ! " : ""}Pose ta brosse, et fais comme moi : ${p.consigne}`);
+    parler(`${finale ? "Pose finale ! " : ""}Pose ta brosse : ${cons}`);
   }
 
   function passerEnPhoto() {

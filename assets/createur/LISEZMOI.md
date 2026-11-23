@@ -2,14 +2,17 @@
 
 Photos **détourées** (WebP à fond transparent, contour blanc déjà inclus), une par pose :
 
-| Fichier | Geste de l'utilisateur (montré par Beufa) | Réponse du créateur | Côté du créateur |
-|---|---|---|---|
-| `high-five.webp` | lève la main | tend la main : high five | droite |
-| `check-poing.webp` | tend son poing (👊) | tend son poing : check | droite |
-| `pouce.webp` | pouce en l'air | V de la victoire, main sur la hanche | gauche |
-| `pointe.webp` | montre du doigt la place gardée | le montre du doigt en retour | gauche |
-| `bras-croises.webp` | croise les bras | croise les bras aussi (duo de choc) | droite |
-| `mains-hanches.webp` | mains sur les hanches, en champion | le présente des deux mains (« ta-da ! ») | droite |
+| Fichier | Ta photo | L'autre moitié du geste (consigne à l'utilisateur) | Côté | Cible |
+|---|---|---|---|---|
+| `high-five.webp` | main levée vers lui | « Tape dans la main de l'ombre : high five ! » | droite | ta main ici |
+| `check-poing.webp` | poing tendu | « Ton poing contre le sien : check ! » | droite | ton poing ici |
+| `pouce.webp` | V + main sur la hanche | « Fais le V de la victoire, comme l'ombre ! » | gauche | — |
+| `pointe.webp` | tu montres la caméra | « Montre l'ombre du doigt : c'est toi ! » | gauche | — |
+| `bras-croises.webp` | de profil, bras croisés (photo 2) | « De profil, bras croisés, ton dos contre son dos ! » | droite | ton dos ici |
+| `mains-hanches.webp` | paumes vers le haut, en bas | « Mains à plat au-dessus des siennes : tape dedans ! » | droite | tes mains ici |
+
+Pendant la photo, l'utilisateur voit **ton ombre** à ta vraie place (avec un « ? », la photo reste une surprise)
+et une **cible dorée** là où doit aller sa main (`cible` dans `POSES_BEUFA`, en fraction de ta photo).
 
 Pas de photo pour « cœur » et « pensif » : Beufa prend la place du créateur (rien ne casse).
 Les poses avec une photo du créateur passent en premier.
