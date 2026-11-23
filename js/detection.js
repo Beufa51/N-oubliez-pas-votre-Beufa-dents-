@@ -116,7 +116,34 @@
     etat.cote = etat.brosse && fort > R.SEUIL_ON && fort > 1.7 * faible ? (lisseD > lisseG ? "gauche" : "droite") : null;
   }
 
+  /* mains sur une photo (Hand Landmarker, mode image, chargé à part : seulement pour les photos avec contact) */
+  let mainsModele = null, mainsChargement = null;
+  function chargerMains() {
+    if (mainsChargement) return mainsChargement;
+    mainsChargement = (async () => {
+      const { FilesetResolver, HandLandmarker } = await import(BASE + "vision_bundle.mjs");
+      const fichiers = await FilesetResolver.forVisionTasks(BASE.replace(/\/$/, ""));
+      const options = d => ({ baseOptions: { modelAssetPath: BASE + "hand_landmarker.task", delegate: d }, runningMode: "IMAGE", numHands: 2 });
+      try { mainsModele = await HandLandmarker.createFromOptions(fichiers, options("GPU")); }
+      catch (e) { mainsModele = await HandLandmarker.createFromOptions(fichiers, options("CPU")); }
+    })().catch(e => console.warn("Mains indisponibles", e));
+    return mainsChargement;
+  }
+
   window.BeufaDetection = {
+    prechaufferMains: chargerMains,
+    /* mains sur une image : [{ x, y, taille }] en fraction de l'image (x, y = centre de la main ;
+       taille = poignet -> milieu de la main, en fraction de la HAUTEUR : dépend peu de l'orientation) */
+    mains(source) {
+      if (!mainsModele) return [];
+      try {
+        const r = mainsModele.detect(source), W = source.width || source.videoWidth, H = source.height || source.videoHeight;
+        return (r.landmarks || []).map(l => ({
+          x: l.reduce((a, p) => a + p.x, 0) / l.length, y: l.reduce((a, p) => a + p.y, 0) / l.length,
+          taille: Math.hypot((l[0].x - l[9].x) * W, (l[0].y - l[9].y) * H) / H
+        }));
+      } catch (e) { return []; }
+    },
     etat,
     // à appeler avec la vidéo de la caméra quand le brossage commence ; brosse = "manuelle" | "electrique"
     demarrer(v, brosse) {

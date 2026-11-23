@@ -34,3 +34,11 @@ retournée : `python3 tools/contours.py` crée `contour-<id>.webp`. Il apparaît
 et sur la caméra, calé sur l'ovale de la tête. Pour une nouvelle pose en miroir : ajouter son id dans `tools/contours.py`
 et `contour: true` dans `POSES_BEUFA`.
 
+## Rendu réaliste et contact des mains
+- Les détourages n'ont plus de contour blanc (`CONTOUR = 0` dans `tools/createur.py`, bord adouci).
+- Dans l'appli, le créateur est un calque : couleurs accordées à la photo de l'utilisateur, léger flou et grain, ombre douce.
+- `tete` = mesurée avec le modèle du visage de l'appli (haut estimé, menton, centre), comme pour l'utilisateur.
+- `main` (high five, check, tape dans les mains) = centre de la main et taille (poignet -> milieu de la main, en fraction
+  de la hauteur), mesurés avec le modèle des mains. Sur la photo de l'utilisateur, sa main est mesurée de la même façon :
+  le créateur prend la même taille de main et les deux mains se touchent.
+

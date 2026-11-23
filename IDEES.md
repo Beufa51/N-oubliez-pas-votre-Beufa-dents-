@@ -246,4 +246,9 @@ Pas de publication sur le Play Store.
   fenêtre glisse pour garder la tête au centre. `js/incrustation.js` et le modèle Selfie Segmenter retirés.
 - [x] Fenêtre caméra plus petite (70 % de l'image) ; **détection du brossage remise** (`DETECTION_BROSSAGE = true`), « Ma brosse »
   de retour, bulles et zones de réglage (`?debug=1`) calées sur la fenêtre (recadrage, zoom, glissement).
+- [x] **Montage réaliste** (session 11, suite 6) : plus de contour blanc ni de halo, couleurs du créateur accordées à la photo de
+  l'utilisateur, léger flou/grain, ombre douce (calque commun révélation + montage).
+- [x] **Contact des mains** : la main de l'utilisateur est repérée sur sa photo (Hand Landmarker, une fois par photo) ; le créateur
+  prend la même taille de main et poing contre poing / paume contre paume / paumes sous ses mains. Visage du créateur gardé dans l'image.
+- [ ] Mode créateur (photos du créateur prises dans l'appli, mêmes conditions que l'utilisateur).
 

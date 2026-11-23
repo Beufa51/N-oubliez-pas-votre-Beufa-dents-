@@ -3,6 +3,8 @@
 - `vision_bundle.mjs`, `vision_wasm_internal.js`, `vision_wasm_internal.wasm` : MediaPipe Tasks Vision 1.2.2
   (Google, licence Apache 2.0, paquet npm `@mediapipe/tasks-vision`).
 - `face_landmarker.task` : modèle Face Landmarker de Google (float16, version 1).
+- `hand_landmarker.task` : modèle Hand Landmarker de Google (float16, version 1, ~8 Mo) : main de l'utilisateur sur ses photos
+  (poses avec contact), chargé seulement en mode Beufa dents.
 
 Copiés ici pour que la détection marche hors ligne et sans dépendre d'un autre site.
 Ils ne sont téléchargés par le téléphone qu'au premier brossage avec caméra (~18 Mo), puis gardés

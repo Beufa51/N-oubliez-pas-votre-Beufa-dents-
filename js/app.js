@@ -77,27 +77,30 @@
     { id: "high-five", contour: true,     mascotte: "main-levee",      cote: "droite", emoji: "✋",
       consigne: "Tape dans la main de l'ombre : high five !", geste: "Lève la main : high five !",
       cible: { x: .06, y: .19, texte: "ta main ici" },
-      photo: { tete: [.01, .34, .55], hh: .24, top: .17, dx: .15 } },
+      photo: { tete: [0.08, 0.308, 0.557], hh: 0.166, top: 0.221, dx: 0.146 },
+      main: { x: .068, y: .142, taille: .0991, contact: "paume" } },
     { id: "check-poing", contour: true,   mascotte: "main-levee",      cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
       cible: { x: .06, y: .39, texte: "ton poing ici" },
-      photo: { tete: [.01, .30, .61], hh: .27, top: .15, dx: .2 } },
+      photo: { tete: [0.048, 0.287, 0.617], hh: 0.223, top: 0.185, dx: 0.196 },
+      main: { x: .071, y: .411, taille: .0847, contact: "poing" } },
     { id: "pouce", contour: true,         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
       consigne: "Fais le V de la victoire, comme l'ombre !", geste: "Pouce en l'air !",
-      photo: { tete: [.07, .30, .565], hh: .21, top: .2, dx: .28 } },
+      photo: { tete: [0.096, 0.302, 0.56], hh: 0.188, top: 0.224, dx: 0.276 } },
     { id: "coeur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
     { id: "pointe",        mascotte: "pointe-du-doigt", cote: "gauche", emoji: "👉",
       consigne: "Montre l'ombre du doigt : c'est toi !", geste: "Montre-moi du doigt !",
-      photo: { tete: [.06, .26, .43], hh: .22, top: .2, dx: .22 } },
+      photo: { tete: [0.108, 0.321, 0.42], hh: 0.234, top: 0.253, dx: 0.210 } },
     { id: "pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
     { id: "bras-croises", contour: true,  mascotte: "bras-croises",    cote: "droite", emoji: "🔙",
       consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
       cible: { x: .02, y: .3, texte: "ton dos ici" },
-      photo: { tete: [.01, .28, .38], hh: .27, top: .15, dx: .2 } },
+      photo: { tete: [0.035, 0.251, 0.403], hh: 0.216, top: 0.175, dx: 0.190 } },
     { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
       cible: { x: .2, y: .6, texte: "tes mains ici" },
-      photo: { tete: [.01, .28, .60], hh: .27, top: .15, dx: .2 } }
+      photo: { tete: [0.037, 0.266, 0.626], hh: 0.229, top: 0.177, dx: 0.180 },
+      main: { x: .237, y: .695, taille: .0836, contact: "dessous" } }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -129,16 +132,36 @@
   // place du créateur sur une photo W×H (en px) : sa tête à peu près à la taille de celle de l'utilisateur
   /* visage (facultatif) = tête de l'utilisateur mesurée sur sa photo ({ haut, h } en fraction de la hauteur) :
      le créateur prend alors la MÊME taille de tête, à la même hauteur ; sinon la taille prévue pour l'ovale. */
-  function placeCreateur(p, W, H, visage) {
-    const c = p.createur, [t, m, cx] = p.photo.tete;
-    const hh = visage ? Math.max(.18, Math.min(.38, visage.h)) : p.photo.hh * 1.12;
+  /* main (facultatif) = la main de l'utilisateur mesurée sur sa photo ({ x, y, taille }, fractions ; taille en
+     fraction de la hauteur). Pour les poses avec contact (p.main), le créateur est mis à l'échelle pour que SA main
+     ait la même taille, et placé pour que les deux mains se touchent (poing contre poing, paume contre paume,
+     ou ses paumes juste sous les mains de l'utilisateur). */
+  function placeCreateur(p, W, H, visage, main) {
+    const c = p.createur, [t, m, cx] = p.photo.tete, ratio = c.naturalWidth / c.naturalHeight;
+    const hh = visage ? Math.max(.12, Math.min(.38, visage.h)) : p.photo.hh * 1.12;
     const top = visage ? Math.max(.04, Math.min(.4, visage.haut)) : p.photo.top;
     const dx = Math.min(.3, p.photo.dx * hh / p.photo.hh);   // plus grand = un peu plus loin du bord
     let h = hh * H / (m - t), y = top * H - t * h;
     if (y + h < H) y = H - h;                       // toujours collé en bas
-    const w = h * c.naturalWidth / c.naturalHeight;
-    const tx = p.cote === "droite" ? W - dx * H : dx * H;
-    return { x: tx - cx * w, y, w, h, tx, ty: y + t * h, th: (m - t) * h };
+    let w = h * ratio;
+    let x = (p.cote === "droite" ? W - dx * H : dx * H) - cx * w;
+    if (p.main && main) {
+      const pm = p.main, hv = h;
+      h = Math.max(hv * .7, Math.min(hv * 1.5, main.taille * H / pm.taille));   // même taille de main (sans exagérer)
+      const sens = p.cote === "droite" ? 1 : -1, tm = main.taille * H;
+      // point de contact visé : à côté du poing, contre la paume, ou juste sous les mains
+      const cxv = main.x * W + (pm.contact === "poing" ? sens * tm * .95 : pm.contact === "paume" ? sens * tm * .35 : 0);
+      const cyv = main.y * H + (pm.contact === "dessous" ? tm * .9 : 0);
+      // si le bas de sa photo ne touche pas le bas de l'image, on l'agrandit autour du point de contact
+      if (cyv + (1 - pm.y) * h < H) h = Math.min(h * 1.5, (H - cyv) / (1 - pm.y));
+      w = h * ratio; x = cxv - pm.x * w; y = cyv - pm.y * h;
+      if (y + h < H) y = H - h;                     // toujours collé en bas (contact un peu décalé au pire)
+      // son visage doit rester dans l'image : sinon on le ramène (les mains se chevauchent un peu)
+      const vx = x + cx * w, lim = W * .1;
+      if (p.cote === "droite" && vx > W - lim) x -= vx - (W - lim);
+      if (p.cote === "gauche" && vx < lim) x += lim - vx;
+    }
+    return { x, y, w, h, tx: x + cx * w, ty: y + t * h, th: (m - t) * h };
   }
   // même place, en % d'une scène au format de la photo (studio, révélation)
   function stylePlace(p, ratio, visage) {
@@ -506,6 +529,7 @@
       await elCamera.play().catch(() => {});
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
       if (DETECTION_BROSSAGE || mode === "beufa") DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
+      if (mode === "beufa") DET.prechaufferMains();                     // mains : pour les photos avec contact
       if (decorActuel()) DET.prechauffer();   // pour garder le visage centré dans la fenêtre
     } catch (e) {
       stopperCamera();
@@ -1159,7 +1183,10 @@
     const x = c.getContext("2d");
     x.translate(c.width, 0); x.scale(-1, 1);
     x.drawImage(v, 0, 0, c.width, c.height);
-    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles), visage: DET.visage(c) });
+    // visage (taille) et main la plus proche du créateur (contact), mesurés une fois sur la photo
+    const mains = poseActuelle.main ? DET.mains(c).filter(m => m.y < .95) : [];
+    const main = mains.sort((a, b) => poseActuelle.cote === "droite" ? b.x - a.x : a.x - b.x)[0] || null;
+    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles), visage: DET.visage(c), main });
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
     elBulle.textContent = hasard(ton().reactions);
@@ -1238,22 +1265,74 @@
     } catch (e) { return 1; }
   }
 
-  function composer({ pose, img, bulle, tampon, visage }) {
+  /* ---------- rendu réaliste du créateur : un calque à la taille de la photo ----------
+     Placé à la taille du visage de l'utilisateur (ou de sa main pour un contact), couleurs accordées à sa
+     photo (moyenne et contraste de chaque couleur, autour de lui), léger flou et grain comme une caméra avant.
+     Le même calque sert à la révélation et au montage. */
+  const MELANGE_COULEUR = .6;   // 0 = couleurs d'origine, 1 = exactement celles de la photo de l'utilisateur
+  function statsCouleur(d, garde) {
+    const m = [0, 0, 0], q = [0, 0, 0]; let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (!garde(i)) continue;
+      for (let k = 0; k < 3; k++) { m[k] += d[i + k]; q[k] += d[i + k] * d[i + k]; }
+      n++;
+    }
+    if (!n) return null;
+    return { m: m.map(v => v / n), s: q.map((v, k) => Math.sqrt(Math.max(1, v / n - (m[k] / n) ** 2))) };
+  }
+  function calqueCreateur(ph) {
+    const { pose, img, visage, main } = ph, part = pose.createur;
+    const W = 1080, H = Math.round(W * img.height / img.width);
+    const r = placeCreateur(pose, W, H, visage, main);
+    const c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d", { willReadFrequently: true });
+    if ("filter" in g) g.filter = "blur(0.7px)";           // un peu moins net, comme une caméra avant
+    g.drawImage(part, r.x, r.y, r.w, r.h);
+    if ("filter" in g) g.filter = "none";
+    try {
+      // couleurs de l'utilisateur autour de lui (visage et buste), sinon toute la photo
+      const p = document.createElement("canvas"), pw = 160, phh = Math.round(pw * H / W);
+      p.width = pw; p.height = phh;
+      const gp = p.getContext("2d", { willReadFrequently: true }); gp.drawImage(img, 0, 0, pw, phh);
+      const du = gp.getImageData(0, 0, pw, phh).data;
+      const zone = visage ? i => {
+        const k = i / 4, x = (k % pw) / pw, y = Math.floor(k / pw) / phh;
+        return Math.abs(x - visage.cx) < visage.h * .9 && y > visage.haut && y < visage.haut + visage.h * 2.6;
+      } : () => true;
+      const su = statsCouleur(du, zone) || statsCouleur(du, () => true);
+      const x0 = Math.max(0, Math.floor(r.x)), y0 = Math.max(0, Math.floor(r.y));
+      const x1 = Math.min(W, Math.ceil(r.x + r.w)), y1 = Math.min(H, Math.ceil(r.y + r.h));
+      if (su && x1 > x0 && y1 > y0) {
+        const id = g.getImageData(x0, y0, x1 - x0, y1 - y0), d = id.data;
+        const sc = statsCouleur(d, i => d[i + 3] > 200);
+        if (sc) {
+          const a = MELANGE_COULEUR, mm = [0, 1, 2].map(k => sc.m[k] + (su.m[k] - sc.m[k]) * a);
+          const ss = [0, 1, 2].map(k => sc.s[k] + (su.s[k] - sc.s[k]) * a);
+          for (let i = 0; i < d.length; i += 4) {
+            if (!d[i + 3]) continue;
+            const bruit = (Math.random() - .5) * 7;        // grain léger
+            for (let k = 0; k < 3; k++) d[i + k] = (d[i + k] - sc.m[k]) / sc.s[k] * ss[k] + mm[k] + bruit;
+          }
+          g.putImageData(id, x0, y0);
+        }
+      }
+    } catch (e) {}
+    return { canvas: c, r };
+  }
+
+  function composer({ pose, img, bulle, tampon, visage, calque }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
     x.drawImage(img, 0, 0, W, H);
     const estCreateur = !!pose.createur, part = pose.createur || pose.imgMascotte;
     if (estCreateur) {
-      // le créateur, à la taille de l'utilisateur, accordé à la lumière de sa photo, halo néon
-      const r = placeCreateur(pose, W, H, visage);
+      // le créateur (calque réaliste) + une ombre douce
+      const cq = calque || calqueCreateur({ pose, img, visage }), r = cq.r;
       x.save();
-      if ("filter" in x) x.filter = `brightness(${eclairage(img).toFixed(2)})`;
-      x.shadowColor = "rgba(255,60,200,.7)"; x.shadowBlur = 28;
-      x.drawImage(part, r.x, r.y, r.w, r.h);
+      x.shadowColor = "rgba(0,0,0,.3)"; x.shadowBlur = 22; x.shadowOffsetY = 6;
+      x.drawImage(cq.canvas, 0, 0, W, H);
       x.restore();
-      [[-.2, .05, 24, "#ffd166"], [.22, .3, 18, "#fff"], [-.24, .55, 16, "#8fe3ea"], [.25, .85, 22, "#ff7aa2"]]
-        .forEach(([dx, dy, rr, c]) => etoile(x, r.tx + dx * H, r.ty + dy * r.th, rr, c));
       if (bulle) bulleCanvas(x, bulle, pose.cote === "droite" ? W * .66 : W * .34, Math.max(70, r.ty - 70), pose.cote === "droite" ? 1 : -1);
     } else if (part.naturalWidth) {
       const h = H * PART.mascotteH;
@@ -1394,7 +1473,9 @@
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
     const avecPh = photos.length > 0;
     if (avecPh) photos[photos.length - 1].tampon = true;   // le tampon du jour, sur la dernière photo
-    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon, visage: ph.visage }));
+    photos.forEach(ph => { if (ph.pose.createur) ph.calque = calqueCreateur(ph); });
+    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon,
+      calque: ph.calque ? ph.calque.canvas.toDataURL("image/webp", .9) : null }));
     const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
     montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
     montrer("fin");
@@ -1422,9 +1503,9 @@
     elRevScene.style.aspectRatio = String(r.ratio);
     elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
     elRevUser.src = r.url;
-    elRevPart.src = part.src;
-    elRevPart.style.cssText = createur ? stylePlace(r.pose, r.ratio, r.visage) : `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%`;
-    elRevPart.className = `rev-part cote-${r.pose.cote}${createur ? " createur" : ""}`;
+    elRevPart.src = r.calque || part.src;
+    elRevPart.style.cssText = r.calque ? "left:0;top:0;width:100%;height:100%;right:auto;bottom:auto" : `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%`;
+    elRevPart.className = `rev-part cote-${r.pose.cote}${r.calque ? " createur" : ""}`;
     elRevScene.className = "rev-scene"; rejouer(elRevScene, "apparait");
     const elT = $("#rev-tampon"); elT.hidden = true; elT.className = `rev-tampon cote-${r.pose.cote}`;
     if (r.tampon) { const t = infosTampon(); $("#rev-tampon-date").textContent = t.date; $("#rev-tampon-moment").textContent = t.moment; }
