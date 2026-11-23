@@ -263,4 +263,9 @@ Pas de publication sur le Play Store.
   - UI : décors en 3 colonnes (« + Ma photo » visible), pastille de détection centrée au-dessus de la fenêtre caméra,
     noms lisibles des poses (« Dos à dos », « Tape dans mes mains »…), plus d'emojis anglais (BACK/SOON) dans les consignes,
     état « ⏳ Je prépare la caméra magique… / ✅ prête » sur l'écran d'installation.
+- [x] Lancement : **plus de rechargement automatique** à l'installation d'une nouvelle version (il ramenait au début après l'intro
+  et cassait la mise en page ; inutile car pages et scripts sont pris en ligne). Hauteur de l'appli = hauteur visible réelle
+  (`--hauteur`, iPhone).
+- [x] **L'utilisateur de retour dans le décor** : détourage dans un Web Worker (`js/incrustation-worker.js`, image 256 px, ~15/s),
+  l'affichage ne fait que dessiner (60 images/s mesurées avec la détection en même temps). Fenêtre caméra en attendant.
 

@@ -25,7 +25,7 @@ body {
   overflow: hidden;
   user-select: none;
 }
-#app { height: 100dvh; position: relative; max-width: 520px; margin: 0 auto; }
+#app { height: 100dvh; height: var(--hauteur, 100dvh); position: relative; max-width: 520px; margin: 0 auto; }
 .ecran {
   position: absolute; inset: 0; display: none; flex-direction: column; align-items: center;
   padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
@@ -1192,3 +1192,8 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 /* installation : état de la caméra magique */
 .prepa-etat { margin: 8px 0 0; font-weight: 800; font-size: .9rem; opacity: .9; }
 .prepa-etat.ok { color: #3ddc84; opacity: 1; }
+
+/* incrustation : la personne dans le décor (même canvas que la fenêtre, sans cadre) */
+.scene.incruste .fenetre-cam { display: block; border: 0; border-radius: 0; box-shadow: none; transform: none !important; }
+.scene.incruste #camera { opacity: 0; }
+.scene.incruste .detecteur { left: 0; right: 0; top: 4px; margin: 0 auto; width: fit-content; white-space: nowrap; max-width: 92%; }

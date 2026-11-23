@@ -3,6 +3,8 @@
 - `vision_bundle.mjs`, `vision_wasm_internal.js`, `vision_wasm_internal.wasm` : MediaPipe Tasks Vision 1.2.2
   (Google, licence Apache 2.0, paquet npm `@mediapipe/tasks-vision`).
 - `face_landmarker.task` : modèle Face Landmarker de Google (float16, version 1).
+- `selfie_segmenter.tflite` : modèle Selfie Segmenter de Google (float16), détourage pour l'incrustation dans le décor
+  (`js/incrustation-worker.js`).
 - `hand_landmarker.task` : modèle Hand Landmarker de Google (float16, version 1, ~8 Mo) : main de l'utilisateur sur ses photos
   (poses avec contact), chargé seulement en mode Beufa dents.
 
