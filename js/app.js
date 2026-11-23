@@ -72,15 +72,15 @@
      du créateur et une cible (cible = point de sa photo où l'utilisateur doit mettre la main, en fraction).
      geste = consigne sans le créateur (pauses du mode Classique, ou photo absente). */
   const POSES_BEUFA = [
-    { id: "high-five",     mascotte: "main-levee",      cote: "droite", emoji: "✋",
+    { id: "high-five", contour: true,     mascotte: "main-levee",      cote: "droite", emoji: "✋",
       consigne: "Tape dans la main de l'ombre : high five !", geste: "Lève la main : high five !",
       cible: { x: .06, y: .19, texte: "ta main ici" },
       photo: { tete: [.01, .34, .55], hh: .24, top: .17, dx: .15 } },
-    { id: "check-poing",   mascotte: "main-levee",      cote: "droite", emoji: "👊",
+    { id: "check-poing", contour: true,   mascotte: "main-levee",      cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
       cible: { x: .06, y: .39, texte: "ton poing ici" },
       photo: { tete: [.01, .30, .61], hh: .27, top: .15, dx: .2 } },
-    { id: "pouce",         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
+    { id: "pouce", contour: true,         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
       consigne: "Fais le V de la victoire, comme l'ombre !", geste: "Pouce en l'air !",
       photo: { tete: [.07, .30, .565], hh: .21, top: .2, dx: .28 } },
     { id: "coeur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
@@ -88,7 +88,7 @@
       consigne: "Montre l'ombre du doigt : c'est toi !", geste: "Montre-moi du doigt !",
       photo: { tete: [.06, .26, .43], hh: .22, top: .2, dx: .22 } },
     { id: "pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
-    { id: "bras-croises",  mascotte: "bras-croises",    cote: "droite", emoji: "🔙",
+    { id: "bras-croises", contour: true,  mascotte: "bras-croises",    cote: "droite", emoji: "🔙",
       consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
       cible: { x: .02, y: .3, texte: "ton dos ici" },
       photo: { tete: [.01, .28, .38], hh: .27, top: .15, dx: .2 } },
@@ -107,7 +107,23 @@
     const c = new Image();
     c.onload = () => { p.createur = c; };
     c.src = `assets/createur/${p.id}.webp`;
+    if (p.contour) { p.imgContour = new Image(); p.imgContour.src = `assets/createur/contour-${p.id}.webp`; }
   });
+  /* contour de la pose de l'utilisateur (= photo du créateur en miroir), calé sur l'ovale de la tête.
+     OVALE = le même ovale que le CSS (.cadre.avec-createur .cadre-tete) ; ratio = largeur / hauteur de la photo.
+     Renvoie des fractions : x, w de la largeur ; y, h de la hauteur. */
+  const OVALE = { top: .13, h: .36, marge: .04 };
+  function ovaleDe(p, ratio) {
+    const w = OVALE.h * .75 / ratio;
+    return { x: p.cote === "droite" ? OVALE.marge : 1 - OVALE.marge - w, y: OVALE.top, w, h: OVALE.h };
+  }
+  function placeContour(p, ratio) {
+    const [t, m, cx] = p.photo.tete, o = ovaleDe(p, ratio), img = p.imgContour;
+    const h = OVALE.h * .8 / (m - t), w = h * img.naturalWidth / img.naturalHeight / ratio;
+    return { x: o.x + o.w / 2 - (1 - cx) * w, y: OVALE.top + OVALE.h * .08 - t * h, w, h };
+  }
+  const pct = r => `left:${r.x * 100}%;top:${r.y * 100}%;width:${r.w * 100}%;height:${r.h * 100}%`;
+  const avecContour = p => p.createur && p.contour && p.imgContour && p.imgContour.naturalWidth;
   // place du créateur sur une photo W×H (en px) : sa tête à peu près à la taille de celle de l'utilisateur
   /* visage (facultatif) = tête de l'utilisateur mesurée sur sa photo ({ haut, h } en fraction de la hauteur) :
      le créateur prend alors la MÊME taille de tête, à la même hauteur ; sinon la taille prévue pour l'ovale. */
@@ -1010,12 +1026,16 @@
   function placeGardee() {
     const p = poseStudio; if (!p) return;
     const st = elPartenaire.style;
-    const elCible = $("#cible");
-    elCible.hidden = true;
+    const elCible = $("#cible"), elContour = $("#contour");
+    elCible.hidden = true; elContour.hidden = true; elCadre.classList.remove("avec-contour");
     if (p.createur) {
       // son ombre, à sa vraie place (la photo reste une surprise) + la cible où mettre la main
       const v = elStudioVideo, ratio = v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4;
       st.cssText = stylePlace(p, ratio);
+      if (avecContour(p)) {
+        elContour.src = p.imgContour.src; elContour.style.cssText = pct(placeContour(p, ratio));
+        elContour.hidden = false; elCadre.classList.add("avec-contour");
+      }
       if (p.cible) {
         const r = placeCreateur(p, ratio, 1);
         elCible.style.left = Math.max(6, Math.min(94, (r.x + p.cible.x * r.w) / ratio * 100)) + "%";
@@ -1043,7 +1063,8 @@
     elDemoImg.src = IMG(p.mascotte);
     const elEmoji = $("#demo-emoji"), em = p.createur || p.id === "check-poing" ? p.emoji : ""; elEmoji.hidden = !em; elEmoji.textContent = em || "";
     const cons = consigneDe(p);
-    elDemoTitre.textContent = p.createur ? (finale ? "Pose finale\u00a0!" : "À toi de jouer\u00a0!") : elDemoTitre.textContent;
+    montrerApercu(p);
+    elDemoTitre.textContent = p.createur ? (finale ? "Photo finale\u00a0!" : "Voilà la photo qu'on va faire\u00a0!") : elDemoTitre.textContent;
     elDemoConsigne.textContent = cons;
     elStudioHaut.textContent = (p.createur && p.emoji ? p.emoji + " " : "") + cons;
     $("#studio-guide").src = IMG(p.mascotte);
@@ -1060,6 +1081,28 @@
     rejouer(elDemoImg, "montre"); rejouer(elDemoTitre, "pop"); rejouer(elDemoConsigne, "pop");
     bip(392, .08, .25); bip(523, .08, .35); bip(659, .12, .45);
     parler(`${finale ? "Pose finale ! " : ""}Pose ta brosse : ${cons}`);
+  }
+
+  /* écran d'explication : aperçu de la photo à faire (ton ombre + son contour ou sa place), au lieu de Beufa */
+  function montrerApercu(p) {
+    const ap = $("#demo-apercu"), avec = !!p.createur;
+    ap.hidden = !avec; $(".demo-pose").hidden = avec;
+    if (!avec) return;
+    const v = elCamera.videoWidth ? elCamera : elStudioVideo, ratio = v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4;
+    ap.style.aspectRatio = String(ratio);
+    ap.style.width = `min(86vw, calc(50dvh * ${ratio}))`;
+    let html = `<img class="ap-ombre" src="${p.createur.src}" alt="" style="${stylePlace(p, ratio)}">`;
+    if (avecContour(p)) html += `<img class="ap-contour" src="${p.imgContour.src}" alt="" style="${pct(placeContour(p, ratio))}">`;
+    else html += `<div class="ap-tete" style="${pct(ovaleDe(p, ratio))}"></div>`;
+    if (p.cible) {
+      const r = placeCreateur(p, ratio, 1);
+      html += `<div class="ap-cible" style="left:${(r.x + p.cible.x * r.w) / ratio * 100}%;top:${(r.y + p.cible.y * r.h) * 100}%"></div>`;
+    }
+    const o = ovaleDe(p, ratio);
+    html += `<b class="ap-toi" style="left:${(o.x + o.w / 2) * 100}%">Toi</b>`;
+    const r = placeCreateur(p, ratio, 1);
+    html += `<b class="ap-qui" style="left:${Math.max(12, Math.min(88, r.tx / ratio * 100))}%">?</b>`;
+    ap.innerHTML = html;
   }
 
   function passerEnPhoto() {

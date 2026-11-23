@@ -1122,3 +1122,30 @@ body.en-brossage::before { animation: none !important; }
 body.en-brossage .entete { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(22, 26, 96, .9); }
 body.en-brossage .scene.avec-camera #bouche .microbe,
 body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; }
+
+/* ---------- aperçu de la photo à faire + contour de la pose ---------- */
+.demo-pose[hidden], .demo-apercu[hidden] { display: none; }
+.demo-apercu {
+  position: relative; overflow: hidden; border-radius: 18px; border: 4px solid #fff;
+  background: linear-gradient(180deg, #2a3bd8, #14b8c4); box-shadow: 0 10px 24px rgba(0,0,0,.3);
+}
+.demo-apercu img { position: absolute; }
+.demo-apercu .ap-ombre { filter: brightness(0) drop-shadow(0 0 5px rgba(255,63,164,.95)); opacity: .75; }
+.demo-apercu .ap-contour { filter: drop-shadow(0 0 4px rgba(255,200,61,.95)); animation: contour-appel 1s ease-in-out infinite alternate; }
+.demo-apercu .ap-tete { position: absolute; border: 4px dashed var(--or); border-radius: 50%; }
+.demo-apercu .ap-cible {
+  position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
+  border: 4px solid var(--or); box-shadow: 0 0 14px rgba(255,200,61,.9); animation: cible-pulse .8s ease-in-out infinite alternate;
+}
+.demo-apercu b {
+  position: absolute; top: 3%; transform: translateX(-50%); padding: 2px 12px; border-radius: 999px; font-size: 1.1rem;
+}
+.demo-apercu .ap-toi { background: var(--or); color: var(--encre); }
+.demo-apercu .ap-qui { background: var(--magenta); color: #fff; }
+@keyframes contour-appel { from { opacity: .75; } to { opacity: 1; } }
+.contour-guide { position: absolute; pointer-events: none; z-index: 1; opacity: .9; filter: drop-shadow(0 0 4px rgba(255,200,61,.95)); }
+.contour-guide[hidden] { display: none; }
+.cadre.bien-place .contour-guide { filter: drop-shadow(0 0 6px rgba(61,220,132,1)); }
+.cadre.avec-contour .cadre-tete { border-width: 3px; }
+.cadre.avec-contour .cadre-tete span { display: none; }
+@media (prefers-reduced-motion: reduce) { .demo-apercu .ap-contour, .demo-apercu .ap-cible { animation: none; } }

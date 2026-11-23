@@ -232,4 +232,7 @@ Pas de publication sur le Play Store.
 - [x] Fluidité (session 11, suite 3) : pendant le brossage, plus de paillettes/étoiles animées ni de flou derrière l'en-tête,
   microbes immobiles avec la caméra, pas de mise en page à chaque image, moins de bulles, détourage sur le processeur
   et qui ralentit tout seul si le téléphone peine.
+- [x] **Aperçu de la photo à faire** (au lieu de Beufa) : ombre du créateur « ? » + place « Toi » (contour ou ovale) + cible.
+  **Contour de la pose** de l'utilisateur sur la caméra = photo du créateur en miroir (high five, check, V, dos à dos ;
+  `tools/contours.py` -> `assets/createur/contour-<id>.webp`). Pas de contour pour « tape dans mes mains » et « montre du doigt ».
 
