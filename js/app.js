@@ -7,6 +7,9 @@
   // ?vitesse=10 accélère le temps (pratique pour tester)
   const VITESSE = Math.max(1, Number(new URLSearchParams(location.search).get("vitesse")) || 1);
   const DET = window.BeufaDetection;   // détection du brossage (js/detection.js)
+  /* Détection du brossage : coupée un temps (trop lourde avec le détourage en direct), remise avec la fenêtre caméra.
+     false = le brossage suit le schéma, chrono normal, pas de « Ma brosse ». */
+  const DETECTION_BROSSAGE = true;
 
   const ZONES = ["Haut gauche", "Haut droite", "Bas droite", "Bas gauche"];
   const FACES = ["Face extérieure", "Face intérieure", "Surface de mastication"];
@@ -456,7 +459,7 @@
     const beufa = mode === "beufa";
     $("#bloc-camera").hidden = beufa; $("#bloc-photos").hidden = !beufa;
     cameraVoulue = beufa || cameraChoisie;
-    $("#bloc-brosse").hidden = true;   // « Ma brosse » ne sert qu'à la détection du brossage (coupée)
+    $("#bloc-brosse").hidden = !(DETECTION_BROSSAGE && cameraVoulue);   // « Ma brosse » ne sert qu'à la détection
   }
   // remet les derniers choix de l'utilisateur actif
   function appliquerReglages() {
@@ -844,10 +847,6 @@
     enfant: ["Hé ! Je ne te vois pas brosser !", "Allez, la brosse bouge !", "Les microbes en profitent, brosse !", "Le temps s'arrête si tu ne brosses pas !"],
     adulte: ["Le chrono attend que tu brosses.", "On reprend le brossage ?", "Pas de brossage, pas de chrono."]
   };
-  /* Détection du brossage coupée (demande du créateur : trop lourde avec l'incrustation) : le brossage suit le
-     schéma, le chrono avance normalement. Le modèle du visage sert encore aux photos (placement, taille).
-     Pour la remettre : DETECTION_BROSSAGE = true (et réafficher « Ma brosse » dans majModeCamera). */
-  const DETECTION_BROSSAGE = false;
   const detActive = () => DETECTION_BROSSAGE && flux && DET.etat.statut === "pret";
   function vitesseBrossage() {
     if (!detActive() || attente < 1.2) return 1;
@@ -893,13 +892,13 @@
      de la caméra pour que le décor se voie autour. Le visage (mesuré une fois par seconde) est gardé au centre :
      zoom si on est loin ou trop près du bord, et la fenêtre glisse sur le décor pour suivre la tête. Lissé. */
   const elFenetre = $("#fenetre-cam"), gF = elFenetre.getContext("2d");
-  const TAILLE_FEN = .82;                       // taille de la fenêtre par rapport à l'image entière
-  let recadre = null, mesureA = 0;              // x, y, t : coin et taille du morceau d'image montré ; dx : glissement
+  const TAILLE_FEN = .7;                        // taille de la fenêtre par rapport à l'image entière
+  let recadre = null, mesureA = 0, fenGeo = null;             // x, y, t : coin et taille du morceau d'image montré ; dx : glissement
   function majFenetre() {
     const v = elCamera;
     const on = !!(flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause") && v.videoWidth);
     elScene.classList.toggle("fenetre", on);
-    if (!on) { recadre = null; return; }
+    if (!on) { recadre = null; fenGeo = null; return; }
     const ew = v.offsetWidth, eh = v.offsetHeight, sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
     const fw = v.videoWidth * sc * TAILLE_FEN, fh = v.videoHeight * sc * TAILLE_FEN, k = Math.min(1.5, window.devicePixelRatio || 1);
     const W = Math.round(Math.min(480, fw * k)), H = Math.round(W * fh / fw);   // 480 px suffisent et allègent
@@ -924,6 +923,7 @@
     const c = recadre.cible, a = .06;
     for (const q of ["x", "y", "t", "dx"]) recadre[q] += (c[q] - recadre[q]) * a;
     elFenetre.style.transform = `translateX(${recadre.dx.toFixed(1)}px)`;   // glissement sans mise en page
+    fenGeo = { x: v.offsetLeft + (ew - fw) / 2 + recadre.dx, y: v.offsetTop + 6, fw, fh, rx: recadre.x, ry: recadre.y, t: recadre.t };
     const vw = v.videoWidth, vh = v.videoHeight;
     gF.setTransform(-1, 0, 0, 1, W, 0);                            // miroir
     gF.drawImage(v, recadre.x * vw, recadre.y * vh, recadre.t * vw, recadre.t * vh, 0, 0, W, H);
@@ -945,10 +945,14 @@
     mousseSale = true;
     // image entière (contain) collée en haut, en miroir
     const sc = Math.min(ew / v.videoWidth, eh / v.videoHeight), dw = v.videoWidth * sc, ox = (ew - dw) / 2;
-    const ecran = (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
+    // point de l'image brute -> écran ; avec la fenêtre caméra, on suit son recadrage, son zoom et son glissement
+    const f = elScene.classList.contains("fenetre") && fenGeo;
+    const ecran = f
+      ? (nx, ny) => ({ x: f.x - v.offsetLeft + (1 - (nx - f.rx) / f.t) * f.fw, y: f.y - v.offsetTop + (ny - f.ry) / f.t * f.fh })
+      : (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
     gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
     if (d.brosse && d.bouche) {
-      const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * dw;
+      const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * (f ? f.fw / f.t : dw);
       if (Math.random() < .6) for (let i = 0; i < 1; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
         r: L * (.03 + Math.random() * .06), vx: (Math.random() - .5) * L * .6, vy: -L * (.3 + Math.random() * .5), vie: 1 });
     }

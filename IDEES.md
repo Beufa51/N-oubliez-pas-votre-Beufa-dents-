@@ -244,4 +244,6 @@ Pas de publication sur le Play Store.
 - [x] **Détourage en direct abandonné** (erreurs de détourage + lenteur) : la caméra s'affiche dans une **fenêtre néon** posée
   sur le décor (82 % de l'image, le décor se voit autour). Le visage est mesuré une fois par seconde : zoom léger et la
   fenêtre glisse pour garder la tête au centre. `js/incrustation.js` et le modèle Selfie Segmenter retirés.
+- [x] Fenêtre caméra plus petite (70 % de l'image) ; **détection du brossage remise** (`DETECTION_BROSSAGE = true`), « Ma brosse »
+  de retour, bulles et zones de réglage (`?debug=1`) calées sur la fenêtre (recadrage, zoom, glissement).
 
