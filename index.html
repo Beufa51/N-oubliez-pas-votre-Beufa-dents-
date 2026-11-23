@@ -120,7 +120,7 @@
 
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
-      <canvas id="incrust" class="incrust" aria-hidden="true"></canvas>
+      <canvas id="fenetre-cam" class="fenetre-cam" aria-hidden="true"></canvas>
       <canvas id="mousse-bouche" class="mousse-bouche" aria-hidden="true" hidden></canvas>
       <div id="detecteur" class="detecteur" aria-live="polite" hidden></div>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
@@ -251,7 +251,6 @@
     <h2>Choisis ton décor&nbsp;!</h2>
     <span></span>
   </div>
-  <p class="decor-sous">Avec la caméra, tu apparais dedans&nbsp;!</p>
   <div id="grille-decors" class="grille-decors"></div>
   <input id="fichier-decor" type="file" accept="image/*" hidden>
 </div>
@@ -281,7 +280,6 @@
 
 <script src="js/jeu.js"></script>
 <script src="js/detection.js"></script>
-<script src="js/incrustation.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

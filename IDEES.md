@@ -241,4 +241,7 @@ Pas de publication sur le Play Store.
   calculé sur le détourage, lissé.
 - [x] Incrustation améliorée (session 11, suite 5) : masque plus strict (plus de bout de mur) et lissé d'une image à l'autre,
   **zoom arrière automatique** si on est trop près, ~12 détourages/s (moins si le téléphone peine), image calculée en 480 px.
+- [x] **Détourage en direct abandonné** (erreurs de détourage + lenteur) : la caméra s'affiche dans une **fenêtre néon** posée
+  sur le décor (82 % de l'image, le décor se voit autour). Le visage est mesuré une fois par seconde : zoom léger et la
+  fenêtre glisse pour garder la tête au centre. `js/incrustation.js` et le modèle Selfie Segmenter retirés.
 
