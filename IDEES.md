@@ -208,3 +208,8 @@ Pas de publication sur le Play Store.
   l'horizontale), raccord de la boucle de la musique de fond.
 - [ ] Plus tard : détourage de l'utilisateur (MediaPipe) pour les poses « créateur derrière » (oreilles de lapin, main sur la tête, cornes).
 - Poses à ajouter plus tard : check de poing (à refaire quand Gemini sera de nouveau disponible).
+- [x] Retours du test (session 11) : **plus de voix pendant le brossage** (installation, brossage, pauses et photos ; sons gardés,
+  la voix reste pour la fin). **Poses guidées** : l'utilisateur fait l'autre moitié du geste du créateur, guidé par **l'ombre du
+  créateur** (sa silhouette à sa vraie place, avec « ? ») et une **cible dorée** (« ta main ici », « ton poing ici », « ton dos ici »,
+  « tes mains ici »). Dos à dos avec la photo 2 (vraiment de profil). Consignes simples gardées pour les pauses du mode Classique.
+
