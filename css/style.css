@@ -970,3 +970,19 @@ body::before {   /* petites étoiles fixes qui scintillent */
 }
 @keyframes emoji-check { from { transform: translateX(0) rotate(-8deg); } to { transform: translateX(-18%) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .demo-emoji { animation: none; } }
+
+/* ---------- détection du brossage ---------- */
+.mousse-bouche { position: absolute; z-index: 1; pointer-events: none; }
+.detecteur {
+  position: absolute; top: 10px; right: 10px; z-index: 3; max-width: 62%;
+  padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: .95rem; line-height: 1.2;
+  background: rgba(20, 16, 48, .78); color: #fff; border: 2px solid rgba(255,255,255,.35);
+  box-shadow: 0 4px 14px rgba(0,0,0,.3); transition: background .25s, border-color .25s;
+}
+.scene.vue-schema .detecteur { top: auto; bottom: 10px; }
+.detecteur.ok { background: rgba(14, 120, 80, .85); border-color: #3ddc84; }
+.detecteur.attend { background: rgba(200, 90, 0, .9); border-color: #ffc83d; animation: detecteur-appel .7s ease-in-out infinite alternate; }
+.detecteur.perdu { background: rgba(60, 60, 80, .85); }
+.detecteur.conseil { background: rgba(170, 20, 120, .9); border-color: #ff7aa2; }
+@keyframes detecteur-appel { from { transform: scale(1); } to { transform: scale(1.07); } }
+@media (prefers-reduced-motion: reduce) { .detecteur.attend { animation: none; } }

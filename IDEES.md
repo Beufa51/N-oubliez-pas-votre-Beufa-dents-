@@ -188,8 +188,17 @@ Pas de publication sur le Play Store.
   (ovale plus petit en duo, créateur un peu « derrière »), toujours collé en bas, lumière accordée à la photo de l'utilisateur.
   La place gardée en pointillés suit sa vraie place. Les poses avec photo du créateur passent en premier.
   Voir `assets/createur/LISEZMOI.md`. Cœur et pensif restent avec Beufa (photos à faire : idée du **demi-cœur**).
-- [ ] Prochaine étape : détection du brossage façon Pokémon Smile (MediaPipe : bouche + main + mouvement ; le temps
-  n'avance que si on brosse ; côté gauche/droite approximatif).
+- [x] **Détection du brossage façon Pokémon Smile** (session 11), dès que la caméra est allumée (Miroir ou Beufa dents) :
+  - MediaPipe Face Landmarker sur le téléphone (`assets/vision/`, ~18 Mo téléchargés au 1er brossage avec caméra, puis hors ligne) ;
+  - on mesure le mouvement autour de la bouche (main + brosse) moins celui du front (tête qui bouge, lumière) ;
+  - **le chrono s'arrête** si Beufa voit ton visage sans brossage (1,2 s de tolérance), Beufa relance (« Hé ! Je ne te vois pas brosser ! ») ;
+    au bout de 8 s il repart à mi-vitesse pour ne jamais bloquer ; visage introuvable ou détection en panne = chrono normal ;
+  - **pastille** sur la caméra (« 🪥 Je te vois brosser ! », « ⏸ Brosse pour avancer ! », « 🙈 Je ne vois pas ta bouche ») ;
+  - **bulles de mousse** qui sortent de la bouche quand on brosse ;
+  - **côté** approximatif (le manche sort du côté brossé) : « 👉 Plutôt à gauche ! » une fois par face, sauf face intérieure ;
+  - fin : « 🪥 Brossage vu : 87 % » ; mise en pause pendant les photos.
+  - Réglages en test : `?debug=1` montre les zones analysées et les chiffres ; `?detection=0` coupe la détection.
+  - Seuils à régler avec les essais réels (`SEUIL_ON`, `SEUIL_OFF`, `DIFF` en haut de `js/detection.js`).
 - [ ] Images Gemini facultatives : Beufa déguisé pour les 21 cartes (fond vert #00FF00, même style que les poses),
   icône de l'appli dans le style du panneau néon (carrée, sans texte), pose « check de poing ».
 - À vérifier sur le téléphone du créateur : affichage de la caméra (image entière ou bande étroite si elle filme à

@@ -71,7 +71,7 @@
         <h2><span>📷</span> Caméra</h2>
         <div class="choix acc-violet" id="choix-camera">
           <button class="option actif" data-camera="0" type="button"><span class="ico">🙈</span><strong>Sans</strong><small>Schéma seul</small></button>
-          <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Je me vois brosser</small></button>
+          <button class="option" data-camera="1" type="button"><span class="ico">🪞</span><strong>Miroir</strong><small>Beufa me voit brosser</small></button>
         </div>
       </div>
       <div id="bloc-photos" hidden>
@@ -112,6 +112,8 @@
 
     <div class="scene" id="scene">
       <video id="camera" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
+      <canvas id="mousse-bouche" class="mousse-bouche" aria-hidden="true" hidden></canvas>
+      <div id="detecteur" class="detecteur" aria-live="polite" hidden></div>
       <svg id="bouche" viewBox="0 0 300 340" role="img" aria-label="Schéma de la bouche : zone à brosser"></svg>
       <div id="mystere" class="mystere" aria-label="Carte surprise : une partie se dévoile à chaque zone"></div>
       <div id="astuce" class="astuce"></div>
@@ -254,6 +256,7 @@
 </div>
 
 <script src="js/jeu.js"></script>
+<script src="js/detection.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

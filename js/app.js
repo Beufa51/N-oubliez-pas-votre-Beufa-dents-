@@ -6,6 +6,7 @@
   const PAUSE_DUREE = 3;         // secondes de pause
   // ?vitesse=10 accélère le temps (pratique pour tester)
   const VITESSE = Math.max(1, Number(new URLSearchParams(location.search).get("vitesse")) || 1);
+  const DET = window.BeufaDetection;   // détection du brossage (js/detection.js)
 
   const ZONES = ["Haut gauche", "Haut droite", "Bas droite", "Bas gauche"];
   const FACES = ["Face extérieure", "Face intérieure", "Surface de mastication"];
@@ -346,6 +347,7 @@
       elCamera.srcObject = flux;
       await elCamera.play().catch(() => {});
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
+      DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
     } catch (e) {
       stopperCamera();
       toast(mode === "beufa"
@@ -356,7 +358,7 @@
 
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
-    flux = null; elCamera.srcObject = null;
+    flux = null; elCamera.srcObject = null; DET.arreter();
     elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
   }
 
@@ -527,6 +529,8 @@
     volumeFond(); jouerFond();
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
+    if (flux) DET.demarrer(elCamera);
+    attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
     majAffichage();
@@ -549,10 +553,11 @@
   const avecPhotos = () => mode === "beufa" && !!flux;
 
   function boucle(now) {
-    const dt = Math.max(0, Math.min(.25, (now - derniere) / 1000)) * VITESSE;
+    const dtR = Math.max(0, Math.min(.25, (now - derniere) / 1000)), dt = dtR * VITESSE;
     derniere = now;
+    suivreDetection(dtR);
     if (phase === "brosse") {
-      ecoule += dt;
+      ecoule += dt * vitesseBrossage();   // façon Pokémon Smile : le temps n'avance que si on brosse
       if (ecoule >= duree) {
         if (!avecPhotos() || finale) return terminer();
         ecoule = duree; finale = true; commencerPause();     // pose finale
@@ -634,6 +639,99 @@
   }
   let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
 
+  /* ---------- détection du brossage (js/detection.js), façon Pokémon Smile ----------
+     Le chrono s'arrête si Beufa voit ton visage mais pas de brossage (après 1,2 s de tolérance) ;
+     au bout de 8 s il repart doucement, pour ne jamais bloquer si la détection se trompe.
+     Visage introuvable ou détection indisponible : le chrono avance normalement. */
+  const DEBUG = new URLSearchParams(location.search).has("debug");
+  const elDet = $("#detecteur"), elMousse = $("#mousse-bouche"), gM = elMousse.getContext("2d");
+  let attente = 0, sansVisage = 0, mauvaisCote = 0, coteDit = -1, relanceA = 2, visageA = 3, conseilJusqua = 0, conseil = "";
+  const bulles = [];
+  const RELANCES = {
+    enfant: ["Hé ! Je ne te vois pas brosser !", "Allez, la brosse bouge !", "Les microbes en profitent, brosse !", "Le temps s'arrête si tu ne brosses pas !"],
+    adulte: ["Le chrono attend que tu brosses.", "On reprend le brossage ?", "Pas de brossage, pas de chrono."]
+  };
+  const detActive = () => flux && DET.etat.statut === "pret";
+  function vitesseBrossage() {
+    if (!detActive() || attente < 1.2) return 1;
+    return attente > 8 ? .5 : 0;
+  }
+  function suivreDetection(dtR) {
+    const d = DET.etat, actif = phase === "brosse" && detActive();
+    if (actif) {
+      attente = d.visage && !d.brosse ? attente + dtR : 0;
+      sansVisage = d.visage ? 0 : sansVisage + dtR;
+      if (attente < 1.2) relanceA = 2;
+      else if (attente >= relanceA) { relanceA = attente + 7; parler(hasard(RELANCES[window.BeufaJeu.estAdulte() ? "adulte" : "enfant"]), false); vibrer(60); }
+      if (sansVisage < 1) visageA = 3;
+      else if (sansVisage >= visageA) { visageA = sansVisage + 12; parler("Je ne vois pas ta bouche ! Mets ta tête bien face au téléphone.", false); }
+      // côté brossé (approximatif) : seulement face extérieure et dessus des dents, et sans insister
+      const z = indexZone(), p = Math.min(2, Math.floor(((ecoule - z * duree / 4) / (duree / 4)) * 3));
+      const attendu = ZONES[z].includes("gauche") ? "gauche" : "droite";
+      if (d.brosse && d.cote && p !== 1) mauvaisCote = d.cote !== attendu ? mauvaisCote + dtR : Math.max(0, mauvaisCote - dtR);
+      if (mauvaisCote > 3 && coteDit !== z * 3 + p) {
+        coteDit = z * 3 + p; mauvaisCote = 0;
+        conseil = `👉 Plutôt à ${attendu} !`; conseilJusqua = performance.now() + 3500;
+        parler(`Plutôt à ${attendu} !`, false);
+      }
+    }
+    // pastille : ce que Beufa voit
+    const montrerPastille = flux && phase === "brosse" && d.statut !== "eteint" && d.statut !== "indisponible";
+    let txt = "", cls = "detecteur";
+    if (montrerPastille) {
+      if (d.statut === "chargement") txt = "👁️ Beufa ouvre l'œil…";
+      else if (performance.now() < conseilJusqua) { txt = conseil; cls += " conseil"; }
+      else if (sansVisage > 1) { txt = "🙈 Je ne vois pas ta bouche"; cls += " perdu"; }
+      else if (attente >= 1.2) { txt = "⏸ Brosse pour avancer !"; cls += " attend"; }
+      else if (d.visage) { txt = "🪥 Je te vois brosser !"; cls += " ok"; }
+      else txt = "👁️ Beufa te cherche…";
+    }
+    elDet.hidden = !txt;
+    if (elDet.textContent !== txt) elDet.textContent = txt;
+    if (elDet.className !== cls) elDet.className = cls;
+    dessinerMousse(dtR, actif);
+  }
+  // bulles de mousse sur la bouche quand on brosse (+ zones analysées en mode ?debug)
+  function dessinerMousse(dtR, actif) {
+    const d = DET.etat, v = elCamera, miroir = elScene.classList.contains("vue-miroir");
+    const voir = actif && miroir && v.videoWidth;
+    elMousse.hidden = !voir;
+    if (!voir) { bulles.length = 0; return; }
+    const ew = v.offsetWidth, eh = v.offsetHeight, k = Math.min(2, window.devicePixelRatio || 1);
+    if (elMousse.width !== Math.round(ew * k) || elMousse.height !== Math.round(eh * k)) { elMousse.width = Math.round(ew * k); elMousse.height = Math.round(eh * k); }
+    elMousse.style.cssText = `left:${v.offsetLeft}px;top:${v.offsetTop}px;width:${ew}px;height:${eh}px`;
+    // image entière (contain) collée en haut, en miroir
+    const sc = Math.min(ew / v.videoWidth, eh / v.videoHeight), dw = v.videoWidth * sc, ox = (ew - dw) / 2;
+    const ecran = (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
+    gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
+    if (d.brosse && d.bouche) {
+      const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * dw;
+      for (let i = 0; i < 2; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
+        r: L * (.03 + Math.random() * .06), vx: (Math.random() - .5) * L * .6, vy: -L * (.3 + Math.random() * .5), vie: 1 });
+    }
+    for (let i = bulles.length - 1; i >= 0; i--) {
+      const b = bulles[i]; b.vie -= dtR * 1.1; b.x += b.vx * dtR; b.y += b.vy * dtR;
+      if (b.vie <= 0) { bulles.splice(i, 1); continue; }
+      gM.globalAlpha = Math.min(1, b.vie * 1.5);
+      gM.fillStyle = "rgba(255,255,255,.55)"; gM.strokeStyle = "rgba(143,227,234,.95)"; gM.lineWidth = 1.5;
+      gM.beginPath(); gM.arc(b.x, b.y, b.r, 0, 7); gM.fill(); gM.stroke();
+      gM.fillStyle = "#fff"; gM.beginPath(); gM.arc(b.x - b.r * .35, b.y - b.r * .35, b.r * .25, 0, 7); gM.fill();
+    }
+    gM.globalAlpha = 1;
+    if (bulles.length > 120) bulles.splice(0, bulles.length - 120);
+    if (DEBUG && d.zones) {
+      const z = d.zones, rect = (r, coul) => {
+        const a = ecran((r.x + r.w) / z.vw, r.y / z.vh), b = ecran(r.x / z.vw, (r.y + r.h) / z.vh);
+        gM.strokeStyle = coul; gM.lineWidth = 2; gM.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+      };
+      rect(z.b, d.brosse ? "#3ddc84" : "#ff5c8a"); rect(z.f, "#ffd166");
+      gM.fillStyle = "rgba(0,0,0,.6)"; gM.fillRect(0, 48, 210, 44);
+      gM.fillStyle = "#fff"; gM.font = "bold 13px system-ui";
+      gM.fillText(`niveau ${(d.niveau * 100).toFixed(0)}  brosse ${d.brosse ? "OUI" : "non"}  côté ${d.cote || "-"}`, 8, 66);
+      gM.fillText(`attente ${attente.toFixed(1)} s  vu ${d.tempsBrosse.toFixed(0)}/${d.tempsVisible.toFixed(0)} s`, 8, 84);
+    }
+  }
+
   // carte surprise : un quart se dévoile à chaque zone terminée
   const elMystere = $("#mystere");
   let carteSession = null;
@@ -661,6 +759,7 @@
     phase = "pause"; tPause = 0;
     if (!finale) iPause++;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
+    DET.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
       return ouvrirPose(poseActuelle);
@@ -679,7 +778,7 @@
 
   function finirPause() {
     const apresPhoto = !!poseActuelle;
-    phase = "brosse"; fermerPose(); elPause.hidden = true;
+    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); attente = 0;
     bip(523, .1); bip(784, .15, .12);
     parler(apresPhoto ? `Reprends ta brosse ! On continue ${ZONES_VOIX[indexZone()]}.` : `C'est reparti, ${ZONES_VOIX[indexZone()]} !`);
   }
@@ -1072,6 +1171,7 @@
     const c = JEU.carteEl(carteSession); c.classList.add("retourne"); boite.appendChild(c);
     [`🦠 ${microbes} ${ton().microbes}`, `🔥 ${res.serie} jour${res.serie > 1 ? "s" : ""} d'affilée`]
       .concat(res.deuxFois ? ["☀️🌙 Matin et soir !"] : [])
+      .concat(DET.etat.tempsVisible > 10 ? [`🪥 Brossage vu : ${Math.round(100 * Math.min(1, DET.etat.tempsBrosse / DET.etat.tempsVisible))} %`] : [])
       .forEach((t, i) => { const b = document.createElement("span"); b.textContent = t; b.style.animationDelay = (.6 + i * .25) + "s"; st.appendChild(b); });
   }
 

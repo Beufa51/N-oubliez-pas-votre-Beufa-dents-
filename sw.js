@@ -4,9 +4,12 @@
 // - Images, sons, police : copie locale d'abord (lourds et ils changent rarement).
 // - Les fichiers sont toujours téléchargés en contournant le cache du navigateur ({ cache: "reload" }),
 //   sinon une copie vieille de quelques minutes pourrait être gardée par erreur.
-const VERSION = "beufa-v24";
+const VERSION = "beufa-v25";
+// détection du brossage (~18 Mo) : gardée à part, téléchargée seulement au premier brossage avec caméra,
+// et pas re-téléchargée à chaque nouvelle version de l'appli (changer ce nom si on change de modèle)
+const VISION = "beufa-vision-1.2.2";
 const FICHIERS = [
-  "./", "index.html", "css/style.css", "js/jeu.js", "js/app.js", "manifest.webmanifest",
+  "./", "index.html", "css/style.css", "js/jeu.js", "js/detection.js", "js/app.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "assets/fonts/fredoka.woff2", "assets/titre.webp",
   "assets/intro.mp3", "assets/fond.mp3",
   "assets/mascotte/png/pose-mains-hanches.png",
@@ -28,12 +31,19 @@ self.addEventListener("install", e => {
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
-    .then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    .then(ks => Promise.all(ks.filter(k => k !== VERSION && k !== VISION).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
+  if (new URL(req.url).pathname.includes("/assets/vision/")) {
+    e.respondWith(caches.open(VISION).then(c => c.match(req).then(r => r || fetch(req).then(rep => {
+      if (rep.ok) c.put(req, rep.clone());
+      return rep;
+    }))));
+    return;
+  }
   if (LOURD.test(new URL(req.url).pathname)) {
     e.respondWith(caches.match(req).then(r => r || fetch(req)));
     return;
