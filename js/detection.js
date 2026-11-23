@@ -8,7 +8,7 @@
 (function () {
   "use strict";
   const BASE = new URL("../assets/vision/", document.currentScript.src).href;
-  const PERIODE = 80;            // ms entre deux analyses (~12 par seconde)
+  const PERIODE = 110;           // ms entre deux analyses (~9 par seconde, suffisant et plus léger)
   /* Réglages selon la brosse :
      - manuelle : va-et-vient rapide -> on compare deux images qui se suivent ;
      - électrique : la main glisse lentement et la vibration des poils est trop rapide et trop fine pour
@@ -30,7 +30,7 @@
     tempsVisible: 0, tempsBrosse: 0
   };
   let landmarker = null, chargement = null, video = null, minuteur = 0, enPause = false;
-  let hist = [], lisse = 0, lisseG = 0, lisseD = 0, sousDepuis = 0, dernierVisage = 0, dernier = 0;
+  let dernierVisageTs = 0, hist = [], lisse = 0, lisseG = 0, lisseD = 0, sousDepuis = 0, dernierVisage = 0, dernier = 0;
   const cv = document.createElement("canvas"); cv.width = RW; cv.height = RH * 2;
   const cx = cv.getContext("2d", { willReadFrequently: true });
 
@@ -77,7 +77,8 @@
     const maintenant = performance.now(), dt = dernier ? Math.min(.5, (maintenant - dernier) / 1000) : 0;
     dernier = maintenant;
     let res;
-    try { res = landmarker.detectForVideo(video, maintenant); } catch (e) { return; }
+    const ts = Math.max(maintenant, dernierVisageTs + 1); dernierVisageTs = ts;
+    try { res = landmarker.detectForVideo(video, ts); } catch (e) { return; }
     const lm = res && res.faceLandmarks && res.faceLandmarks[0];
     const vw = video.videoWidth, vh = video.videoHeight;
     if (!lm) {
@@ -125,6 +126,19 @@
       Object.assign(etat, { visage: false, brosse: false, niveau: 0, cote: null, bouche: null, zones: null, tempsVisible: 0, tempsBrosse: 0 });
       clearTimeout(minuteur);
       charger().then(() => { if (video && landmarker) { clearTimeout(minuteur); analyser(); } });
+    },
+    /* visage sur une image ou une vidéo (studio photo) : { cx, haut, h } en fraction de la source
+       (cx = centre ; haut = haut de la tête, cheveux compris à peu près ; h = hauteur de la tête), ou null */
+    visage(source) {
+      if (!landmarker) return null;
+      try {
+        const r = landmarker.detectForVideo(source, Math.max(performance.now(), dernierVisageTs + 1));
+        dernierVisageTs = performance.now();
+        const lm = r && r.faceLandmarks && r.faceLandmarks[0];
+        if (!lm) return null;
+        const front = lm[10].y, menton = lm[152].y, haut = front - .22 * (menton - front);
+        return { cx: (lm[234].x + lm[454].x) / 2, haut, h: menton - haut };
+      } catch (e) { return null; }
     },
     pause(oui) { enPause = oui; hist = []; if (oui) etat.brosse = false; },
     arreter() { clearTimeout(minuteur); video = null; etat.visage = etat.brosse = false; etat.bouche = null; },

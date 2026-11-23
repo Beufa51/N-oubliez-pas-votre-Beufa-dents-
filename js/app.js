@@ -56,12 +56,13 @@
      Chaque pose = image de la mascotte (le geste à faire) + photo détourée du créateur
      (facultative : assets/createur/<id>.png, sinon la mascotte prend sa place)
      + côté où se tient le partenaire (l'utilisateur se place de l'autre côté). */
-  const POSE_PREP = 3;            // Beufa montre la pose en plein écran (s)
-  const POSE_PLACEMENT = 4;       // caméra visible : on met sa tête dans l'ovale, sans compte à rebours (s)
+  const POSE_PREP = 4;            // la pose expliquée en plein écran (s)
+  /* Placement : caméra visible, la tête dans l'ovale. Avec la détection du visage, des consignes en direct
+     (« Recule », « Va à droite »…) et le 3-2-1 ne démarre que quand on est bien placé depuis PLACE_OK s
+     (au plus tôt après PLACE_MIN s, au plus tard après PLACE_MAX s). Sans détection : PLACE_SANS s. */
+  const PLACE_MIN = 2, PLACE_OK = 1, PLACE_MAX = 12, PLACE_SANS = 7;
   const POSE_COMPTE = 3;          // 3-2-1 avant la photo (s)
   const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
-  const POSE_CLIC = POSE_PREP + POSE_PLACEMENT + POSE_COMPTE;
-  const POSE_DUREE = POSE_CLIC + POSE_APRES;
   /* photo : où est la tête du créateur sur sa photo détourée (assets/createur/<id>.webp)
        tete = [haut des cheveux, menton, centre horizontal] en fraction de l'image ;
      et comment la placer sur la photo de l'utilisateur (unités = hauteur de la photo) :
@@ -108,17 +109,22 @@
     c.src = `assets/createur/${p.id}.webp`;
   });
   // place du créateur sur une photo W×H (en px) : sa tête à peu près à la taille de celle de l'utilisateur
-  function placeCreateur(p, W, H) {
+  /* visage (facultatif) = tête de l'utilisateur mesurée sur sa photo ({ haut, h } en fraction de la hauteur) :
+     le créateur prend alors la MÊME taille de tête, à la même hauteur ; sinon la taille prévue pour l'ovale. */
+  function placeCreateur(p, W, H, visage) {
     const c = p.createur, [t, m, cx] = p.photo.tete;
-    let h = p.photo.hh * H / (m - t), y = p.photo.top * H - t * h;
+    const hh = visage ? Math.max(.18, Math.min(.38, visage.h)) : p.photo.hh * 1.12;
+    const top = visage ? Math.max(.04, Math.min(.4, visage.haut)) : p.photo.top;
+    const dx = Math.min(.3, p.photo.dx * hh / p.photo.hh);   // plus grand = un peu plus loin du bord
+    let h = hh * H / (m - t), y = top * H - t * h;
     if (y + h < H) y = H - h;                       // toujours collé en bas
     const w = h * c.naturalWidth / c.naturalHeight;
-    const tx = p.cote === "droite" ? W - p.photo.dx * H : p.photo.dx * H;
+    const tx = p.cote === "droite" ? W - dx * H : dx * H;
     return { x: tx - cx * w, y, w, h, tx, ty: y + t * h, th: (m - t) * h };
   }
   // même place, en % d'une scène au format de la photo (studio, révélation)
-  function stylePlace(p, ratio) {
-    const r = placeCreateur(p, ratio, 1);
+  function stylePlace(p, ratio, visage) {
+    const r = placeCreateur(p, ratio, 1, visage);
     return `left:${r.x / ratio * 100}%;top:${r.y * 100}%;width:${r.w / ratio * 100}%;height:${r.h * 100}%;right:auto;bottom:auto`;
   }
 
@@ -698,8 +704,8 @@
       } else if (iPause < pauses.length && ecoule >= pauses[iPause]) commencerPause();
     } else if (phase === "pause") {
       tPause += dt;
-      if (poseActuelle && !cliche && tPause >= POSE_CLIC) prendrePhoto();
-      if (tPause >= (poseActuelle ? POSE_DUREE : PAUSE_DUREE)) {
+      if (poseActuelle && !cliche && compteA !== null && tPause >= compteA + POSE_COMPTE) { prendrePhoto(); clicA = tPause; }
+      if (poseActuelle ? cliche && tPause >= clicA + POSE_APRES : tPause >= PAUSE_DUREE) {
         if (finale) return terminer();
         finirPause();
       }
@@ -755,7 +761,8 @@
     if (phase === "pause") {
       if (poseActuelle) {
         if (tPause >= POSE_PREP && etapePose === "demo") passerEnPhoto();
-        const n = tPause < POSE_PREP + POSE_PLACEMENT ? 0 : Math.ceil(POSE_CLIC - tPause);
+        if (etapePose === "photo" && compteA === null) placement();
+        const n = compteA === null || cliche ? 0 : Math.ceil(compteA + POSE_COMPTE - tPause);
         if (n !== dernierCompte) {
           dernierCompte = n;
           elStudioCompte.textContent = n > 0 ? String(n) : "";
@@ -772,6 +779,42 @@
     }
   }
   let dernierCompte = 0, alerteDite = false, defiActuel = "", defiJusqua = 0;
+
+  /* ---------- placement guidé dans le studio photo ---------- */
+  let compteA = null, clicA = 0, okDepuis = 0, dernierePlace = 0, placeMsg = "";
+  function placement() {
+    const t = tPause - POSE_PREP;
+    if (DET.etat.statut !== "pret") {             // pas de détection : temps fixe
+      if (t >= PLACE_SANS) commencerCompte();
+      return;
+    }
+    const maintenant = performance.now();
+    if (maintenant - dernierePlace < 150) return;
+    const dtR = Math.min(.5, (maintenant - (dernierePlace || maintenant)) / 1000);
+    dernierePlace = maintenant;
+    const v = DET.visage(elStudioVideo), ov = elCadre.querySelector(".cadre-tete"), co = elCadre.getBoundingClientRect(), r = ov.getBoundingClientRect();
+    let msg, ok = false;
+    if (!v || !co.width) msg = "Mets ta tête dans l'ovale";
+    else {
+      const ocx = (r.left + r.width / 2 - co.left) / co.width, ocy = (r.top + r.height / 2 - co.top) / co.height, ovh = r.height / co.height;
+      const fx = 1 - v.cx, fy = v.haut + v.h / 2, taille = v.h / ovh;     // l'écran est en miroir
+      const tolX = .09, tolY = .1;
+      if (taille > 1.12) msg = "🔙 Recule un peu";
+      else if (taille < .62) msg = "🔜 Approche-toi";
+      else if (fx < ocx - tolX) msg = "➡️ Va vers la droite";
+      else if (fx > ocx + tolX) msg = "⬅️ Va vers la gauche";
+      else if (fy < ocy - tolY) msg = "⬇️ Baisse-toi un peu";
+      else if (fy > ocy + tolY) msg = "⬆️ Monte un peu";
+      else { msg = "✅ Parfait ! Fais la pose"; ok = true; }
+    }
+    okDepuis = ok ? okDepuis + dtR : 0;
+    elCadre.classList.toggle("bien-place", ok);
+    if (msg !== placeMsg) { placeMsg = msg; elStudioCompte.textContent = msg; if (ok) { bip(880, .08); vibrer(30); } }
+    if ((ok && okDepuis >= PLACE_OK && t >= PLACE_MIN) || t >= PLACE_MAX) commencerCompte();
+  }
+  function commencerCompte() {
+    compteA = tPause; elCadre.classList.remove("placement", "bien-place"); elStudioCompte.textContent = "";
+  }
 
   /* ---------- détection du brossage (js/detection.js), façon Pokémon Smile ----------
      Le chrono s'arrête si Beufa voit ton visage mais pas de brossage (après 1,2 s de tolérance) ;
@@ -912,6 +955,7 @@
     DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
+      compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = "";
       return ouvrirPose(poseActuelle);
     }
     elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
@@ -1014,7 +1058,7 @@
     rejouer(elPartenaire, "entre"); rejouer(elBulle, "pop");
     // d'abord le temps de se placer (ovale qui clignote), ensuite seulement le 3-2-1
     elCadre.classList.add("placement");
-    elStudioCompte.textContent = "Place-toi !"; rejouer(elStudioCompte, "pop");
+    elStudioCompte.textContent = "Mets ta tête dans l'ovale"; rejouer(elStudioCompte, "pop");
     bip(784, .1);
     parler("Mets ta tête dans l'ovale, et fais la pose !");
   }
@@ -1034,7 +1078,7 @@
     const x = c.getContext("2d");
     x.translate(c.width, 0); x.scale(-1, 1);
     x.drawImage(v, 0, 0, c.width, c.height);
-    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles) });
+    photos.push({ pose: poseActuelle, img: c, bulle: hasard(ton().bulles), visage: DET.visage(c) });
     // aperçu façon polaroïd + réaction de Beufa
     elApercu.src = c.toDataURL("image/jpeg", .6); elApercu.hidden = false;
     elBulle.textContent = hasard(ton().reactions);
@@ -1113,7 +1157,7 @@
     } catch (e) { return 1; }
   }
 
-  function composer({ pose, img, bulle, tampon }) {
+  function composer({ pose, img, bulle, tampon, visage }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
@@ -1121,7 +1165,7 @@
     const estCreateur = !!pose.createur, part = pose.createur || pose.imgMascotte;
     if (estCreateur) {
       // le créateur, à la taille de l'utilisateur, accordé à la lumière de sa photo, halo néon
-      const r = placeCreateur(pose, W, H);
+      const r = placeCreateur(pose, W, H, visage);
       x.save();
       if ("filter" in x) x.filter = `brightness(${eclairage(img).toFixed(2)})`;
       x.shadowColor = "rgba(255,60,200,.7)"; x.shadowBlur = 28;
@@ -1269,7 +1313,7 @@
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
     const avecPh = photos.length > 0;
     if (avecPh) photos[photos.length - 1].tampon = true;   // le tampon du jour, sur la dernière photo
-    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon }));
+    const revs = photos.map(ph => ({ url: ph.img.toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon, visage: ph.visage }));
     const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
     montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
     montrer("fin");
@@ -1298,7 +1342,7 @@
     elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
     elRevUser.src = r.url;
     elRevPart.src = part.src;
-    elRevPart.style.cssText = createur ? stylePlace(r.pose, r.ratio) : `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%`;
+    elRevPart.style.cssText = createur ? stylePlace(r.pose, r.ratio, r.visage) : `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%`;
     elRevPart.className = `rev-part cote-${r.pose.cote}${createur ? " createur" : ""}`;
     elRevScene.className = "rev-scene"; rejouer(elRevScene, "apparait");
     const elT = $("#rev-tampon"); elT.hidden = true; elT.className = `rev-tampon cote-${r.pose.cote}`;

@@ -224,4 +224,9 @@ Pas de publication sur le Play Store.
 - [x] **Choix du décor après « C'est parti »** : grand écran « Choisis ton décor ! » (grosses vignettes, un appui = on démarre,
   « + Ma photo » pour un décor de la galerie, ✕ pour supprimer un décor perso). Plus de petite ligne Décor sur l'accueil.
 - [ ] Idée : mettre aussi le décor derrière l'utilisateur sur les photos du mode Beufa dents.
+- [x] Retours du test (session 11, suite 2) :
+  - **plus léger** : détection du brossage ~9 fois/s, détourage ~15 fois/s ;
+  - **même taille** : le visage de l'utilisateur est mesuré sur sa photo, le créateur prend la même taille de tête à la même hauteur ;
+  - **placement guidé** : consignes en direct sous la caméra (« 🔙 Recule un peu », « ➡️ Va vers la droite », « ✅ Parfait ! »),
+    ovale vert quand c'est bon ; le 3-2-1 ne part que quand on est bien placé depuis 1 s (au plus tard 12 s), 4 s pour lire la pose.
 
