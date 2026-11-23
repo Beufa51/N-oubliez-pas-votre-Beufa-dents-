@@ -219,4 +219,9 @@ Pas de publication sur le Play Store.
     l'appli est à usage privé mais le dépôt et le site sont publics.
   - **5 décors intégrés** (images Gemini du créateur, style photo réaliste) : champignons, volcan, village enneigé, montagne, lagon ;
     schéma des dents plus transparent par-dessus le décor.
+- [x] **Incrustation dans le décor** (façon Pokémon Smile) : avec la caméra et un décor, la personne est détourée en direct
+  (MediaPipe Selfie Segmenter, 250 Ko, `js/incrustation.js`) et apparaît dans le décor, bords de l'image fondus. `?incrustation=0` pour couper.
+- [x] **Choix du décor après « C'est parti »** : grand écran « Choisis ton décor ! » (grosses vignettes, un appui = on démarre,
+  « + Ma photo » pour un décor de la galerie, ✕ pour supprimer un décor perso). Plus de petite ligne Décor sur l'accueil.
+- [ ] Idée : mettre aussi le décor derrière l'utilisateur sur les photos du mode Beufa dents.
 

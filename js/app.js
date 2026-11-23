@@ -7,6 +7,7 @@
   // ?vitesse=10 accélère le temps (pratique pour tester)
   const VITESSE = Math.max(1, Number(new URLSearchParams(location.search).get("vitesse")) || 1);
   const DET = window.BeufaDetection;   // détection du brossage (js/detection.js)
+  const INC = window.BeufaIncrustation; // la personne détourée dans le décor (js/incrustation.js)
 
   const ZONES = ["Haut gauche", "Haut droite", "Bas droite", "Bas gauche"];
   const FACES = ["Face extérieure", "Face intérieure", "Surface de mastication"];
@@ -326,34 +327,43 @@
     { id: "lagon",       nom: "Lagon" }
   ];
   let decor = "plateau";
-  const elChoixDecor = $("#choix-decor"), elFichierDecor = $("#fichier-decor");
+  const elEcranDecor = $("#ecran-decor"), elGrille = $("#grille-decors"), elFichierDecor = $("#fichier-decor");
+  // grandes vignettes : un appui = ce décor + on démarre
   function majDecors() {
-    const dispo = DECORS.filter(d => d.id === "plateau" || d.src);
-    elChoixDecor.innerHTML = "";
-    dispo.forEach(d => {
+    elGrille.innerHTML = "";
+    DECORS.filter(d => d.id === "plateau" || d.src).forEach(d => {
       const b = document.createElement("button");
-      b.type = "button"; b.className = "option decor" + (d.id === decor ? " actif" : "");
-      b.dataset.decor = d.id; b.title = d.nom; b.setAttribute("aria-label", "Décor : " + d.nom);
+      b.type = "button"; b.className = "tuile-decor" + (d.id === decor ? " actif" : "");
+      b.dataset.decor = d.id; b.setAttribute("aria-label", "Décor : " + d.nom);
       if (d.src) b.style.backgroundImage = `url("${d.src}")`;
-      else b.textContent = "📺";
-      elChoixDecor.appendChild(b);
+      else b.classList.add("plateau");
+      b.innerHTML = `${d.src ? "" : "<i>📺</i>"}<span>${d.nom}</span>${d.perso ? '<em class="suppr" role="button" aria-label="Supprimer ce décor">✕</em>' : ""}`;
+      elGrille.appendChild(b);
     });
     const plus = document.createElement("button");
-    plus.type = "button"; plus.className = "decor-plus"; plus.textContent = "+";
-    plus.setAttribute("aria-label", "Ajouter un décor depuis mes photos");
+    plus.type = "button"; plus.className = "tuile-decor plus";
+    plus.innerHTML = "<i>＋</i><span>Ma photo</span>";
     plus.addEventListener("click", () => elFichierDecor.click());
-    elChoixDecor.appendChild(plus);
+    elGrille.appendChild(plus);
     appliquerDecor();
   }
+  const decorActuel = () => DECORS.find(x => x.id === decor && x.src);
   function appliquerDecor() {
-    const d = DECORS.find(x => x.id === decor && x.src);
+    const d = decorActuel();
     ecrans.brossage.style.backgroundImage = d ? `linear-gradient(180deg, rgba(13,18,80,.15), rgba(13,18,80,.35)), url("${d.src}")` : "";
     ecrans.brossage.classList.toggle("avec-decor", !!d);
   }
+  function ouvrirChoixDecor() {
+    const qui = window.BeufaJeu.profilActif();
+    if (!qui || !qui.age) return ouvrirFiche(qui, ouvrirChoixDecor);
+    majDecors(); elEcranDecor.hidden = false;
+    const a = elGrille.querySelector(".actif"); if (a) a.scrollIntoView({ block: "nearest" });
+  }
+  $("#decor-retour").addEventListener("click", () => { elEcranDecor.hidden = true; });
   DECORS.forEach(d => {
     if (d.id === "plateau") return;
     const u = `assets/decors/${d.id}.webp`, i = new Image();
-    i.onload = () => { d.src = u; majDecors(); }; i.src = u;
+    i.onload = () => { d.src = u; if (!elEcranDecor.hidden) majDecors(); }; i.src = u;
   });
 
   // décors perso : petite base IndexedDB « beufa-decors »
@@ -377,7 +387,7 @@
     DECORS.push({ id: x.id, nom: "Mon décor", src: URL.createObjectURL(x.blob), perso: true });
   }
   operation("readonly", st => st.getAll())
-    .then(liste => { (liste || []).sort((a, b) => a.date - b.date).forEach(ajouterDecorPerso); majDecors(); })
+    .then(liste => { (liste || []).sort((a, b) => a.date - b.date).forEach(ajouterDecorPerso); appliquerDecor(); })
     .catch(() => {});
   // image de la galerie -> réduite (2000 px max) -> gardée
   elFichierDecor.addEventListener("change", async () => {
@@ -394,16 +404,18 @@
       ajouterDecorPerso(x); decor = x.id; retenir({ decor }); majDecors();
     } catch (e) { alert("Impossible d'ajouter cette image comme décor."); }
   });
-  elChoixDecor.addEventListener("click", async e => {
-    const b = e.target.closest(".option"); if (!b) return;
+  elGrille.addEventListener("click", async e => {
+    const b = e.target.closest(".tuile-decor"); if (!b || !b.dataset.decor) return;
     const d = DECORS.find(x => x.id === b.dataset.decor);
-    if (d && d.perso && decor === d.id) {         // 2e appui sur un décor perso : le supprimer ?
+    if (e.target.closest(".suppr")) {
       if (!confirm("Supprimer ce décor de ton téléphone ?")) return;
       await operation("readwrite", st => st.delete(d.id)).catch(() => {});
       URL.revokeObjectURL(d.src); DECORS.splice(DECORS.indexOf(d), 1);
-      decor = "plateau"; retenir({ decor }); majDecors(); return;
+      if (decor === d.id) { decor = "plateau"; retenir({ decor }); }
+      return majDecors();
     }
-    choisir(elChoixDecor, b); decor = b.dataset.decor; retenir({ decor }); appliquerDecor();
+    decor = d.id; retenir({ decor }); appliquerDecor();
+    elEcranDecor.hidden = true; demarrer();
   });
 
   // la brosse ne compte que pour la détection (donc avec la caméra)
@@ -431,7 +443,7 @@
     cameraChoisie = !!r.camera;
     nbPhotos = r.photos === 2 ? 2 : 4;
     typeBrosse = r.brosse === "electrique" ? "electrique" : "manuelle";
-    decor = r.decor || "plateau"; majDecors();
+    decor = r.decor || "plateau"; appliquerDecor();
     choisir($("#choix-brosse"), $(`#choix-brosse [data-brosse="${typeBrosse}"]`));
     choisir($("#choix-mode"), $(`#choix-mode [data-mode="${mode}"]`));
     choisir($("#choix-duree"), $(`#choix-duree [data-duree="${duree}"]`));
@@ -468,6 +480,7 @@
       await elCamera.play().catch(() => {});
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
       DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
+      if (decorActuel()) INC.prechauffer();
     } catch (e) {
       stopperCamera();
       toast(mode === "beufa"
@@ -478,7 +491,7 @@
 
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
-    flux = null; elCamera.srcObject = null; DET.arreter();
+    flux = null; elCamera.srcObject = null; DET.arreter(); INC.arreter(); elScene.classList.remove("incruste");
     elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
   }
 
@@ -650,6 +663,7 @@
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
     if (flux) DET.demarrer(elCamera, typeBrosse);
+    if (flux && decorActuel()) INC.demarrer(elCamera, elIncrust);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
@@ -810,6 +824,22 @@
     if (elDet.textContent !== txt) elDet.textContent = txt;
     if (elDet.className !== cls) elDet.className = cls;
     dessinerMousse(dtR, actif);
+    majIncrustation();
+  }
+  // la personne détourée remplace la vidéo : même place que l'image de la caméra (entière, collée en haut)
+  const elIncrust = $("#incrust");
+  function majIncrustation() {
+    const v = elCamera;
+    const on = flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause")
+      && INC.etat.statut === "pret" && v.videoWidth;
+    if (on) {
+      const ew = v.offsetWidth, eh = v.offsetHeight, sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
+      const dw = v.videoWidth * sc, dh = v.videoHeight * sc, k = Math.min(1.5, window.devicePixelRatio || 1);
+      const W = Math.round(Math.min(720, dw * k)), H = Math.round(W * dh / dw);
+      if (elIncrust.width !== W || elIncrust.height !== H) { elIncrust.width = W; elIncrust.height = H; }
+      elIncrust.style.cssText = `left:${v.offsetLeft + (ew - dw) / 2}px;top:${v.offsetTop}px;width:${dw}px;height:${dh}px`;
+    }
+    elScene.classList.toggle("incruste", !!(on && INC.etat.image));
   }
   // bulles de mousse sur la bouche quand on brosse (+ zones analysées en mode ?debug)
   function dessinerMousse(dtR, actif) {
@@ -879,7 +909,7 @@
     phase = "pause"; tPause = 0;
     if (!finale) iPause++;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
-    DET.pause(true);
+    DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
       return ouvrirPose(poseActuelle);
@@ -898,7 +928,7 @@
 
   function finirPause() {
     const apresPhoto = !!poseActuelle;
-    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); attente = 0;
+    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); INC.pause(false); attente = 0;
     bip(523, .1); bip(784, .15, .12);
     parler(apresPhoto ? `Reprends ta brosse ! On continue ${ZONES_VOIX[indexZone()]}.` : `C'est reparti, ${ZONES_VOIX[indexZone()]} !`);
   }
@@ -1499,7 +1529,7 @@
     if (document.hidden) audio.suspend().catch(() => {}); else audio.resume().catch(() => {});
   });
 
-  $("#btn-demarrer").addEventListener("click", demarrer);
+  $("#btn-demarrer").addEventListener("click", ouvrirChoixDecor);
   $("#btn-arreter").addEventListener("click", arreter);
   $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); majSuivi(); montrer("accueil"); jouerFond(); });
   document.addEventListener("visibilitychange", () => {
