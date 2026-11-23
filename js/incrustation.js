@@ -13,6 +13,7 @@
   let worker = null, chargement = null, occupe = false, video = null, actif = false, minuteur = 0;
   let cx = .5, haut = .1, z = 1, cadreVu = false, img = null;
   const masque = document.createElement("canvas"), gm = masque.getContext("2d");
+  const attentes = new Map(); let idPhoto = 0;
 
   function charger() {
     if (chargement) return chargement;
@@ -25,6 +26,7 @@
           if (m.type === "pret") { etat.statut = "pret"; ok(); }
           else if (m.type === "erreur") { etat.statut = "indisponible"; ok(); }
           else if (m.type === "masque") recevoir(m);
+          else if (m.type === "photo") { const f = attentes.get(m.id); attentes.delete(m.id); if (f) f(m.rien ? null : m); }
           else occupe = false;
         };
         worker.onerror = () => { etat.statut = "indisponible"; ok(); };
@@ -73,6 +75,18 @@
     // point de l'image brute (fractions, non miroir) -> fraction du dessin (après miroir, recentrage et zoom)
     ecran(nx, ny) { return { x: CIBLE_X + z * ((1 - nx) - cx), y: CIBLE_HAUT + z * (ny - haut) }; },
     zoom: () => z,
+    /* détourage d'une photo fixe (séance photo) : Promise -> { w, h, alpha } (transparence 0-255) ou null */
+    masquePhoto(source) {
+      if (!worker || etat.statut !== "pret") return Promise.resolve(null);
+      return new Promise(ok => {
+        const id = ++idPhoto, fin = v => { clearTimeout(t); ok(v); }, t = setTimeout(() => { attentes.delete(id); ok(null); }, 8000);
+        attentes.set(id, fin);
+        const sw = source.width || source.videoWidth, sh = source.height || source.videoHeight;
+        createImageBitmap(source, { resizeWidth: LARGEUR, resizeHeight: Math.round(LARGEUR * sh / sw), resizeQuality: "high" })
+          .then(bmp => worker.postMessage({ type: "photo", bmp, ts: performance.now(), id }, [bmp]))
+          .catch(() => fin(null));
+      });
+    },
     // dessine la personne détourée dans le canvas (appelé à chaque image par l'appli)
     dessiner(c) {
       if (!etat.image || !video) return;
