@@ -42,3 +42,10 @@ et `contour: true` dans `POSES_BEUFA`.
   de la hauteur), mesurés avec le modèle des mains. Sur la photo de l'utilisateur, sa main est mesurée de la même façon :
   le créateur prend la même taille de main et les deux mains se touchent.
 
+## Mode créateur (pour refaire les photos)
+Ouvrir l'appli avec `?createur=1` au bout de l'adresse : un lien « 🎬 Mode créateur » apparaît sur l'accueil.
+Choisir la pose, poser le téléphone debout à hauteur de visage (caméra avant), à la distance de l'utilisateur ;
+tête dans l'ovale doré (ton côté), l'ovale gris = la place de l'utilisateur. « Photo dans 10 s », puis « Enregistrer ».
+La photo est en miroir, comme celles de l'utilisateur. L'envoyer à Claude : détourage (`tools/createur.py`), mesures
+(visage, main) et mise à jour de `POSES_BEUFA`.
+
