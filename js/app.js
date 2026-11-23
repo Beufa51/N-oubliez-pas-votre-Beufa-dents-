@@ -347,7 +347,7 @@
   }
   function appliquerDecor() {
     const d = DECORS.find(x => x.id === decor && x.src);
-    ecrans.brossage.style.backgroundImage = d ? `linear-gradient(180deg, rgba(13,18,80,.25), rgba(13,18,80,.55)), url("${d.src}")` : "";
+    ecrans.brossage.style.backgroundImage = d ? `linear-gradient(180deg, rgba(13,18,80,.15), rgba(13,18,80,.35)), url("${d.src}")` : "";
     ecrans.brossage.classList.toggle("avec-decor", !!d);
   }
   DECORS.forEach(d => {

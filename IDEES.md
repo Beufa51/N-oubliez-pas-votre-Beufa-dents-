@@ -217,4 +217,6 @@ Pas de publication sur le Play Store.
   utilisateur) : images `assets/decors/<id>.webp` à fournir (voir son LISEZMOI), le choix n'apparaît que si des images existent.
   - Décors **perso depuis la galerie du téléphone** (bouton « + »), gardés dans le téléphone (IndexedDB), jamais en ligne :
     l'appli est à usage privé mais le dépôt et le site sont publics.
+  - **5 décors intégrés** (images Gemini du créateur, style photo réaliste) : champignons, volcan, village enneigé, montagne, lagon ;
+    schéma des dents plus transparent par-dessus le décor.
 

@@ -1054,3 +1054,10 @@ body::before {   /* petites étoiles fixes qui scintillent */
   flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.6);
   background: rgba(255,255,255,.08); color: #fff; font: 800 1.4rem/1 inherit; cursor: pointer;
 }
+/* décor : pastilles sur leur propre ligne, schéma plus transparent pour laisser voir le décor */
+#bloc-decor { flex-wrap: wrap; }
+#bloc-decor .decors { flex: 1 1 auto; justify-content: flex-end; flex-wrap: wrap; overflow: visible; }
+#ecran-accueil .decors .option.decor, .decor-plus { width: 36px; height: 36px; }
+#ecran-brossage.avec-decor #bouche .carte-bouche { fill: rgba(255, 255, 255, .28); }
+#ecran-brossage.avec-decor .scene:not(.avec-camera) #bouche { filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
+#ecran-brossage.avec-decor #bouche .bouche-txt { fill: #fff; paint-order: stroke; stroke: rgba(13,18,80,.75); stroke-width: 3px; }
