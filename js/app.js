@@ -7,7 +7,6 @@
   // ?vitesse=10 accélère le temps (pratique pour tester)
   const VITESSE = Math.max(1, Number(new URLSearchParams(location.search).get("vitesse")) || 1);
   const DET = window.BeufaDetection;   // détection du brossage (js/detection.js)
-  const INC = window.BeufaIncrustation; // la personne détourée dans le décor (js/incrustation.js)
 
   const ZONES = ["Haut gauche", "Haut droite", "Bas droite", "Bas gauche"];
   const FACES = ["Face extérieure", "Face intérieure", "Surface de mastication"];
@@ -504,7 +503,7 @@
       await elCamera.play().catch(() => {});
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
       if (DETECTION_BROSSAGE || mode === "beufa") DET.prechauffer();   // le modèle se charge pendant qu'on s'installe
-      if (decorActuel()) INC.prechauffer();
+      if (decorActuel()) DET.prechauffer();   // pour garder le visage centré dans la fenêtre
     } catch (e) {
       stopperCamera();
       toast(mode === "beufa"
@@ -515,7 +514,7 @@
 
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
-    flux = null; elCamera.srcObject = null; DET.arreter(); INC.arreter(); elScene.classList.remove("incruste");
+    flux = null; elCamera.srcObject = null; DET.arreter(); elScene.classList.remove("fenetre");
     elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
   }
 
@@ -687,7 +686,6 @@
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
     if (flux && DETECTION_BROSSAGE) DET.demarrer(elCamera, typeBrosse);
-    if (flux && decorActuel()) INC.demarrer(elCamera, elIncrust);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
@@ -889,23 +887,46 @@
     if (elDet.textContent !== txt) elDet.textContent = txt;
     if (elDet.className !== cls) elDet.className = cls;
     dessinerMousse(dtR, actif);
-    majIncrustation();
+    majFenetre();
   }
-  // la personne détourée remplace la vidéo : même place que l'image de la caméra (entière, collée en haut)
-  const elIncrust = $("#incrust");
-  function majIncrustation() {
+  /* fenêtre caméra posée sur le décor (sans détourage) : un canvas bordé de néon, un peu plus petit que l'image
+     de la caméra pour que le décor se voie autour. Le visage (mesuré une fois par seconde) est gardé au centre :
+     zoom si on est loin ou trop près du bord, et la fenêtre glisse sur le décor pour suivre la tête. Lissé. */
+  const elFenetre = $("#fenetre-cam"), gF = elFenetre.getContext("2d");
+  const TAILLE_FEN = .82;                       // taille de la fenêtre par rapport à l'image entière
+  let recadre = null, mesureA = 0;              // x, y, t : coin et taille du morceau d'image montré ; dx : glissement
+  function majFenetre() {
     const v = elCamera;
-    const on = flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause")
-      && INC.etat.statut === "pret" && v.videoWidth;
-    if (on) {
-      const ew = v.offsetWidth, eh = v.offsetHeight, sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
-      const dw = v.videoWidth * sc, dh = v.videoHeight * sc, k = Math.min(1.5, window.devicePixelRatio || 1);
-      const W = Math.round(Math.min(480, dw * k)), H = Math.round(W * dh / dw);   // 480 px suffisent et allègent
-      if (elIncrust.width !== W || elIncrust.height !== H) { elIncrust.width = W; elIncrust.height = H; }
-      const st = `left:${v.offsetLeft + (ew - dw) / 2}px;top:${v.offsetTop}px;width:${dw}px;height:${dh}px`;
-      if (elIncrust.dataset.st !== st) { elIncrust.dataset.st = st; elIncrust.style.cssText = st; }   // pas de mise en page à chaque image
+    const on = !!(flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause") && v.videoWidth);
+    elScene.classList.toggle("fenetre", on);
+    if (!on) { recadre = null; return; }
+    const ew = v.offsetWidth, eh = v.offsetHeight, sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
+    const fw = v.videoWidth * sc * TAILLE_FEN, fh = v.videoHeight * sc * TAILLE_FEN, k = Math.min(1.5, window.devicePixelRatio || 1);
+    const W = Math.round(Math.min(480, fw * k)), H = Math.round(W * fh / fw);   // 480 px suffisent et allègent
+    if (elFenetre.width !== W || elFenetre.height !== H) { elFenetre.width = W; elFenetre.height = H; }
+    const st = `left:${v.offsetLeft + (ew - fw) / 2}px;top:${v.offsetTop + 6}px;width:${fw}px;height:${fh}px`;
+    if (elFenetre.dataset.st !== st) { elFenetre.dataset.st = st; elFenetre.style.cssText = st; }   // pas de mise en page à chaque image
+    if (!recadre) recadre = { x: 0, y: 0, t: 1, dx: 0, cible: { x: 0, y: 0, t: 1, dx: 0 } };
+    const maintenant = performance.now();
+    if (DET.etat.statut === "pret" && maintenant - mesureA > 1000) {
+      mesureA = maintenant;
+      const f = DET.visage(v);
+      if (f) {
+        const t = Math.max(.55, Math.min(1, f.h / .34));            // la tête fait ~34 % de la hauteur de la fenêtre
+        const x = Math.max(0, Math.min(1 - t, f.cx - t / 2));
+        const y = Math.max(0, Math.min(1 - t, f.haut + f.h / 2 - .4 * t));
+        const xf = 1 - (f.cx - x) / t;                             // le visage dans la fenêtre (en miroir)
+        const marge = (ew - fw) / 2 + 4;                           // la fenêtre reste dans l'écran
+        const dx = Math.max(-marge, Math.min(marge, (.5 - xf) * fw));
+        recadre.cible = { x, y, t, dx };
+      }
     }
-    elScene.classList.toggle("incruste", !!(on && INC.etat.image));
+    const c = recadre.cible, a = .06;
+    for (const q of ["x", "y", "t", "dx"]) recadre[q] += (c[q] - recadre[q]) * a;
+    elFenetre.style.transform = `translateX(${recadre.dx.toFixed(1)}px)`;   // glissement sans mise en page
+    const vw = v.videoWidth, vh = v.videoHeight;
+    gF.setTransform(-1, 0, 0, 1, W, 0);                            // miroir
+    gF.drawImage(v, recadre.x * vw, recadre.y * vh, recadre.t * vw, recadre.t * vh, 0, 0, W, H);
   }
   // bulles de mousse sur la bouche quand on brosse (+ zones analysées en mode ?debug)
   function dessinerMousse(dtR, actif) {
@@ -981,7 +1002,7 @@
     phase = "pause"; tPause = 0;
     if (!finale) iPause++;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
-    DET.pause(true); INC.pause(true);
+    DET.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
       compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = "";
@@ -1001,7 +1022,7 @@
 
   function finirPause() {
     const apresPhoto = !!poseActuelle;
-    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); INC.pause(false); attente = 0;
+    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); attente = 0;
     bip(523, .1); bip(784, .15, .12);
     parler(apresPhoto ? `Reprends ta brosse ! On continue ${ZONES_VOIX[indexZone()]}.` : `C'est reparti, ${ZONES_VOIX[indexZone()]} !`);
   }

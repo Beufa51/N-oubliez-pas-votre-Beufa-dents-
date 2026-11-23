@@ -1062,10 +1062,11 @@ body::before {   /* petites étoiles fixes qui scintillent */
 #ecran-brossage.avec-decor .scene:not(.avec-camera) #bouche { filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
 #ecran-brossage.avec-decor #bouche .bouche-txt { fill: #fff; paint-order: stroke; stroke: rgba(13,18,80,.75); stroke-width: 3px; }
 
-/* ---------- incrustation : la personne détourée dans le décor ---------- */
-.incrust { position: absolute; z-index: 0; pointer-events: none; display: none; }
-.scene.incruste .incrust { display: block; }
-.scene.incruste #camera { opacity: 0; }
+/* ---------- fenêtre caméra posée sur le décor ---------- */
+.fenetre-cam { position: absolute; z-index: 0; pointer-events: none; display: none; border-radius: 26px;
+  border: 3px solid var(--cyan); box-shadow: 0 0 0 2px rgba(255,255,255,.25), 0 0 22px rgba(46,230,255,.75), 0 12px 30px rgba(0,0,0,.45); }
+.scene.fenetre .fenetre-cam { display: block; }
+.scene.fenetre #camera { opacity: 0; }
 
 /* ---------- écran « Choisis ton décor ! » (après « C'est parti ») ---------- */
 .ecran-decor {
