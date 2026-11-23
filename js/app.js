@@ -7,6 +7,7 @@
   // ?vitesse=10 accélère le temps (pratique pour tester)
   const VITESSE = Math.max(1, Number(new URLSearchParams(location.search).get("vitesse")) || 1);
   const DET = window.BeufaDetection;   // détection du brossage (js/detection.js)
+  const INC = window.BeufaIncrustation; // la personne détourée dans le décor (js/incrustation.js)
   /* Détection du brossage : coupée un temps (trop lourde avec le détourage en direct), remise avec la fenêtre caméra.
      false = le brossage suit le schéma, chrono normal, pas de « Ma brosse ». */
   const DETECTION_BROSSAGE = true;
@@ -168,6 +169,14 @@
     const r = placeCreateur(p, ratio, 1, visage);
     return `left:${r.x / ratio * 100}%;top:${r.y * 100}%;width:${r.w / ratio * 100}%;height:${r.h * 100}%;right:auto;bottom:auto`;
   }
+
+  /* hauteur réelle visible de l'écran (iPhone se trompe parfois sur 100dvh, surtout après un rechargement :
+     bouton du bas trop bas) */
+  const majHauteur = () => document.documentElement.style.setProperty("--hauteur", (window.visualViewport ? visualViewport.height : innerHeight) + "px");
+  majHauteur();
+  window.addEventListener("resize", majHauteur);
+  window.addEventListener("orientationchange", () => setTimeout(majHauteur, 300));
+  if (window.visualViewport) visualViewport.addEventListener("resize", majHauteur);
 
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
@@ -530,6 +539,7 @@
       elScene.classList.add("avec-camera", "vue-miroir"); elScene.classList.remove("vue-schema");
       // analyse du brossage (worker) : aussi pour garder le visage centré dans la fenêtre caméra
       if (DETECTION_BROSSAGE || decorActuel()) DET.prechauffer();
+      if (decorActuel()) INC.prechauffer();            // détourage pour mettre l'utilisateur dans le décor
       if (mode === "beufa") DET.prechaufferPhotos();   // visage (placement, taille) et mains (contact) des photos
     } catch (e) {
       stopperCamera();
@@ -541,7 +551,7 @@
 
   function stopperCamera() {
     if (flux) flux.getTracks().forEach(t => t.stop());
-    flux = null; elCamera.srcObject = null; DET.arreter(); elScene.classList.remove("fenetre");
+    flux = null; elCamera.srcObject = null; DET.arreter(); INC.arreter(); elScene.classList.remove("fenetre", "incruste");
     elScene.classList.remove("avec-camera", "vue-miroir", "vue-schema");
   }
 
@@ -726,6 +736,7 @@
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
     if (flux && DETECTION_BROSSAGE) DET.demarrer(elCamera, typeBrosse);
+    if (flux && decorActuel()) INC.demarrer(elCamera);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);
@@ -1013,6 +1024,18 @@
   window.addEventListener("resize", () => { boiteVid = null; });
   new MutationObserver(() => { boiteVid = null; }).observe(elScene, { attributes: true, attributeFilter: ["class"] });
 
+  // incrustation : le canvas couvre l'image entière de la caméra, le détourage dessine la personne dedans
+  function majIncruste(v) {
+    const { ew, eh, ol, ot } = boiteCam(), sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
+    const dw = v.videoWidth * sc, dh = v.videoHeight * sc, k = Math.min(1.5, window.devicePixelRatio || 1);
+    const W = Math.round(Math.min(480, dw * k)), H = Math.round(W * dh / dw);
+    if (elFenetre.width !== W || elFenetre.height !== H) { elFenetre.width = W; elFenetre.height = H; }
+    const x = ol + (ew - dw) / 2, st = `left:${x}px;top:${ot}px;width:${dw}px;height:${dh}px`;
+    if (elFenetre.dataset.st !== st) { elFenetre.dataset.st = st; elFenetre.style.cssText = st; }
+    incGeo = { x, y: ot, w: dw, h: dh };
+    INC.dessiner(elFenetre);
+  }
+
   /* fenêtre caméra posée sur le décor (sans détourage) : un canvas bordé de néon, un peu plus petit que l'image
      de la caméra pour que le décor se voie autour. Le visage (mesuré une fois par seconde) est gardé au centre :
      zoom si on est loin ou trop près du bord, et la fenêtre glisse sur le décor pour suivre la tête. Lissé. */
@@ -1020,11 +1043,17 @@
   const HAUT_FEN = 44;    // place au-dessus de la fenêtre pour la pastille de détection (px)
   const TAILLE_FEN = .7;                        // taille de la fenêtre par rapport à l'image entière
   let recadre = null, mesureA = 0, fenGeo = null;             // x, y, t : coin et taille du morceau d'image montré ; dx : glissement
+  let incGeo = null;
   function majFenetre() {
     const v = elCamera;
-    const on = !!(flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause") && v.videoWidth);
-    elScene.classList.toggle("fenetre", on);
-    if (!on) { recadre = null; fenGeo = null; return; }
+    const visible = !!(flux && decorActuel() && elScene.classList.contains("vue-miroir") && (phase === "brosse" || phase === "pause") && v.videoWidth);
+    // la personne dans le décor dès que le détourage est prêt ; sinon (en attendant, ou s'il est impossible) la fenêtre
+    const inc = visible && INC.etat.statut === "pret" && INC.etat.image;
+    elScene.classList.toggle("incruste", inc);
+    elScene.classList.toggle("fenetre", visible && !inc);
+    if (inc) { recadre = null; fenGeo = null; return majIncruste(v); }
+    incGeo = null;
+    if (!visible) { recadre = null; fenGeo = null; return; }
     const { ew, eh, ol, ot } = boiteCam(), sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
     const fw = v.videoWidth * sc * TAILLE_FEN, fh = v.videoHeight * sc * TAILLE_FEN, k = Math.min(1.5, window.devicePixelRatio || 1);
     const W = Math.round(Math.min(480, fw * k)), H = Math.round(W * fh / fw);   // 480 px suffisent et allègent
@@ -1072,13 +1101,15 @@
     // image entière (contain) collée en haut, en miroir
     const sc = Math.min(ew / v.videoWidth, eh / v.videoHeight), dw = v.videoWidth * sc, ox = (ew - dw) / 2;
     // point de l'image brute -> écran ; avec la fenêtre caméra, on suit son recadrage, son zoom et son glissement
-    const f = elScene.classList.contains("fenetre") && fenGeo;
-    const ecran = f
+    const f = elScene.classList.contains("fenetre") && fenGeo, inc = elScene.classList.contains("incruste") && incGeo;
+    const ecran = inc
+      ? (nx, ny) => { const q = INC.ecran(nx, ny); return { x: inc.x - ol + q.x * inc.w, y: inc.y - ot + q.y * inc.h }; }
+      : f
       ? (nx, ny) => ({ x: f.x - ol + (1 - (nx - f.rx) / f.t) * f.fw, y: f.y - ot + (ny - f.ry) / f.t * f.fh })
       : (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
     gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
     if (d.brosse && d.bouche) {
-      const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * (f ? f.fw / f.t : dw);
+      const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * (inc ? inc.w * INC.zoom() : f ? f.fw / f.t : dw);
       if (Math.random() < .6) for (let i = 0; i < 1; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
         r: L * (.03 + Math.random() * .06), vx: (Math.random() - .5) * L * .6, vy: -L * (.3 + Math.random() * .5), vie: 1 });
     }
@@ -1132,7 +1163,7 @@
     phase = "pause"; tPause = 0;
     if (!finale) iPause++;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
-    DET.pause(true);
+    DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
       compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = "";
@@ -1152,7 +1183,7 @@
 
   function finirPause() {
     const apresPhoto = !!poseActuelle;
-    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); attente = 0;
+    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); INC.pause(false); attente = 0;
     bip(523, .1); bip(784, .15, .12);
     parler(apresPhoto ? `Reprends ta brosse ! On continue ${ZONES_VOIX[indexZone()]}.` : `C'est reparti, ${ZONES_VOIX[indexZone()]} !`);
   }
@@ -1846,15 +1877,9 @@
   });
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-    // nouvelle version installée : on recharge tout seul, mais jamais en plein brossage
-    const avaitUnControleur = !!navigator.serviceWorker.controller;
-    let rechargee = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (!avaitUnControleur || rechargee) return;
-      const recharger = () => { if (!rechargee) { rechargee = true; location.reload(); } };
-      if (phase === "demarrage" || phase === "intro" || phase === "accueil") return recharger();
-      const attente = setInterval(() => { if (phase === "accueil") { clearInterval(attente); recharger(); } }, 2000);
-    });
+    /* Plus de rechargement automatique quand une nouvelle version s'installe : il ramenait au début juste
+       après l'intro et cassait la mise en page (retour du créateur). Inutile : avec du réseau, pages et scripts
+       sont toujours pris en ligne (sw.js « réseau d'abord ») ; la nouvelle copie hors ligne sert la fois suivante. */
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
       .then(r => r.update())
       .catch(() => {});
