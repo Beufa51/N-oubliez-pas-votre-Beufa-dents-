@@ -1115,3 +1115,10 @@ body::before {   /* petites étoiles fixes qui scintillent */
 /* ---------- placement guidé ---------- */
 .cadre.placement ~ .studio-compte { font-size: clamp(1.5rem, 7vw, 2.2rem); line-height: 1.15; padding: 0 12px; text-align: center; }
 .cadre.bien-place .cadre-tete { border-color: #3ddc84; border-style: solid; box-shadow: 0 0 0 3px rgba(61,220,132,.5), 0 0 22px rgba(61,220,132,.9); animation: none; }
+
+/* ---------- pendant le brossage : moins d'effets de fond (fluidité de la caméra) ---------- */
+body.en-brossage .mousse { display: none; }
+body.en-brossage::before { animation: none !important; }
+body.en-brossage .entete { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(22, 26, 96, .9); }
+body.en-brossage .scene.avec-camera #bouche .microbe,
+body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; }
