@@ -215,4 +215,6 @@ Pas de publication sur le Play Store.
 - [x] Retours du test (session 11, suite) : boutons « C'est parti » et « Recommencer » dans une **barre collée en bas** (toujours
   visibles) ; **plus aucune voix** (fin comprise). **Choix du décor** du brossage (« 🎨 Décor » sur l'accueil, retenu par
   utilisateur) : images `assets/decors/<id>.webp` à fournir (voir son LISEZMOI), le choix n'apparaît que si des images existent.
+  - Décors **perso depuis la galerie du téléphone** (bouton « + »), gardés dans le téléphone (IndexedDB), jamais en ligne :
+    l'appli est à usage privé mais le dépôt et le site sont publics.
 

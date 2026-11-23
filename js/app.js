@@ -312,8 +312,11 @@
     choisir($("#choix-mode"), b); mode = b.dataset.mode; retenir({ mode }); majModeCamera();
   });
   /* ---------- décor du brossage ----------
-     Images dans assets/decors/<id>.webp (portrait, ~1080×1920). Un décor n'apparaît dans le choix que si
-     son image existe : on peut en ajouter ou en retirer sans toucher au reste. */
+     Deux sortes de décors :
+     - ceux de l'appli : assets/decors/<id>.webp (portrait ~1080×1920), proposés seulement si l'image existe ;
+     - les « miens » : choisis dans la galerie du téléphone (bouton +), réduits puis gardés dans le téléphone
+       (IndexedDB), jamais envoyés nulle part. Communs à tous les utilisateurs du téléphone ; le choix, lui,
+       est retenu par utilisateur. Appuyer sur un décor perso déjà choisi propose de le supprimer. */
   const DECORS = [
     { id: "plateau",     nom: "Plateau télé" },     // le décor de base (pas d'image)
     { id: "champignons", nom: "Pays des champignons" },
@@ -323,33 +326,83 @@
     { id: "lagon",       nom: "Lagon" }
   ];
   let decor = "plateau";
-  const elChoixDecor = $("#choix-decor");
+  const elChoixDecor = $("#choix-decor"), elFichierDecor = $("#fichier-decor");
   function majDecors() {
-    const dispo = DECORS.filter(d => d.id === "plateau" || d.ok);
-    $("#bloc-decor").hidden = dispo.length < 2;
+    const dispo = DECORS.filter(d => d.id === "plateau" || d.src);
     elChoixDecor.innerHTML = "";
     dispo.forEach(d => {
       const b = document.createElement("button");
       b.type = "button"; b.className = "option decor" + (d.id === decor ? " actif" : "");
       b.dataset.decor = d.id; b.title = d.nom; b.setAttribute("aria-label", "Décor : " + d.nom);
-      if (d.ok) b.style.backgroundImage = `url(assets/decors/${d.id}.webp)`;
+      if (d.src) b.style.backgroundImage = `url("${d.src}")`;
       else b.textContent = "📺";
       elChoixDecor.appendChild(b);
     });
+    const plus = document.createElement("button");
+    plus.type = "button"; plus.className = "decor-plus"; plus.textContent = "+";
+    plus.setAttribute("aria-label", "Ajouter un décor depuis mes photos");
+    plus.addEventListener("click", () => elFichierDecor.click());
+    elChoixDecor.appendChild(plus);
     appliquerDecor();
   }
   function appliquerDecor() {
-    const d = DECORS.find(x => x.id === decor && (x.ok || x.id === "plateau")) || DECORS[0];
-    ecrans.brossage.style.backgroundImage = d.ok
-      ? `linear-gradient(180deg, rgba(13,18,80,.25), rgba(13,18,80,.55)), url(assets/decors/${d.id}.webp)` : "";
-    ecrans.brossage.classList.toggle("avec-decor", !!d.ok);
+    const d = DECORS.find(x => x.id === decor && x.src);
+    ecrans.brossage.style.backgroundImage = d ? `linear-gradient(180deg, rgba(13,18,80,.25), rgba(13,18,80,.55)), url("${d.src}")` : "";
+    ecrans.brossage.classList.toggle("avec-decor", !!d);
   }
   DECORS.forEach(d => {
     if (d.id === "plateau") return;
-    const i = new Image(); i.onload = () => { d.ok = true; majDecors(); }; i.src = `assets/decors/${d.id}.webp`;
+    const u = `assets/decors/${d.id}.webp`, i = new Image();
+    i.onload = () => { d.src = u; majDecors(); }; i.src = u;
   });
-  elChoixDecor.addEventListener("click", e => {
+
+  // décors perso : petite base IndexedDB « beufa-decors »
+  function baseDecors() {
+    return new Promise((ok, ko) => {
+      try {
+        const r = indexedDB.open("beufa-decors", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("decors", { keyPath: "id" });
+        r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+      } catch (e) { ko(e); }
+    });
+  }
+  async function operation(mode, f) {
+    const db = await baseDecors();
+    return new Promise((ok, ko) => {
+      const t = db.transaction("decors", mode), st = t.objectStore("decors"), r = f(st);
+      t.oncomplete = () => ok(r && r.result); t.onerror = () => ko(t.error);
+    });
+  }
+  function ajouterDecorPerso(x) {
+    DECORS.push({ id: x.id, nom: "Mon décor", src: URL.createObjectURL(x.blob), perso: true });
+  }
+  operation("readonly", st => st.getAll())
+    .then(liste => { (liste || []).sort((a, b) => a.date - b.date).forEach(ajouterDecorPerso); majDecors(); })
+    .catch(() => {});
+  // image de la galerie -> réduite (2000 px max) -> gardée
+  elFichierDecor.addEventListener("change", async () => {
+    const f = elFichierDecor.files && elFichierDecor.files[0]; elFichierDecor.value = "";
+    if (!f) return;
+    try {
+      const img = await createImageBitmap(f);
+      const k = Math.min(1, 2000 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, "image/jpeg", .85));
+      const x = { id: "perso-" + Date.now(), blob, date: Date.now() };
+      await operation("readwrite", st => st.put(x));
+      ajouterDecorPerso(x); decor = x.id; retenir({ decor }); majDecors();
+    } catch (e) { alert("Impossible d'ajouter cette image comme décor."); }
+  });
+  elChoixDecor.addEventListener("click", async e => {
     const b = e.target.closest(".option"); if (!b) return;
+    const d = DECORS.find(x => x.id === b.dataset.decor);
+    if (d && d.perso && decor === d.id) {         // 2e appui sur un décor perso : le supprimer ?
+      if (!confirm("Supprimer ce décor de ton téléphone ?")) return;
+      await operation("readwrite", st => st.delete(d.id)).catch(() => {});
+      URL.revokeObjectURL(d.src); DECORS.splice(DECORS.indexOf(d), 1);
+      decor = "plateau"; retenir({ decor }); majDecors(); return;
+    }
     choisir(elChoixDecor, b); decor = b.dataset.decor; retenir({ decor }); appliquerDecor();
   });
 

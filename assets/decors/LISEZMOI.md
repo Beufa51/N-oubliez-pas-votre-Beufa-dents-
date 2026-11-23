@@ -1,5 +1,11 @@
 # Décors du brossage
 
+**Le plus simple : le bouton « + » de la ligne « 🎨 Décor » sur l'accueil.** On choisit une image dans la galerie
+du téléphone ; elle est réduite et gardée **dans le téléphone** (jamais envoyée, jamais dans ce dépôt public).
+Appuyer une 2e fois sur un décor perso déjà choisi propose de le supprimer.
+
+Les images ci-dessous ne servent que pour des décors livrés avec l'appli (donc publics) :
+
 Déposer ici une image par décor, avec ces noms exacts (WebP ou à convertir en WebP) :
 
 | Fichier | Décor |
