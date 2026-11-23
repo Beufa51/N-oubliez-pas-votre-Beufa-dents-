@@ -119,7 +119,7 @@
   /* ---------- état ---------- */
   let duree = 120;
   let phase = "demarrage";         // demarrage | intro | accueil | prepa | brosse | pause | fin
-  let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 4;
+  let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 4, typeBrosse = "manuelle";
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
   let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false;
 
@@ -295,6 +295,11 @@
     const b = e.target.closest(".option"); if (!b || b.disabled) return;
     choisir($("#choix-mode"), b); mode = b.dataset.mode; retenir({ mode }); majModeCamera();
   });
+  // la brosse ne compte que pour la détection (donc avec la caméra)
+  $("#choix-brosse").addEventListener("click", e => {
+    const b = e.target.closest(".option"); if (!b) return;
+    choisir($("#choix-brosse"), b); typeBrosse = b.dataset.brosse; retenir({ brosse: typeBrosse });
+  });
   $("#choix-photos").addEventListener("click", e => {
     const b = e.target.closest(".option"); if (!b) return;
     choisir($("#choix-photos"), b); nbPhotos = Number(b.dataset.photos); retenir({ photos: nbPhotos });
@@ -305,6 +310,7 @@
     const beufa = mode === "beufa";
     $("#bloc-camera").hidden = beufa; $("#bloc-photos").hidden = !beufa;
     cameraVoulue = beufa || cameraChoisie;
+    $("#bloc-brosse").hidden = !cameraVoulue;
   }
   // remet les derniers choix de l'utilisateur actif
   function appliquerReglages() {
@@ -313,6 +319,8 @@
     duree = r.duree === 60 ? 60 : 120;
     cameraChoisie = !!r.camera;
     nbPhotos = r.photos === 2 ? 2 : 4;
+    typeBrosse = r.brosse === "electrique" ? "electrique" : "manuelle";
+    choisir($("#choix-brosse"), $(`#choix-brosse [data-brosse="${typeBrosse}"]`));
     choisir($("#choix-mode"), $(`#choix-mode [data-mode="${mode}"]`));
     choisir($("#choix-duree"), $(`#choix-duree [data-duree="${duree}"]`));
     choisir($("#choix-camera"), $(`#choix-camera [data-camera="${cameraChoisie ? 1 : 0}"]`));
@@ -529,7 +537,7 @@
     volumeFond(); jouerFond();
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
-    if (flux) DET.demarrer(elCamera);
+    if (flux) DET.demarrer(elCamera, typeBrosse);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
     derniere = performance.now();
     cancelAnimationFrame(raf); raf = requestAnimationFrame(boucle);

@@ -9,10 +9,17 @@
   "use strict";
   const BASE = new URL("../assets/vision/", document.currentScript.src).href;
   const PERIODE = 80;            // ms entre deux analyses (~12 par seconde)
-  const SEUIL_ON = .06;          // score lissé au-dessus duquel on brosse
-  const SEUIL_OFF = .03;         // en dessous : on ne brosse plus (après ARRET_APRES)
-  const ARRET_APRES = 1.1;       // s
-  const DIFF = 22;               // écart de gris (0-255) pour qu'un pixel « bouge »
+  /* Réglages selon la brosse :
+     - manuelle : va-et-vient rapide -> on compare deux images qui se suivent ;
+     - électrique : la main glisse lentement et la vibration des poils est trop rapide et trop fine pour
+       la caméra -> on compare avec l'image d'il y a ~0,4 s (RECUL), seuils plus bas, arrêt plus tolérant.
+     SEUIL_ON : score lissé au-dessus duquel on brosse ; SEUIL_OFF : en dessous, on ne brosse plus
+     (après ARRET_APRES secondes) ; DIFF : écart de gris (0-255) pour qu'un pixel « bouge ». */
+  const REGLAGES = {
+    manuelle:   { RECUL: 1, DIFF: 22, SEUIL_ON: .06,  SEUIL_OFF: .03,  ARRET_APRES: 1.1 },
+    electrique: { RECUL: 5, DIFF: 16, SEUIL_ON: .035, SEUIL_OFF: .018, ARRET_APRES: 2.5 }
+  };
+  let R = REGLAGES.manuelle;
   const RW = 40, RH = 24;        // taille de l'échantillon de la zone de la bouche
 
   const etat = {
@@ -23,7 +30,7 @@
     tempsVisible: 0, tempsBrosse: 0
   };
   let landmarker = null, chargement = null, video = null, minuteur = 0, enPause = false;
-  let prec = null, precRef = null, lisse = 0, lisseG = 0, lisseD = 0, sousDepuis = 0, dernierVisage = 0, dernier = 0;
+  let hist = [], lisse = 0, lisseG = 0, lisseD = 0, sousDepuis = 0, dernierVisage = 0, dernier = 0;
   const cv = document.createElement("canvas"); cv.width = RW; cv.height = RH * 2;
   const cx = cv.getContext("2d", { willReadFrequently: true });
 
@@ -58,7 +65,7 @@
     let t = 0, g = 0, d = 0;
     for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) {
       const k = y * RW + x;
-      if (Math.abs(a[k] - b[k]) > DIFF) { t++; if (x < RW / 2) g++; else d++; }
+      if (Math.abs(a[k] - b[k]) > R.DIFF) { t++; if (x < RW / 2) g++; else d++; }
     }
     const n = RW * RH;
     return { t: t / n, g: g / (n / 2), d: d / (n / 2) };
@@ -74,7 +81,7 @@
     const lm = res && res.faceLandmarks && res.faceLandmarks[0];
     const vw = video.videoWidth, vh = video.videoHeight;
     if (!lm) {
-      if (maintenant - dernierVisage > 600) { etat.visage = false; etat.brosse = false; etat.bouche = null; prec = precRef = null; lisse = 0; }
+      if (maintenant - dernierVisage > 600) { etat.visage = false; etat.brosse = false; etat.bouche = null; hist = []; lisse = 0; }
       return;
     }
     dernierVisage = maintenant; etat.visage = true; etat.tempsVisible += dt;
@@ -91,34 +98,35 @@
     etat.bouche = { x: M.x / vw, y: M.y / vh, l: L / vw };
     etat.zones = { b: zB, f: zF, vw, vh };
     const e = echantillon(zB, 0), r = echantillon(zF, 1);
-    const mB = bouge(prec, e), mF = bouge(precRef, r);
-    prec = e; precRef = r;
-    if (!mB || !mF) return;
+    hist.push([e, r]); if (hist.length > R.RECUL + 1) hist.shift();
+    if (hist.length <= R.RECUL) return;
+    const mB = bouge(hist[0][0], e), mF = bouge(hist[0][1], r);
     // la tête qui bouge ou la lumière qui change font aussi bouger la bouche : on l'enlève
     const brut = Math.max(0, mB.t - 1.3 * mF.t);
     lisse += (brut - lisse) * .35;
     lisseG += (Math.max(0, mB.g - 1.3 * mF.t) - lisseG) * .2;
     lisseD += (Math.max(0, mB.d - 1.3 * mF.t) - lisseD) * .2;
-    etat.niveau = Math.min(1, lisse / (SEUIL_ON * 2.5));
-    if (lisse > SEUIL_ON) { etat.brosse = true; sousDepuis = 0; }
-    else if (lisse < SEUIL_OFF) { sousDepuis += dt; if (sousDepuis > ARRET_APRES) etat.brosse = false; }
+    etat.niveau = Math.min(1, lisse / (R.SEUIL_ON * 2.5));
+    if (lisse > R.SEUIL_ON) { etat.brosse = true; sousDepuis = 0; }
+    else if (lisse < R.SEUIL_OFF) { sousDepuis += dt; if (sousDepuis > R.ARRET_APRES) etat.brosse = false; }
     if (etat.brosse) etat.tempsBrosse += dt;
     // image brute : la gauche de l'image = la droite de la personne
     const fort = Math.max(lisseG, lisseD), faible = Math.min(lisseG, lisseD);
-    etat.cote = etat.brosse && fort > SEUIL_ON && fort > 1.7 * faible ? (lisseD > lisseG ? "gauche" : "droite") : null;
+    etat.cote = etat.brosse && fort > R.SEUIL_ON && fort > 1.7 * faible ? (lisseD > lisseG ? "gauche" : "droite") : null;
   }
 
   window.BeufaDetection = {
     etat,
-    // à appeler avec la vidéo de la caméra quand le brossage commence
-    demarrer(v) {
+    // à appeler avec la vidéo de la caméra quand le brossage commence ; brosse = "manuelle" | "electrique"
+    demarrer(v, brosse) {
       if (new URLSearchParams(location.search).get("detection") === "0") return;
-      video = v; enPause = false; prec = precRef = null; lisse = lisseG = lisseD = 0; sousDepuis = 0; dernier = 0;
+      R = REGLAGES[brosse] || REGLAGES.manuelle;
+      video = v; enPause = false; hist = []; lisse = lisseG = lisseD = 0; sousDepuis = 0; dernier = 0;
       Object.assign(etat, { visage: false, brosse: false, niveau: 0, cote: null, bouche: null, zones: null, tempsVisible: 0, tempsBrosse: 0 });
       clearTimeout(minuteur);
       charger().then(() => { if (video && landmarker) { clearTimeout(minuteur); analyser(); } });
     },
-    pause(oui) { enPause = oui; prec = precRef = null; if (oui) etat.brosse = false; },
+    pause(oui) { enPause = oui; hist = []; if (oui) etat.brosse = false; },
     arreter() { clearTimeout(minuteur); video = null; etat.visage = etat.brosse = false; etat.bouche = null; },
     prechauffer: charger
   };

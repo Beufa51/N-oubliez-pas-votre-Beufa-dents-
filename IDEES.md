@@ -198,7 +198,10 @@ Pas de publication sur le Play Store.
   - **côté** approximatif (le manche sort du côté brossé) : « 👉 Plutôt à gauche ! » une fois par face, sauf face intérieure ;
   - fin : « 🪥 Brossage vu : 87 % » ; mise en pause pendant les photos.
   - Réglages en test : `?debug=1` montre les zones analysées et les chiffres ; `?detection=0` coupe la détection.
-  - Seuils à régler avec les essais réels (`SEUIL_ON`, `SEUIL_OFF`, `DIFF` en haut de `js/detection.js`).
+  - Choix **« Ta brosse : Manuelle / Électrique »** sur l'accueil (visible avec la caméra, retenu par utilisateur) :
+    en électrique, la main glisse lentement et la vibration est invisible pour la caméra -> on compare avec l'image
+    d'il y a ~0,4 s, seuils plus bas, et 2,5 s de tolérance quand la brosse reste sur une dent.
+  - Seuils à régler avec les essais réels (`REGLAGES` en haut de `js/detection.js`).
 - [ ] Images Gemini facultatives : Beufa déguisé pour les 21 cartes (fond vert #00FF00, même style que les poses),
   icône de l'appli dans le style du panneau néon (carrée, sans texte), pose « check de poing ».
 - À vérifier sur le téléphone du créateur : affichage de la caméra (image entière ou bande étroite si elle filme à
