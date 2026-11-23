@@ -182,7 +182,14 @@ Pas de publication sur le Play Store.
   sous le schéma, la bulle et Beufa.
 - [ ] Petits restes du 1er audit (séries, matin/soir, réglages retenus et planche BD déjà faits) : accueil qui défile un peu
   sur très petit écran (iPhone SE) ; téléphone couché pendant les poses ; rappel « 2 min recommandé » ; accessibilité des choix.
-- [ ] Photos du créateur à prendre et détourer (voir `assets/createur/LISEZMOI.md`).
+- [x] **Photos du créateur** (session 11) : 6 photos détourées automatiquement (BiRefNet, `tools/createur.py`), contour blanc
+  + halo néon façon invité de plateau télé. High five, check de poing (nouvelle pose, Beufa + 👊), V de la victoire (pose pouce),
+  montre du doigt, bras croisés, « ta-da ! » (pose mains sur les hanches). Taille calée sur la tête de l'utilisateur
+  (ovale plus petit en duo, créateur un peu « derrière »), toujours collé en bas, lumière accordée à la photo de l'utilisateur.
+  La place gardée en pointillés suit sa vraie place. Les poses avec photo du créateur passent en premier.
+  Voir `assets/createur/LISEZMOI.md`. Cœur et pensif restent avec Beufa (photos à faire : idée du **demi-cœur**).
+- [ ] Prochaine étape : détection du brossage façon Pokémon Smile (MediaPipe : bouche + main + mouvement ; le temps
+  n'avance que si on brosse ; côté gauche/droite approximatif).
 - [ ] Images Gemini facultatives : Beufa déguisé pour les 21 cartes (fond vert #00FF00, même style que les poses),
   icône de l'appli dans le style du panneau néon (carrée, sans texte), pose « check de poing ».
 - À vérifier sur le téléphone du créateur : affichage de la caméra (image entière ou bande étroite si elle filme à

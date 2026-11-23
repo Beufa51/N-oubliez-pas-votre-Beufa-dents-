@@ -60,23 +60,50 @@
   const POSE_APRES = 1.8;         // aperçu de la photo + réaction de Beufa (s)
   const POSE_CLIC = POSE_PREP + POSE_PLACEMENT + POSE_COMPTE;
   const POSE_DUREE = POSE_CLIC + POSE_APRES;
+  /* photo : où est la tête du créateur sur sa photo détourée (assets/createur/<id>.webp)
+       tete = [haut des cheveux, menton, centre horizontal] en fraction de l'image ;
+     et comment la placer sur la photo de l'utilisateur (unités = hauteur de la photo) :
+       hh = hauteur de sa tête, top = haut de sa tête, dx = distance du bord à son visage.
+     Sa photo est toujours collée en bas (le corps est coupé par le bord, comme sur une vraie photo). */
   const POSES_BEUFA = [
-    { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !" },
-    { id: "pouce",         mascotte: "pouce",           cote: "gauche", consigne: "Pouce en l'air !" },
+    { id: "high-five",     mascotte: "main-levee",      cote: "droite", consigne: "Lève la main : high five !",
+      photo: { tete: [.01, .34, .55], hh: .24, top: .17, dx: .15 } },
+    { id: "check-poing",   mascotte: "main-levee",      cote: "droite", consigne: "Tends ton poing : check !", emoji: "👊",
+      photo: { tete: [.01, .30, .61], hh: .27, top: .15, dx: .2 } },
+    { id: "pouce",         mascotte: "pouce",           cote: "gauche", consigne: "Pouce en l'air !",
+      photo: { tete: [.07, .30, .565], hh: .21, top: .2, dx: .28 } },
     { id: "coeur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
-    { id: "pointe",        mascotte: "pointe-du-doigt", cote: "droite", consigne: "Montre Beufa du doigt" },
+    { id: "pointe",        mascotte: "pointe-du-doigt", cote: "gauche", consigne: "Montre du doigt la place gardée",
+      photo: { tete: [.06, .26, .43], hh: .22, top: .2, dx: .22 } },
     { id: "pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
-    { id: "bras-croises",  mascotte: "bras-croises",    cote: "gauche", consigne: "Croise les bras, l'air sûr de toi" },
-    { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en super-héros !" }
+    { id: "bras-croises",  mascotte: "bras-croises",    cote: "droite", consigne: "Croise les bras, l'air sûr de toi",
+      photo: { tete: [.01, .32, .67], hh: .27, top: .15, dx: .2 } },
+    { id: "mains-hanches", mascotte: "mains-hanches",   cote: "droite", consigne: "Mains sur les hanches, en champion !",
+      photo: { tete: [.01, .28, .60], hh: .27, top: .15, dx: .2 } }
   ];
   // proportions communes au cadre-guide (CSS) et au montage (canvas)
-  const PART = { mascotteH: .76, createurH: .92, bas: .08, marge: .02 };
+  const PART = { mascotteH: .76, bas: .08, marge: .02 };
   POSES_BEUFA.forEach(p => {
     p.imgMascotte = new Image(); p.imgMascotte.src = IMG(p.mascotte);
+    if (!p.photo) return;
     const c = new Image();
     c.onload = () => { p.createur = c; };
-    c.src = `assets/createur/${p.id}.png`;
+    c.src = `assets/createur/${p.id}.webp`;
   });
+  // place du créateur sur une photo W×H (en px) : sa tête à peu près à la taille de celle de l'utilisateur
+  function placeCreateur(p, W, H) {
+    const c = p.createur, [t, m, cx] = p.photo.tete;
+    let h = p.photo.hh * H / (m - t), y = p.photo.top * H - t * h;
+    if (y + h < H) y = H - h;                       // toujours collé en bas
+    const w = h * c.naturalWidth / c.naturalHeight;
+    const tx = p.cote === "droite" ? W - p.photo.dx * H : p.photo.dx * H;
+    return { x: tx - cx * w, y, w, h, tx, ty: y + t * h, th: (m - t) * h };
+  }
+  // même place, en % d'une scène au format de la photo (studio, révélation)
+  function stylePlace(p, ratio) {
+    const r = placeCreateur(p, ratio, 1);
+    return `left:${r.x / ratio * 100}%;top:${r.y * 100}%;width:${r.w / ratio * 100}%;height:${r.h * 100}%;right:auto;bottom:auto`;
+  }
 
   /* ---------- éléments ---------- */
   const $ = s => document.querySelector(s);
@@ -488,7 +515,8 @@
     pauses = avecPhotos() && nbPhotos === 2 ? [duree / 2]
       : [1, 2, 3].map(k => k * PAUSE_TOUTES_LES).filter(t => t < duree); dernierPoint = -1; poseIdx = 0;
     finale = false; poseActuelle = null; photos = []; viderGalerie();
-    poses = melanger(POSES_BEUFA.slice());
+    // les poses avec une photo du créateur passent d'abord (c'est la surprise), les autres ensuite
+    poses = melanger(POSES_BEUFA.filter(p => p.photo)).concat(melanger(POSES_BEUFA.filter(p => !p.photo)));
     elMascotte.src = IMG("mains-hanches");
     fermerPose(); elPause.hidden = true;
     phase = "brosse";
@@ -674,7 +702,22 @@
     const st = `left:${(sw - w) / 2}px;top:${(sh - h) / 2}px;width:${w}px;height:${h}px`;
     video.style.cssText = st; cadre.style.cssText = st;
   }
-  const placerCadre = () => placer(elStudio, elStudioVideo, elCadre);
+  const placerCadre = () => { placer(elStudio, elStudioVideo, elCadre); placeGardee(); };
+  // la place gardée (pointillés) : là où le créateur (ou Beufa) apparaîtra après le brossage
+  let poseStudio = null;
+  function placeGardee() {
+    const p = poseStudio; if (!p) return;
+    const st = elPartenaire.style;
+    if (p.createur) {   // autour de sa tête et de ses épaules, sans déborder de l'image
+      const v = elStudioVideo, ratio = v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4;
+      const r = placeCreateur(p, ratio, 1);
+      const g = Math.max(0, r.tx - .19), d = Math.min(ratio, r.tx + .19), haut = Math.max(.02, r.ty - .04);
+      st.cssText = `left:${g / ratio * 100}%;width:${(d - g) / ratio * 100}%;top:${haut * 100}%;bottom:0;right:auto;height:auto;aspect-ratio:auto`;
+    } else {
+      const m = p.imgMascotte;
+      st.cssText = `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%;aspect-ratio:${m.naturalWidth ? `${m.naturalWidth} / ${m.naturalHeight}` : "305 / 738"}`;
+    }
+  }
   window.addEventListener("resize", () => {
     if (!elStudio.hidden) placerCadre();
     if (!elPrepa.hidden) placer(elPrepa, elPrepaVideo, elPrepaCadre);
@@ -688,16 +731,14 @@
     elStudioVideo.srcObject = flux; elStudioVideo.play().catch(() => {});
     elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : "Fais comme moi\u00a0!";
     elDemoImg.src = IMG(p.mascotte);
+    const elEmoji = $("#demo-emoji"); elEmoji.hidden = !p.emoji; elEmoji.textContent = p.emoji || "";
     elDemoConsigne.textContent = p.consigne;
-    elStudioHaut.textContent = p.consigne;
+    elStudioHaut.textContent = (p.emoji ? p.emoji + " " : "") + p.consigne;
     $("#studio-guide").src = IMG(p.mascotte);
     elStudioCompte.textContent = "";
     // la place du partenaire reste vide : sa photo n'apparaîtra qu'après le brossage (surprise)
-    const partenaire = p.createur || p.imgMascotte;
-    elPartenaire.style.height = (p.createur ? PART.createurH : PART.mascotteH) * 100 + "%";
-    elPartenaire.style.bottom = (p.createur ? 0 : PART.bas * 100) + "%";
-    elPartenaire.style.aspectRatio = partenaire.naturalWidth ? `${partenaire.naturalWidth} / ${partenaire.naturalHeight}` : "305 / 738";
     elPartenaire.className = "zone-surprise";
+    poseStudio = p; placeGardee();
     elBulle.textContent = "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
@@ -800,18 +841,41 @@
     x.save(); x.translate(cx, cy); x.rotate(-.2); x.globalAlpha = .9; x.drawImage(o, -m, -m); x.restore();
   }
 
+  // luminosité de la photo de l'utilisateur -> on assombrit un peu le créateur dans une pièce sombre
+  // (ses photos sont prises dans une salle de bain très claire), jamais beaucoup
+  function eclairage(img) {
+    try {
+      const c = document.createElement("canvas"); c.width = c.height = 24;
+      const g = c.getContext("2d"); g.drawImage(img, 0, 0, 24, 24);
+      const d = g.getImageData(0, 0, 24, 24).data; let l = 0;
+      for (let i = 0; i < d.length; i += 4) l += .3 * d[i] + .59 * d[i + 1] + .11 * d[i + 2];
+      return Math.min(1.08, Math.max(.8, Math.sqrt(l / (d.length / 4) / 150)));
+    } catch (e) { return 1; }
+  }
+
   function composer({ pose, img, bulle, tampon }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
     x.drawImage(img, 0, 0, W, H);
     const estCreateur = !!pose.createur, part = pose.createur || pose.imgMascotte;
-    if (part.naturalWidth) {
-      const h = H * (estCreateur ? PART.createurH : PART.mascotteH);
+    if (estCreateur) {
+      // le créateur, à la taille de l'utilisateur, accordé à la lumière de sa photo, halo néon
+      const r = placeCreateur(pose, W, H);
+      x.save();
+      if ("filter" in x) x.filter = `brightness(${eclairage(img).toFixed(2)})`;
+      x.shadowColor = "rgba(255,60,200,.7)"; x.shadowBlur = 28;
+      x.drawImage(part, r.x, r.y, r.w, r.h);
+      x.restore();
+      [[-.2, .05, 24, "#ffd166"], [.22, .3, 18, "#fff"], [-.24, .55, 16, "#8fe3ea"], [.25, .85, 22, "#ff7aa2"]]
+        .forEach(([dx, dy, rr, c]) => etoile(x, r.tx + dx * H, r.ty + dy * r.th, rr, c));
+      if (bulle) bulleCanvas(x, bulle, pose.cote === "droite" ? W * .66 : W * .34, Math.max(70, r.ty - 70), pose.cote === "droite" ? 1 : -1);
+    } else if (part.naturalWidth) {
+      const h = H * PART.mascotteH;
       const w = h * part.naturalWidth / part.naturalHeight;
-      const m = estCreateur ? 0 : W * PART.marge;
+      const m = W * PART.marge;
       const px = pose.cote === "droite" ? W - w - m : m;
-      const py = H - h - (estCreateur ? 0 : H * PART.bas);  // même place que dans le studio
+      const py = H - h - H * PART.bas;  // même place que dans le studio
       x.save();
       x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 10;
       x.drawImage(part, px, py, w, h);
@@ -974,9 +1038,8 @@
     elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
     elRevUser.src = r.url;
     elRevPart.src = part.src;
-    elRevPart.style.height = (createur ? PART.createurH : PART.mascotteH) * 100 + "%";
-    elRevPart.style.bottom = (createur ? 0 : PART.bas * 100) + "%";
-    elRevPart.className = `rev-part cote-${r.pose.cote}`;
+    elRevPart.style.cssText = createur ? stylePlace(r.pose, r.ratio) : `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%`;
+    elRevPart.className = `rev-part cote-${r.pose.cote}${createur ? " createur" : ""}`;
     elRevScene.className = "rev-scene"; rejouer(elRevScene, "apparait");
     const elT = $("#rev-tampon"); elT.hidden = true; elT.className = `rev-tampon cote-${r.pose.cote}`;
     if (r.tampon) { const t = infosTampon(); $("#rev-tampon-date").textContent = t.date; $("#rev-tampon-moment").textContent = t.moment; }

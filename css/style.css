@@ -953,3 +953,20 @@ body::before {   /* petites étoiles fixes qui scintillent */
   .rev-part { transition: none; }
   #bouche .microbe.mort, #bouche .m-pop { opacity: 0; }
 }
+
+/* ---------- photos du créateur : montage en duo ---------- */
+/* en duo, l'utilisateur se tient un peu plus loin : ovale plus petit, collé à son côté */
+.cadre.avec-createur .cadre-tete { top: 13%; height: 36%; }
+.cadre.avec-createur.cote-droite .cadre-tete { left: 4%; }
+.cadre.avec-createur.cote-gauche .cadre-tete { right: 4%; }
+.cadre.avec-createur .zone-surprise { border-radius: 28px 28px 0 0; border-bottom: 0; }
+/* le créateur arrive comme un invité sur un plateau télé : contour blanc (dans l'image) + halo néon */
+.rev-part.createur { filter: drop-shadow(0 0 10px rgba(255, 60, 200, .75)) drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
+/* geste sans image de Beufa dédiée : gros emoji à côté de lui */
+.demo-pose { position: relative; display: flex; justify-content: center; }
+.demo-emoji {
+  position: absolute; right: -6%; bottom: 18%; font-size: min(22vw, 15dvh); line-height: 1;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.3)); animation: emoji-check .6s .6s ease-in-out infinite alternate;
+}
+@keyframes emoji-check { from { transform: translateX(0) rotate(-8deg); } to { transform: translateX(-18%) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .demo-emoji { animation: none; } }

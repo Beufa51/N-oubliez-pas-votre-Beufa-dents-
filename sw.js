@@ -4,7 +4,7 @@
 // - Images, sons, police : copie locale d'abord (lourds et ils changent rarement).
 // - Les fichiers sont toujours téléchargés en contournant le cache du navigateur ({ cache: "reload" }),
 //   sinon une copie vieille de quelques minutes pourrait être gardée par erreur.
-const VERSION = "beufa-v23";
+const VERSION = "beufa-v24";
 const FICHIERS = [
   "./", "index.html", "css/style.css", "js/jeu.js", "js/app.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "assets/fonts/fredoka.woff2", "assets/titre.webp",
@@ -15,7 +15,9 @@ const FICHIERS = [
   "assets/mascotte/png/pose-main-levee.png",
   "assets/mascotte/png/pose-pensif.png",
   "assets/mascotte/png/pose-pointe-du-doigt.png",
-  "assets/mascotte/png/pose-bras-croises.png"
+  "assets/mascotte/png/pose-bras-croises.png",
+  "assets/createur/high-five.webp", "assets/createur/check-poing.webp", "assets/createur/pouce.webp",
+  "assets/createur/pointe.webp", "assets/createur/bras-croises.webp", "assets/createur/mains-hanches.webp"
 ];
 const LOURD = /\.(png|jpe?g|webp|mp3|woff2)$/i;
 
