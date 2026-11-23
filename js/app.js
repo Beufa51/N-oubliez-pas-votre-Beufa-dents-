@@ -900,7 +900,7 @@
     if (on) {
       const ew = v.offsetWidth, eh = v.offsetHeight, sc = Math.min(ew / v.videoWidth, eh / v.videoHeight);
       const dw = v.videoWidth * sc, dh = v.videoHeight * sc, k = Math.min(1.5, window.devicePixelRatio || 1);
-      const W = Math.round(Math.min(720, dw * k)), H = Math.round(W * dh / dw);
+      const W = Math.round(Math.min(480, dw * k)), H = Math.round(W * dh / dw);   // 480 px suffisent et allègent
       if (elIncrust.width !== W || elIncrust.height !== H) { elIncrust.width = W; elIncrust.height = H; }
       const st = `left:${v.offsetLeft + (ew - dw) / 2}px;top:${v.offsetTop}px;width:${dw}px;height:${dh}px`;
       if (elIncrust.dataset.st !== st) { elIncrust.dataset.st = st; elIncrust.style.cssText = st; }   // pas de mise en page à chaque image
