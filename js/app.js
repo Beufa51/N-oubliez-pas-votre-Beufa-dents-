@@ -199,6 +199,7 @@
   let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 4, typeBrosse = "manuelle";
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
   let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false, seance = false, restePhotos = 0;
+  let parBloc = 1, debutBloc = false, premiere = false;   // photos par moment (milieu / fin), première pose du moment
 
   function montrer(nom) {
     Object.entries(ecrans).forEach(([k, el]) => el.classList.toggle("actif", k === nom));
@@ -724,13 +725,15 @@
 
   function lancerBrossage() {
     ecoule = 0; tPause = 0; iPause = 0; derniereZone = -1;
-    /* mode Beufa dents : le brossage n'est plus coupé ; la séance photo (2 ou 4 poses) vient à la fin, en bonus,
-       la dernière pose étant le « sourire brillant » (V + toutes dents dehors). Mode Classique : pauses « Fais comme moi ». */
-    pauses = avecPhotos() ? [] : [1, 2, 3].map(k => k * PAUSE_TOUTES_LES).filter(t => t < duree); dernierPoint = -1; poseIdx = 0;
+    /* mode Beufa dents (choix du créateur) : la moitié des photos à mi-brossage (une seule pause), l'autre moitié à la fin,
+       la dernière étant le « sourire brillant » (V + toutes dents dehors). « 2 photos » = 1 au milieu + 1 à la fin ;
+       « 4 photos » = 2 + 2. Mode Classique : pauses « Fais comme moi » toutes les 30 s. */
+    pauses = avecPhotos() ? [duree / 2] : [1, 2, 3].map(k => k * PAUSE_TOUTES_LES).filter(t => t < duree); dernierPoint = -1; poseIdx = 0;
+    parBloc = Math.max(1, Math.round(nbPhotos / 2));
     finale = false; seance = false; restePhotos = 0; poseActuelle = null; photos = []; viderGalerie();
     const sourire = POSES_BEUFA.find(p => p.id === "pouce");
     const autres = melanger(POSES_BEUFA.filter(p => p.photo && p !== sourire)).concat(melanger(POSES_BEUFA.filter(p => !p.photo)));
-    poses = avecPhotos() ? autres.slice(0, Math.max(0, nbPhotos - 1)).concat([sourire]) : autres;
+    poses = avecPhotos() ? autres.slice(0, Math.max(0, 2 * parBloc - 1)).concat([sourire]) : autres;
     elMascotte.src = IMG("mains-hanches");
     fermerPose(); elPause.hidden = true;
     phase = "brosse";
@@ -773,13 +776,17 @@
       ecoule += dt * vitesseBrossage();   // façon Pokémon Smile : le temps n'avance que si on brosse
       if (ecoule >= duree) {
         if (!avecPhotos()) return terminer();
-        ecoule = duree; seance = true; restePhotos = poses.length; commencerPause();   // séance photo bonus
-      } else if (iPause < pauses.length && ecoule >= pauses[iPause]) commencerPause();
+        ecoule = duree; seance = true; restePhotos = parBloc; debutBloc = true; commencerPause();   // photos de fin
+      } else if (iPause < pauses.length && ecoule >= pauses[iPause]) {
+        if (avecPhotos()) { restePhotos = parBloc; debutBloc = true; }   // photos du milieu
+        commencerPause();
+      }
     } else if (phase === "pause") {
       tPause += dt;
       if (poseActuelle && !cliche && compteA !== null && tPause >= compteA + POSE_COMPTE) { prendrePhoto(); clicA = tPause; }
       if (poseActuelle ? cliche && tPause >= clicA + POSE_APRES : tPause >= PAUSE_DUREE) {
-        if (seance) { if (--restePhotos > 0) commencerPause(); else return terminer(); }
+        if (poseActuelle && --restePhotos > 0) commencerPause();       // pose suivante du même moment
+        else if (seance) return terminer();
         else finirPause();
       }
     }
@@ -808,7 +815,7 @@
     const enDefi = !avantPhoto && ecoule < defiJusqua;
     ecrire(elAstuce, avantPhoto ? "📸 Prépare-toi : photo avec Beufa dans un instant !" : enDefi ? "⭐ Défi : " + defiActuel : ASTUCES[p]);
     elAstuce.classList.toggle("alerte", avantPhoto);
-    if (avantPhoto && avecPhotos()) ecrire(elAstuce, "🎉 Presque fini ! Ensuite : séance photo avec Beufa 📸");
+    if (avantPhoto && avecPhotos() && duree - ecoule < 5) ecrire(elAstuce, "🎉 Presque fini ! Ensuite : photo avec Beufa 📸");
     elAstuce.classList.toggle("defi", enDefi);
     if (avantPhoto && !alerteDite) { alerteDite = true; parler("Prépare-toi, photo avec moi dans 5 secondes !"); }
     if (!avantPhoto && phase === "brosse") alerteDite = false;
@@ -1214,8 +1221,9 @@
 
   function commencerPause() {
     phase = "pause"; tPause = 0;
-    if (!seance) iPause++;
+    if (!seance && (!avecPhotos() || debutBloc)) iPause++;
     finale = seance && restePhotos === 1;
+    premiere = debutBloc; debutBloc = false;
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
     DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
@@ -1299,12 +1307,12 @@
 
   function ouvrirPose(p) {
     elStudioVideo.srcObject = flux; elStudioVideo.play().catch(() => {});
-    elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : restePhotos === poses.length ? "Séance photo\u00a0!" : "Fais comme moi\u00a0!";
+    elDemoTitre.textContent = finale ? "Pose finale\u00a0!" : premiere ? (seance ? "Séance photo\u00a0!" : "Pause photo\u00a0!") : "Fais comme moi\u00a0!";
     elDemoImg.src = IMG(p.mascotte);
     const elEmoji = $("#demo-emoji"), em = p.createur || p.id === "check-poing" ? p.emoji : ""; elEmoji.hidden = !em; elEmoji.textContent = em || "";
     const cons = consigneDe(p);
     montrerApercu(p);
-    elDemoTitre.textContent = p.createur ? (finale ? "Photo finale : sourire brillant\u00a0!" : restePhotos === poses.length ? "Séance photo\u00a0! Voilà la 1re" : "Voilà la photo qu'on va faire\u00a0!") : elDemoTitre.textContent;
+    elDemoTitre.textContent = p.createur ? (finale ? "Photo finale : sourire brillant\u00a0!" : premiere ? (seance ? "Bravo\u00a0! Photo de fin" : "Pause photo avec moi\u00a0!") : "Voilà la photo qu'on va faire\u00a0!") : elDemoTitre.textContent;
     elDemoConsigne.textContent = cons;
     elStudioHaut.textContent = (p.createur && p.emoji ? p.emoji + " " : "") + cons;
     $("#studio-guide").src = IMG(p.mascotte);
