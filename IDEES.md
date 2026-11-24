@@ -282,4 +282,6 @@ Pas de publication sur le Play Store.
   l'utilisateur (90 % de sa taille), bas de sa photo fondu s'il n'atteint pas le bord.
 - [x] **Ombres animées** tirées de ses vidéos (check, V, tape dans mes mains, dos à dos, pensif) sur l'aperçu de la photo à faire.
   Pas dans la photo finale : vidéos filmées de loin, gestes trop petits par rapport aux photos (le raccord se verrait).
+- [x] Photos (choix du créateur) : la moitié à mi-brossage (une seule pause), l'autre à la fin (« 2 photos » = 1 + 1,
+  « 4 photos » = 2 + 2), la dernière toujours le sourire brillant.
 
