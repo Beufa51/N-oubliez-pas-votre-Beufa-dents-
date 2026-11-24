@@ -2,14 +2,18 @@
 
 Photos **détourées** (WebP à fond transparent, contour blanc déjà inclus), une par pose :
 
-| Fichier | Ta photo | L'autre moitié du geste (consigne à l'utilisateur) | Côté | Cible |
+| Fichier | Ta photo | Ce que fait l'utilisateur | Ton côté | Contact |
 |---|---|---|---|---|
-| `high-five.webp` | main levée vers lui | « Tape dans la main de l'ombre : high five ! » | droite | ta main ici |
-| `check-poing.webp` | poing tendu | « Ton poing contre le sien : check ! » | droite | ton poing ici |
-| `pouce.webp` | V + main sur la hanche | « Fais le V de la victoire, comme l'ombre ! » | gauche | — |
-| `pointe.webp` | tu montres la caméra | « Montre l'ombre du doigt : c'est toi ! » | gauche | — |
-| `bras-croises.webp` | de profil, bras croisés (photo 2) | « De profil, bras croisés, ton dos contre son dos ! » | droite | ton dos ici |
-| `mains-hanches.webp` | paumes vers le haut, en bas | « Mains à plat au-dessus des siennes : tape dedans ! » | droite | tes mains ici |
+| `high-five.webp` | main levée vers lui | tape dans ta main | droite | paume |
+| `check-poing.webp` | poing tendu | son poing contre le tien | droite | poing |
+| `pouce.webp` | V + grand sourire | V + sourire, toutes dents dehors (pose finale) | droite | — |
+| `pointe.webp` | tu le montres du doigt | il te montre du doigt | droite | — |
+| `mains-hanches.webp` | paume vers le haut | tape dans tes mains (par-dessus) | droite | dessous |
+| `bras-croises.webp` | de profil, bras croisés | dos à dos | droite | — |
+| `pensif.webp` | main au menton | pensif aussi | gauche | — |
+
+Photos refaites (session 12) : de près, téléphone à hauteur de visage, fond uni. `anim-<id>.webp` = ombres animées tirées
+de courtes vidéos (`tools/animations.py`), montrées sur l'écran « Voilà la photo qu'on va faire ! ».
 
 Pendant la photo, l'utilisateur voit **ton ombre** à ta vraie place (avec un « ? », la photo reste une surprise)
 et une **cible dorée** là où doit aller sa main (`cible` dans `POSES_BEUFA`, en fraction de ta photo).

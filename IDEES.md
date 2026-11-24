@@ -277,4 +277,9 @@ Pas de publication sur le Play Store.
     appliquée aux deux ; « 📷 Développement… » avant la révélation ;
   - **étincelles sur les dents** quand l'utilisateur sourit « toutes dents dehors » (bouche repérée sur la photo).
 - [ ] Plus tard : le créateur en mouvement (petites boucles animées détourées) -> mini-GIF du duo (il faut filmer de courts gestes).
+- [x] **Nouvelles photos du créateur** (7 poses, prises de près, fond uni) : détourées, visage et mains mesurés, contours
+  refaits ; pose **Pensif** ajoutée ; le créateur est à droite (à gauche pour Pensif). Tête du créateur à la hauteur de celle de
+  l'utilisateur (90 % de sa taille), bas de sa photo fondu s'il n'atteint pas le bord.
+- [x] **Ombres animées** tirées de ses vidéos (check, V, tape dans mes mains, dos à dos, pensif) sur l'aperçu de la photo à faire.
+  Pas dans la photo finale : vidéos filmées de loin, gestes trop petits par rapport aux photos (le raccord se verrait).
 
