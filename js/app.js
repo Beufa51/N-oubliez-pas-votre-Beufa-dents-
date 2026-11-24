@@ -75,33 +75,35 @@
      du créateur et une cible (cible = point de sa photo où l'utilisateur doit mettre la main, en fraction).
      geste = consigne sans le créateur (pauses du mode Classique, ou photo absente). */
   const POSES_BEUFA = [
-    { id: "high-five", nom: "High five", contour: true,     mascotte: "main-levee",      cote: "droite", emoji: "✋",
-      consigne: "Tape dans la main de l'ombre : high five !", geste: "Lève la main : high five !",
-      cible: { x: .06, y: .19, texte: "ta main ici" },
-      photo: { tete: [0.08, 0.308, 0.557], hh: 0.166, top: 0.221, dx: 0.146 },
-      main: { x: .068, y: .142, taille: .0991, contact: "paume" } },
-    { id: "check-poing", nom: "Check", contour: true,   mascotte: "main-levee",      cote: "droite", emoji: "👊",
+    { id: "high-five", nom: "High five", contour: true, mascotte: "main-levee", cote: "droite", emoji: "✋",
+      consigne: "Tape dans sa main : high five !", geste: "Lève la main : high five !",
+      cible: { x: .095, y: .171, texte: "ta main ici" },
+      photo: { tete: [.05, .407, .77], hh: .24, top: .15, dx: .17 },
+      main: { x: .095, y: .171, taille: .1774, contact: "paume" } },
+    { id: "check-poing", nom: "Check", anim: 8, contour: true, mascotte: "main-levee", cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
-      cible: { x: .06, y: .39, texte: "ton poing ici" },
-      photo: { tete: [0.048, 0.287, 0.617], hh: 0.223, top: 0.185, dx: 0.196 },
-      main: { x: .071, y: .411, taille: .0847, contact: "poing" } },
-    { id: "pouce", nom: "Victoire", contour: true,         mascotte: "pouce",           cote: "gauche", emoji: "✌️",
+      cible: { x: .132, y: .421, texte: "ton poing ici" },
+      photo: { tete: [.069, .476, .691], hh: .24, top: .15, dx: .17 },
+      main: { x: .132, y: .421, taille: .2902, contact: "poing" } },
+    { id: "pouce", nom: "Victoire", anim: 7, contour: true, mascotte: "pouce", cote: "droite", emoji: "✌️",
       consigne: "Fais le V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [0.096, 0.302, 0.56], hh: 0.188, top: 0.224, dx: 0.276 } },
-    { id: "coeur", nom: "Cœur",         mascotte: "coeur",           cote: "droite", consigne: "Fais un cœur avec tes mains" },
-    { id: "pointe", nom: "Montre du doigt",        mascotte: "pointe-du-doigt", cote: "gauche", emoji: "👉",
-      consigne: "Montre l'ombre du doigt : c'est toi !", geste: "Montre-moi du doigt !",
-      photo: { tete: [0.108, 0.321, 0.42], hh: 0.234, top: 0.253, dx: 0.210 } },
-    { id: "pensif", nom: "Pensif",        mascotte: "pensif",          cote: "gauche", consigne: "Prends l'air pensif…" },
-    { id: "bras-croises", nom: "Dos à dos", contour: true,  mascotte: "bras-croises",    cote: "droite", emoji: "👥",
+      photo: { tete: [.028, .406, .781], hh: .24, top: .15, dx: .17 } },
+    { id: "coeur", nom: "Cœur", mascotte: "coeur", cote: "droite", consigne: "Fais un cœur avec tes mains" },
+    { id: "pointe", nom: "Montre du doigt", contour: true, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
+      consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
+      photo: { tete: [.057, .468, .846], hh: .24, top: .15, dx: .17 } },
+    { id: "pensif", nom: "Pensif", anim: 8, contour: true, mascotte: "pensif", cote: "gauche", emoji: "🤔",
+      consigne: "Main au menton, l'air pensif, comme lui !", geste: "Prends l'air pensif…",
+      photo: { tete: [.05, .397, .265], hh: .24, top: .15, dx: .17 } },
+    { id: "bras-croises", nom: "Dos à dos", anim: 6, contour: true, mascotte: "bras-croises", cote: "droite", emoji: "👥",
       consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
-      cible: { x: .02, y: .3, texte: "ton dos ici" },
-      photo: { tete: [0.035, 0.251, 0.403], hh: 0.216, top: 0.175, dx: 0.190 } },
-    { id: "mains-hanches", nom: "Tape dans mes mains", mascotte: "mains-hanches",   cote: "droite", emoji: "🙌",
+      cible: { x: .03, y: .45, texte: "ton dos ici" },
+      photo: { tete: [.05, .357, .265], hh: .24, top: .15, dx: .17 } },
+    { id: "mains-hanches", nom: "Tape dans mes mains", anim: 8, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
-      cible: { x: .2, y: .6, texte: "tes mains ici" },
-      photo: { tete: [0.037, 0.266, 0.626], hh: 0.229, top: 0.177, dx: 0.180 },
-      main: { x: .237, y: .695, taille: .0836, contact: "dessous" } }
+      cible: { x: .2, y: .44, texte: "tes mains ici" },
+      photo: { tete: [.061, .462, .868], hh: .24, top: .15, dx: .17 },
+      main: { x: .2, y: .526, taille: .2289, contact: "dessous" } }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -114,6 +116,8 @@
     c.onload = () => { p.createur = c; };
     c.src = `assets/createur/${p.id}.webp`;
     if (p.contour) { p.imgContour = new Image(); p.imgContour.src = `assets/createur/contour-${p.id}.webp`; }
+    // ombre animée (tools/animations.py) : planche de p.anim images, calées sur la tête de la photo fixe
+    if (p.anim) { const a = new Image(); a.onload = () => { p.imgAnim = a; }; a.src = `assets/createur/anim-${p.id}.webp`; }
   });
   /* contour de la pose de l'utilisateur (= photo du créateur en miroir), calé sur l'ovale de la tête.
      OVALE = le même ovale que le CSS (.cadre.avec-createur .cadre-tete) ; ratio = largeur / hauteur de la photo.
@@ -137,13 +141,14 @@
      fraction de la hauteur). Pour les poses avec contact (p.main), le créateur est mis à l'échelle pour que SA main
      ait la même taille, et placé pour que les deux mains se touchent (poing contre poing, paume contre paume,
      ou ses paumes juste sous les mains de l'utilisateur). */
+  const TAILLE_CREATEUR = .9;   // sa tête = 90 % de celle de l'utilisateur (un pas derrière lui)
   function placeCreateur(p, W, H, visage, main) {
     const c = p.createur, [t, m, cx] = p.photo.tete, ratio = c.naturalWidth / c.naturalHeight;
-    const hh = visage ? Math.max(.12, Math.min(.38, visage.h)) : p.photo.hh * 1.12;
+    const hh = visage ? Math.max(.12, Math.min(.38, visage.h * TAILLE_CREATEUR)) : p.photo.hh;
     const top = visage ? Math.max(.04, Math.min(.4, visage.haut)) : p.photo.top;
     const dx = Math.min(.3, p.photo.dx * hh / p.photo.hh);   // plus grand = un peu plus loin du bord
+    // sa tête à la hauteur de celle de l'utilisateur ; si le bas de sa photo n'atteint pas le bord, il est fondu
     let h = hh * H / (m - t), y = top * H - t * h;
-    if (y + h < H) y = H - h;                       // toujours collé en bas
     let w = h * ratio;
     let x = (p.cote === "droite" ? W - dx * H : dx * H) - cx * w;
     if (p.main && main) {
@@ -153,16 +158,16 @@
       // point de contact visé : à côté du poing, contre la paume, ou juste sous les mains
       const cxv = main.x * W + (pm.contact === "poing" ? sens * tm * .95 : pm.contact === "paume" ? sens * tm * .35 : 0);
       const cyv = main.y * H + (pm.contact === "dessous" ? tm * .9 : 0);
-      // si le bas de sa photo ne touche pas le bas de l'image, on l'agrandit autour du point de contact
-      if (cyv + (1 - pm.y) * h < H) h = Math.min(h * 1.5, (H - cyv) / (1 - pm.y));
       w = h * ratio; x = cxv - pm.x * w; y = cyv - pm.y * h;
-      if (y + h < H) y = H - h;                     // toujours collé en bas (contact un peu décalé au pire)
+      // sa tête ne doit pas tomber loin sous celle de l'utilisateur : on remonte (contact un peu décalé au pire)
+      const yt = y + t * h, ytMax = (visage ? visage.haut + visage.h * .5 : .3) * H;
+      if (yt > ytMax) y -= yt - ytMax;
       // son visage doit rester dans l'image : sinon on le ramène (les mains se chevauchent un peu)
       const vx = x + cx * w, lim = W * .1;
       if (p.cote === "droite" && vx > W - lim) x -= vx - (W - lim);
       if (p.cote === "gauche" && vx < lim) x += lim - vx;
     }
-    return { x, y, w, h, tx: x + cx * w, ty: y + t * h, th: (m - t) * h };
+    return { x, y, w, h, tx: x + cx * w, ty: y + t * h, th: (m - t) * h, flotte: y + h < H - 2 };
   }
   // même place, en % d'une scène au format de la photo (studio, révélation)
   function stylePlace(p, ratio, visage) {
@@ -1326,7 +1331,10 @@
     const v = elCamera.videoWidth ? elCamera : elStudioVideo, ratio = v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4;
     ap.style.aspectRatio = String(ratio);
     ap.style.width = `min(86vw, calc(50dvh * ${ratio}))`;
-    let html = `<img class="ap-ombre" src="${p.createur.src}" alt="" style="${stylePlace(p, ratio)}">`;
+    // ombre qui fait le geste (si la petite vidéo existe), sinon l'ombre fixe
+    let html = p.imgAnim
+      ? `<div class="ap-ombre anim" style="${stylePlace(p, ratio)};background-image:url(${p.imgAnim.src});background-size:${p.anim * 100}% 100%;animation-timing-function:steps(${p.anim - 1}, end)"></div>`
+      : `<img class="ap-ombre" src="${p.createur.src}" alt="" style="${stylePlace(p, ratio)}">`;
     if (avecContour(p)) html += `<img class="ap-contour" src="${p.imgContour.src}" alt="" style="${pct(placeContour(p, ratio))}">`;
     else html += `<div class="ap-tete" style="${pct(ovaleDe(p, ratio))}"></div>`;
     if (p.cible) {
@@ -1532,6 +1540,11 @@
     if ("filter" in g) g.filter = "blur(0.7px)";           // un peu moins net, comme une caméra avant
     g.drawImage(part, r.x, r.y, r.w, r.h);
     if ("filter" in g) g.filter = "none";
+    if (r.flotte) {                                        // bas de sa photo au-dessus du bord : fondu
+      const b = r.h * .22, gr = g.createLinearGradient(0, r.y + r.h - b, 0, r.y + r.h);
+      gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,1)");
+      g.save(); g.globalCompositeOperation = "destination-out"; g.fillStyle = gr; g.fillRect(r.x, r.y + r.h - b, r.w, b + 2); g.restore();
+    }
     try {
       // couleurs de l'utilisateur autour de lui (visage et buste), sinon toute la photo
       const p = document.createElement("canvas"), pw = 160, phh = Math.round(pw * H / W);

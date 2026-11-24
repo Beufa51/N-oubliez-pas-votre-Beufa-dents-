@@ -1204,3 +1204,12 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 .zone-surprise.surgit { animation: surgit .6s cubic-bezier(.3,1.5,.5,1) both; }
 @keyframes surgit { 0% { transform: scale(.85); filter: brightness(3); } 60% { filter: brightness(1.4); } 100% { transform: none; filter: none; } }
 @media (prefers-reduced-motion: reduce) { .zone-surprise.surgit { animation: none; } }
+
+/* créateur en direct : le bas de sa photo se fond (photos prises de près) */
+.zone-surprise.ombre img { -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%); mask-image: linear-gradient(to bottom, #000 78%, transparent 100%); }
+
+/* ombre animée du créateur sur l'aperçu de la photo à faire (planche d'images, une image après l'autre) */
+.demo-apercu .ap-ombre.anim { position: absolute; background-repeat: no-repeat; background-position: 0 0;
+  animation-name: ombre-geste; animation-duration: 2.6s; animation-iteration-count: infinite; }
+@keyframes ombre-geste { 0% { background-position: 0% 0; } 60% { background-position: 100% 0; } 100% { background-position: 100% 0; } }
+@media (prefers-reduced-motion: reduce) { .demo-apercu .ap-ombre.anim { animation: none; background-position: 100% 0; } }
