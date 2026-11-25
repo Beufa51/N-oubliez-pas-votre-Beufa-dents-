@@ -2052,7 +2052,7 @@
   /* ---------- générique animé, calé sur la chanson (≈ 129 BPM, 2 temps = 0,93 s) ----------
      0 s : les décors défilent derrière ; 0,2 s : le panneau tombe (flash, confettis) ; 1,9 s : Beufa saute dans
      l'image (sa vidéo « ta-da ! ») ; 3,8 s : la brosse Beufa dents arrive ; 4,5 s : la phrase. */
-  const DEUX_TEMPS = 930, INTRO_POSE = "pouce";   // pose de Beufa dans le générique : le double V
+  const DEUX_TEMPS = 930, INTRO_POSE = "cool";    // pose de Beufa dans le générique : le signe « cool » 🤙
   let introT = [], introDecorT = 0;
   function animerIntro() {
     const ec = ecrans.intro, att = (ms, f) => introT.push(setTimeout(f, ms));
