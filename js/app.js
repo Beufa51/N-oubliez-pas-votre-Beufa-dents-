@@ -2052,7 +2052,8 @@
     montagne: [10.704, 104.072],      // « Alpine Hike »
     neige: [5.108, 147.563],          // « Magical Snowy Evening »
     volcan: [15.673, 143.197],        // « Volcano Adventure »
-    champignons: [14.211, 102.191]    // « Enchanted Forest Party »
+    champignons: [14.211, 102.191],   // « Enchanted Forest Party »
+    lagon: [27.33, 164.188]           // « Tahiti » (volume baissé de 3,5 dB pour être au niveau des autres)
   };
   const urlTheme = () => { const d = decorActuel(); return d && MUSIQUES_DECOR[d.id] ? `assets/musiques/${d.id}.mp3` : null; };
   const pistes = {};                     // url -> { tampon, pos, absent }

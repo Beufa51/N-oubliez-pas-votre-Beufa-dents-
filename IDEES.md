@@ -297,7 +297,7 @@ Pas de publication sur le Play Store.
   écrasée corrigée ; « Brossage vu » masqué sous 10 % (détection peu fiable).
 - [x] **Musique par décor** prête : `assets/musiques/<décor>.mp3` + id dans `MUSIQUES_DECOR` (voir son LISEZMOI).
 - [x] Musiques des décors (Suno, instrumentales) : montagne, neige, volcan, champignons, avec intro puis boucle sans coupure
-  (points trouvés par ressemblance du son). - [ ] Reste : lagon (Tahiti).
+  (points trouvés par ressemblance du son), et lagon (Tahiti).
 - [x] Retours du test (session 13, suite) : **plus de temps** pour poser (4 s avant le 3-2-1, 9 s pour toucher sa main) ;
   **l'utilisateur devant le créateur** sur la photo finale (ses bras ne sont plus coupés), détourage des photos plus souple,
   vérifié sur les 5 décors ; **écran de brossage allégé** : compteur vert de microbes et 3 points retirés (le schéma montre
