@@ -343,7 +343,7 @@ Pas de publication sur le Play Store.
   des microbes se baladent au milieu de l'écran (avec caméra : sous le visage, au-dessus du schéma ; sans caméra :
   dans l'anneau des dents). Quand on brosse, Beufa dents leur tire dessus : 3 coups (5 pour un chef), ils
   s'illuminent puis éclatent. Quand on ne brosse pas, ils reviennent de plus en plus vite
-  (16 au maximum) et grossissent en ricanant. Le schéma ne tire plus, il nettoie juste les dents une à une.
+  (10 au maximum, 3 au départ ; dès qu'on arrête, un nouveau chaque seconde puis de plus en plus vite) et grossissent en ricanant. Le schéma ne tire plus, il nettoie juste les dents une à une.
   Look moins enfantin (retours d'usage ; la version bacilles/virus faisait « extraterrestres ») : petites boules
   vertes visqueuses et irrégulières, couvertes de cils, avec des taches, façon pub pour savon. Le chef est violet
   avec un halo qui pulse. Éclatement : onde de choc + gouttelettes, sons plus graves, plus de « POP ! ».
