@@ -136,8 +136,6 @@
     };
     c.src = `assets/createur/${p.id}.webp`;
     if (p.contour) { p.imgContour = new Image(); p.imgContour.src = `assets/createur/contour-${p.id}.webp`; }
-    // ombre animée (tools/animations.py) : planche de p.anim images, calées sur la tête de la photo fixe
-    if (p.anim && !p.video) { const a = new Image(); a.onload = () => { p.imgAnim = a; }; a.src = `assets/createur/anim-${p.id}.webp`; }
   });
   /* vidéos du créateur (tools/videos.py) : p.video images (12/s) au même cadrage que sa photo fixe, qui est la
      dernière image. Chargées au début du brossage, seulement pour les poses tirées. */
@@ -1390,9 +1388,7 @@
     ap.style.aspectRatio = String(ratio);
     ap.style.width = `min(86vw, calc(50dvh * ${ratio}))`;
     // ombre qui fait le geste (si la petite vidéo existe), sinon l'ombre fixe
-    let html = p.imgAnim
-      ? `<div class="ap-ombre anim" style="${stylePlace(p, ratio)};background-image:url(${p.imgAnim.src});background-size:${p.anim * 100}% 100%;animation-timing-function:steps(${p.anim - 1}, end)"></div>`
-      : `<img class="ap-ombre" src="${p.createur.src}" alt="" style="${stylePlace(p, ratio)}">`;
+    let html = `<img class="ap-ombre" src="${p.createur.src}" alt="" style="${stylePlace(p, ratio)}">`;
     if (avecContour(p)) html += `<img class="ap-contour" src="${p.imgContour.src}" alt="" style="${pct(placeContour(p, ratio))}">`;
     else html += `<div class="ap-tete" style="${pct(ovaleDe(p, ratio))}"></div>`;
     if (p.cible) {
@@ -1528,18 +1524,6 @@
     g.globalCompositeOperation = "destination-out";
     for (let i = 0; i < 260; i++) { g.globalAlpha = Math.random() * .6; g.beginPath(); g.arc(Math.random() * k, Math.random() * k, Math.random() * r * .035 + 1, 0, 7); g.fill(); }
     x.save(); x.translate(cx, cy); x.rotate(-.2); x.globalAlpha = .9; x.drawImage(o, -m, -m); x.restore();
-  }
-
-  // luminosité de la photo de l'utilisateur -> on assombrit un peu le créateur dans une pièce sombre
-  // (ses photos sont prises dans une salle de bain très claire), jamais beaucoup
-  function eclairage(img) {
-    try {
-      const c = document.createElement("canvas"); c.width = c.height = 24;
-      const g = c.getContext("2d"); g.drawImage(img, 0, 0, 24, 24);
-      const d = g.getImageData(0, 0, 24, 24).data; let l = 0;
-      for (let i = 0; i < d.length; i += 4) l += .3 * d[i] + .59 * d[i + 1] + .11 * d[i + 2];
-      return Math.min(1.08, Math.max(.8, Math.sqrt(l / (d.length / 4) / 150)));
-    } catch (e) { return 1; }
   }
 
   /* ---------- rendu réaliste du créateur : un calque à la taille de la photo ----------
