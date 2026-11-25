@@ -1,3 +1,4 @@
+/* Outil (pas chargé par l'appli) : sert à blanchir les dents d'une image, ex. assets/createur/intro-cool.webp. */
 /* Dents « méga blanches » : blanchit seulement les dents, à l'intérieur du contour intérieur des lèvres
    (repéré par le modèle du visage), et seulement les pixels clairs et peu colorés (pas la langue ni le fond
    de la bouche). Le contour est resserré d'un poil et adouci : rien ne déborde sur les lèvres. */

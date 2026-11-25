@@ -213,8 +213,7 @@
         // bouche : centre, largeur (fraction de la largeur) et sourire « toutes dents dehors » (lèvres écartées)
         const ouverture = (lm[14].y - lm[13].y) / (menton - front);
         const bouche = { x: (lm[78].x + lm[308].x) / 2, y: (lm[13].y + lm[14].y) / 2,
-          l: Math.hypot((lm[308].x - lm[78].x) * W, (lm[308].y - lm[78].y) * H) / W, dents: ouverture > .045,
-          levres: window.BeufaDents ? BeufaDents.contour(lm) : null };   // pour blanchir ses dents sur la photo
+          l: Math.hypot((lm[308].x - lm[78].x) * W, (lm[308].y - lm[78].y) * H) / W, dents: ouverture > .045 };
         return { cx: (lm[234].x + lm[454].x) / 2, haut, h: menton - haut, bouche };
       } catch (e) { return null; }
     },
