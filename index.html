@@ -131,7 +131,15 @@
       <img id="mascotte" class="mascotte" src="assets/mascotte/png/pose-mains-hanches.png" alt="">
     </div>
 
-    <button id="btn-arreter" class="lien btn-arreter" type="button">⏹ Arrêter</button>
+    <button id="btn-pause" class="lien btn-arreter" type="button">⏸ Pause</button>
+    <div id="menu-pause" class="menu-pause" hidden>
+      <div class="menu-pause-boite">
+        <h2>⏸ Pause</h2>
+        <p>Le chrono est arrêté. Prends ton temps&nbsp;!</p>
+        <button id="btn-reprendre" class="gros-bouton" type="button">▶ Reprendre</button>
+        <button id="btn-arreter" class="lien" type="button">⏹ Arrêter le brossage</button>
+      </div>
+    </div>
 
     <div id="pause" class="pause" hidden>
       <div class="pause-boite">
@@ -164,7 +172,7 @@
 
     <!-- mode Beufa dents : studio photo plein écran -->
     <div id="studio" class="studio" hidden>
-      <button class="btn-rond btn-fermer-studio" type="button" aria-label="Arrêter le brossage">✕</button>
+      <button class="btn-rond btn-pause-studio" type="button" aria-label="Pause">⏸</button>
       <button class="btn-rond btn-son" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
       <video id="studio-video" playsinline muted autoplay aria-label="Ta caméra en miroir"></video>
       <div id="cadre" class="cadre" aria-hidden="true">

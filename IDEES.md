@@ -309,4 +309,10 @@ Pas de publication sur le Play Store.
   au-dessus de tout (calque du dessus), photo et révélation.
 - [x] Étincelles réduites à un petit « ting ! » au coin du sourire (la grosse étoile cachait la bouche). Créateur jamais en
   l'air : si sa vidéo n'atteint pas le bas de la photo, il est descendu (jusqu'à 25 %), sinon le bas est fondu.
+- [x] **Ta-da** recoupé : la vidéo finit bras grands ouverts (avant ils redescendaient), un peu plus grand.
+- [x] **Détourage sur les côtés** : le fondu de bord ne touche plus que le côté réellement coupé par le bord de la vidéo
+  (avant, il effaçait les mains tendues : high five, check, montre du doigt…) ; bas de toutes les poses recadré au bas réel
+  du corps et toujours adouci. Vérifié pose par pose sur le décor.
+- [x] **Menu pause** pendant le brossage : bouton ⏸ (et ⏸ dans le studio photo), « Reprendre » / « Arrêter le brossage » ;
+  pause automatique si l'appli passe en arrière-plan. Test : `?poses=tada,pouce` impose les poses des photos.
 

@@ -246,7 +246,7 @@ body {
   background: rgba(255,255,255,.92); color: var(--encre); font-size: 1.25rem; font-weight: 900; line-height: 1; cursor: pointer;
   box-shadow: 0 3px 10px rgba(0,0,0,.25);
 }
-.btn-fermer-studio { left: 10px; }
+.btn-fermer-studio, .btn-pause-studio { left: 10px; }
 .btn-rond.btn-son { right: 10px; }
 .studio .studio-haut { left: 62px; right: 62px; }
 
@@ -1206,12 +1206,7 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 @media (prefers-reduced-motion: reduce) { .zone-surprise.surgit { animation: none; } }
 
 /* créateur en direct : le bas de sa photo se fond (photos prises de près) */
-.zone-surprise.ombre img {
-  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%), linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%), linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
-  mask-composite: intersect;
-}
+.zone-surprise.ombre img { -webkit-mask-composite: source-in; mask-composite: intersect; }   /* masque par pose (côtés coupés) */
 
 /* ombre animée du créateur sur l'aperçu de la photo à faire (planche d'images, une image après l'autre) */
 .demo-apercu .ap-ombre.anim { position: absolute; background-repeat: no-repeat; background-position: 0 0;
@@ -1229,3 +1224,15 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 
 /* audit de l'écran de brossage : infos en double retirées (le schéma montre déjà la face et les microbes qui éclatent) */
 #ecran-brossage #points, #ecran-brossage #score { display: none; }
+
+/* menu pause */
+.menu-pause { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(5, 8, 40, .72); }
+.menu-pause[hidden] { display: none; }
+.menu-pause-boite {
+  width: 100%; max-width: 340px; text-align: center; padding: 22px 18px 14px; border-radius: 24px;
+  background: var(--verre); border: 2px solid var(--verre-bord); color: var(--texte); box-shadow: 0 16px 40px rgba(0,0,0,.4);
+  display: flex; flex-direction: column; gap: 10px; align-items: center; animation: pop .35s cubic-bezier(.3,1.5,.5,1) both;
+}
+.menu-pause-boite h2 { margin: 0; font-size: 2rem; color: var(--or-clair); text-shadow: 0 0 12px rgba(255,200,61,.7); }
+.menu-pause-boite p { margin: 0 0 4px; opacity: .85; }
+.menu-pause-boite .gros-bouton { width: 100%; }
