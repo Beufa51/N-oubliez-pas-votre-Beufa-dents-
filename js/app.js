@@ -76,40 +76,40 @@
      geste = consigne sans le créateur (pauses du mode Classique, ou photo absente). */
   const POSES_BEUFA = [
     { id: "high-five", nom: "High five", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "✋",
-      consigne: "Tape dans la main de Beufa : high five !", geste: "Lève la main : high five !",
+      consigne: "Tape dans ma main : high five !", geste: "Lève la main : high five !",
       cible: { x: .153, y: 0.186, texte: "ta main ici" },
       photo: { tete: [0.06, 0.285, .637], hh: .24, top: .15, dx: .17 }, bouche: [0.582, 0.234, 0.088],
       main: { x: .153, y: 0.186, taille: .0844, contact: "paume" } },
     { id: "check-poing", nom: "Check", contour: true, video: 37, mascotte: "main-levee", cote: "droite", emoji: "👊",
-      consigne: "Ton poing contre celui de Beufa : check !", geste: "Tends ton poing : check !",
+      consigne: "Ton poing contre le mien : check !", geste: "Tends ton poing : check !",
       cible: { x: .137, y: 0.401, texte: "ton poing ici" },
       photo: { tete: [0.079, 0.308, .692], hh: .24, top: .15, dx: .17 }, bouche: [0.621, 0.255, 0.113],
       main: { x: .137, y: 0.401, taille: .1353, contact: "poing" } },
     { id: "pouce", nom: "Victoire", contour: true, video: 28, mascotte: "pouce", cote: "droite", emoji: "✌️",
-      consigne: "Double V comme Beufa, et ton plus beau sourire !", geste: "Pouce en l'air !",
+      consigne: "Double V comme moi, et ton plus beau sourire !", geste: "Pouce en l'air !",
       photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, entier: true }, bouche: [0.573, 0.354, 0.064] },
     { id: "cool", nom: "Cool", contour: true, video: 32, mascotte: "pouce", cote: "droite", emoji: "🤙",
-      consigne: "Fais le signe « cool » comme Beufa !", geste: "Fais le signe cool !",
+      consigne: "Fais le signe « cool » comme moi !", geste: "Fais le signe cool !",
       photo: { tete: [0.139, 0.326, .438], hh: .24, top: .15, dx: .17 }, bouche: [0.472, 0.279, 0.081] },
     { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
-      consigne: "Fais un cœur avec tes mains, comme Beufa !", geste: "Fais un cœur avec tes mains",
+      consigne: "Fais un cœur avec tes mains, comme moi !", geste: "Fais un cœur avec tes mains",
       photo: { tete: [0.189, 0.362, .338], hh: .24, top: .15, dx: .17, entier: true }, bouche: [0.375, 0.319, 0.084] },
     { id: "pointe", nom: "Montre du doigt", contour: true, video: 34, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
-      consigne: "Montre Beufa du doigt !", geste: "Montre-moi du doigt !",
+      consigne: "Montre-moi du doigt !", geste: "Montre-moi du doigt !",
       photo: { tete: [0.097, 0.309, .66], hh: .24, top: .15, dx: .17 }, bouche: [0.607, 0.258, 0.089] },
     { id: "pensif", nom: "Pensif", contour: true, video: 32, mascotte: "pensif", cote: "droite", emoji: "🤔",
-      consigne: "Main au menton, l'air pensif, comme Beufa !", geste: "Prends l'air pensif…",
+      consigne: "Main au menton, l'air pensif, comme moi !", geste: "Prends l'air pensif…",
       photo: { tete: [.23, .392, .647], hh: .24, top: .15, dx: .17 }, bouche: [0.613, 0.348, 0.058] },
     { id: "bras-croises", nom: "Bras croisés", contour: true, video: 37, mascotte: "bras-croises", cote: "droite", emoji: "💪",
-      consigne: "Croise les bras, l'air sûr de toi, comme Beufa !", geste: "Croise les bras, l'air sûr de toi",
+      consigne: "Croise les bras, l'air sûr de toi, comme moi !", geste: "Croise les bras, l'air sûr de toi",
       photo: { tete: [0.043, 0.236, .468], hh: .24, top: .15, dx: .17, entier: true }, bouche: [0.473, 0.188, 0.081] },
     { id: "mains-hanches", nom: "Tape dans mes mains", video: 30, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
-      consigne: "Mains à plat au-dessus de celles de Beufa : tape dedans !", geste: "Mains sur les hanches, en champion !",
+      consigne: "Mains à plat au-dessus des miennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
       cible: { x: .213, y: 0.597, texte: "tes mains ici" },
       photo: { tete: [0.11, 0.307, .736], hh: .24, top: .15, dx: .17 }, bouche: [0.688, 0.263, 0.063],
       main: { x: .213, y: 0.656, taille: .0858, contact: "dessous" } },
     { id: "tada", nom: "Ta-da !", contour: true, video: 20, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
-      consigne: "Mains ouvertes comme Beufa : ta-da !", geste: "Mains ouvertes : ta-da !",
+      consigne: "Mains ouvertes comme moi : ta-da !", geste: "Mains ouvertes : ta-da !",
       photo: { tete: [.324, .481, .425], hh: .24, top: .15, dx: .17, entier: true }, bouche: [.431, .441, .064] }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
@@ -180,7 +180,7 @@
     if (p.photo.colle) x = p.cote === "droite" ? W - w : 0;   // toute la largeur de sa vidéo visible
     const [b0, b1] = p.corps || [0, 1];
     if (p.photo.entier) {                                    // pose large : il tient en entier dans la largeur
-      const bw = (b1 - b0) * w, lim = W * .96;
+      const bw = (b1 - b0) * w, lim = W * .7;   // il tient dans les 70 % de droite : la gauche est pour l'utilisateur
       if (bw > lim) { const k = lim / bw, yt = y + t * h; h *= k; w *= k; y = yt - t * h; }
       x = W * .98 - b1 * w;                                  // collé à droite, sans rien couper
     }
@@ -1025,7 +1025,7 @@
      Poses avec contact : la photo part toute seule quand la main de l'utilisateur touche celle du créateur
      (« CHECK ! ») ; sinon, au bout de ATTENTE_GESTE s, un 3-2-1. Autres poses : 3-2-1 peu après l'apparition. */
   const ATTENTE_GESTE = 9;   // s pour toucher sa main avant le 3-2-1
-  const TEXTE_GESTE = { poing: "👊 Touche le poing de Beufa !", paume: "✋ Tape dans la main de Beufa !", dessous: "🙌 Tape dans les mains de Beufa !" };
+  const TEXTE_GESTE = { poing: "👊 Touche mon poing !", paume: "✋ Tape dans ma main !", dessous: "🙌 Tape dans mes mains !" };
   const CRI_GESTE = { poing: "💥 CHECK !", paume: "💥 TOPE LÀ !", dessous: "💥 BIEN JOUÉ !" };
   let apparuA = null, visageLive = null, gesteA = 0;
   function ratioStudio() { const v = elStudioVideo; return v.videoWidth ? v.videoWidth / v.videoHeight : 3 / 4; }
@@ -1038,10 +1038,10 @@
     $("#contour").hidden = true;
     if (!p.video || !p.images) {                     // photo fixe : il apparaît maintenant
       elPartenaire.classList.add("apparu"); rejouer(elPartenaire, "surgit");
-      elBulle.textContent = hasard(["Coucou, c'est moi, Beufa !", "Surprise, c'est Beufa !", "Beufa est là !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
+      elBulle.textContent = hasard(["Coucou, c'est moi, Beufa !", "Surprise, c'est moi !", "Me voilà !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
       bip(784, .1); bip(1047, .12, .1); bip(1319, .16, .2); vibrer([40, 30, 80]);
     } else bip(880, .08);
-    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : p.video ? "😄 À toi, fais comme Beufa !" : "😄 Prends la pose avec Beufa !";
+    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : p.video ? "😄 À toi, fais comme moi !" : "😄 Prends la pose avec moi !";
     rejouer(elStudioCompte, "pop");
   }
   function suivreGeste() {
@@ -1369,7 +1369,7 @@
     const masque = `linear-gradient(to right, ${p.bordG ? "transparent 0, #000 7%" : "#000 0"}, ${p.bordD ? "#000 93%, transparent 100%" : "#000 100%"})`;
     elPartenaire.innerHTML = p.createur ? `<img src="${p.createur.src}" alt="" style="-webkit-mask-image:linear-gradient(to bottom,#000 88%,transparent 100%),${masque};mask-image:linear-gradient(to bottom,#000 88%,transparent 100%),${masque}"><b>Beufa</b>` : "<span>✨</span>Place gardée<br>pour une surprise";
     poseStudio = p; placeGardee();
-    elBulle.textContent = p.createur ? "C'est Beufa ! Fais la pose avec lui !" : "Laisse cette place libre !"; elBulle.classList.remove("reaction");
+    elBulle.textContent = p.createur ? "C'est moi, Beufa ! Fais la pose avec moi !" : "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
     elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}${p.video && p.createur ? " sans-ovale" : ""}`;
     etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
@@ -1408,8 +1408,8 @@
     clearInterval(videoT); videoFinA = null;
     const img = elPartenaire.querySelector("img"); if (!img) { videoFinA = tPause; return; }
     elPartenaire.classList.add("apparu"); $("#contour").hidden = true;
-    elBulle.textContent = "Regarde bien Beufa !"; elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
-    elCadre.classList.add("geste"); elStudioCompte.textContent = "👀 Regarde Beufa…";
+    elBulle.textContent = "Regarde-moi bien !"; elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
+    elCadre.classList.add("geste"); elStudioCompte.textContent = "👀 Regarde-moi bien…";
     let k = 0;
     const suite = () => {
       const im = p.images[k];
@@ -1584,6 +1584,36 @@
       .forEach(([dx, dy, r, c]) => etoile(x, cx + dx * l, cy + dy * l, r * l, c));
     x.restore();
   }
+  /* Sur la photo en duo dans le décor : l'utilisateur (détouré) est décalé vers la gauche, et réduit s'il prend trop
+     de place, pour laisser la droite à Beufa. Ses mesures (visage, bouche, main) suivent le même déplacement. */
+  const UTIL_CENTRE = .33, UTIL_LARGEUR = .6;
+  function decalerUtilisateur(ph, u, m, W, H) {
+    let x0 = m.w, x1 = -1;
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.alpha[y * m.w + x] > 128) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+    if (x1 < x0) return u;
+    const larg = (x1 - x0 + 1) / m.w, centre = (x0 + x1 + 1) / 2 / m.w;
+    const k = Math.min(1, UTIL_LARGEUR / larg);
+    const tx = (UTIL_CENTRE - centre * k) * W, ty = H * (1 - k);   // réduit vers le bas (les pieds restent en bas)
+    const v = document.createElement("canvas"); v.width = W; v.height = H;
+    const gv = v.getContext("2d"); gv.drawImage(u, tx, ty, W * k, H * k);
+    // le bord de sa caméra (son épaule coupée) arrive dans l'image : on l'adoucit
+    const l = W * k * .07; gv.globalCompositeOperation = "destination-out";
+    for (const [bord, a, b] of [[x0 <= 1, tx, tx + l], [x1 >= m.w - 2, tx + W * k, tx + W * k - l]]) {
+      if (!bord) continue;
+      const gr = gv.createLinearGradient(a, 0, b, 0); gr.addColorStop(0, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+      gv.fillStyle = gr; gv.fillRect(Math.min(a, b), 0, l, H);
+    }
+    gv.globalCompositeOperation = "source-over";
+    const fx = x => x * k + tx / W, fy = y => y * k + ty / H;
+    if (ph.visage) {
+      const vi = ph.visage;
+      ph.visage = Object.assign({}, vi, { cx: fx(vi.cx), haut: fy(vi.haut), h: vi.h * k,
+        bouche: vi.bouche && Object.assign({}, vi.bouche, { x: fx(vi.bouche.x), y: fy(vi.bouche.y), l: vi.bouche.l * k }) });
+    }
+    if (ph.main) ph.main = { x: fx(ph.main.x), y: fy(ph.main.y), taille: ph.main.taille * k };
+    return v;
+  }
+
   async function preparerPhotos() {
     const d = decorActuel(), fond = d ? await imageDecor(d) : null, teinte = fond ? teinteDe(fond) : null;
     for (const ph of photos) {
@@ -1595,8 +1625,8 @@
         // décor cadré comme un fond d'écran (couvre toute la photo)
         const k = Math.max(W / fond.width, H / fond.height), fw = fond.width * k, fh = fond.height * k;
         g.drawImage(fond, (W - fw) / 2, (H - fh) / 2, fw, fh);
-        // l'utilisateur détouré, à sa place
-        const u = document.createElement("canvas"); u.width = W; u.height = H;
+        // l'utilisateur détouré
+        let u = document.createElement("canvas"); u.width = W; u.height = H;
         const gu = u.getContext("2d"); gu.drawImage(ph.img, 0, 0, W, H);
         const mc = document.createElement("canvas"); mc.width = m.w; mc.height = m.h;
         const gm = mc.getContext("2d"), id = gm.createImageData(m.w, m.h);
@@ -1604,6 +1634,7 @@
         gm.putImageData(id, 0, 0);
         gu.globalCompositeOperation = "destination-in"; gu.imageSmoothingQuality = "high"; gu.drawImage(mc, 0, 0, W, H);
         teinter(gu, W, H, teinte, .1);
+        if (ph.pose.createur) u = decalerUtilisateur(ph, u, m, W, H);   // de la place pour Beufa à droite
         g.drawImage(u, 0, 0);
         ph.teinte = teinte;
         ph.perso = u;          // l'utilisateur seul : redessiné DEVANT le créateur (il est un pas derrière lui)
@@ -1863,7 +1894,7 @@
     clearTimeout(revT);
     const r = revs[revI], createur = !!r.pose.createur, part = r.pose.createur || r.pose.imgMascotte;
     $("#rev-titre").textContent = revI === 0 ? "Surprise\u00a0!" : "Et là\u00a0?";
-    $("#rev-sous").textContent = revI === 0 ? "Beufa est venu compléter ta photo…" : "Photo " + (revI + 1) + " sur " + revs.length;
+    $("#rev-sous").textContent = revI === 0 ? "Je suis venu compléter ta photo…" : "Photo " + (revI + 1) + " sur " + revs.length;
     document.querySelectorAll("#rev-points i").forEach((p, i) => p.classList.toggle("on", i <= revI));
     elRevScene.style.aspectRatio = String(r.ratio);
     elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
