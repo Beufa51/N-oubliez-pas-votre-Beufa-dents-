@@ -303,4 +303,7 @@ Pas de publication sur le Play Store.
   déjà tout), pastille de détection seulement quand il faut agir (« Brosse pour avancer », « Je ne vois pas ta bouche »).
 - [x] Double V : créateur un peu plus petit et collé au bord (bras entiers). Bulles de mousse sur la bouche retirées
   (envahissantes, surtout en brosse électrique) ; visibles seulement avec `?debug=1`.
+- [x] **Dents « méga blanches »** : étincelles (grosse étoile qui brille + éclats) sur le sourire du créateur sur toutes ses
+  photos (bouche mesurée sur chaque pose, `bouche` dans `POSES_BEUFA`), et sur l'utilisateur quand il sourit ; dessinées
+  au-dessus de tout (calque du dessus), photo et révélation.
 
