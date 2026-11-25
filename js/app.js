@@ -1248,56 +1248,48 @@
     return { x0: x + b.width * .3, x1: x + b.width * .7, y0: y + b.height * .32, y1: y + b.height * .68, r: b.width * .75 };
   }
   function nouveauMicrobe(W, H, x, y) {
-    const Z = zoneArene(W, H), r = Z.r * (.045 + Math.random() * .025);
+    const Z = zoneArene(W, H), r = Z.r * (.03 + Math.random() * .015);
     arene.microbes.push({ x: x ?? Z.x0 + Math.random() * (Z.x1 - Z.x0), y: y ?? Z.y0 + Math.random() * (Z.y1 - Z.y0),
       vx: (Math.random() - .5) * W * .25, vy: (Math.random() - .5) * H * .08, r, taille: 0, coups: 0, flash: 0, ph: Math.random() * 7,
-      chef: Math.random() < .12, sorte: Math.floor(Math.random() * 3),
-      couleur: ["#7fd14a", "#3fbfa8", "#9b6bd6", "#c7c94a"][Math.floor(Math.random() * 4)] });
+      chef: Math.random() < .12, forme: Array.from({ length: 9 }, () => Math.random() - .5),
+      taches: Array.from({ length: 4 }, () => [Math.random() * 7, Math.random() * .55, .12 + Math.random() * .12]),
+      couleur: ["#6fbf2e", "#8fc42a", "#4fae3c", "#a3b82a"][Math.floor(Math.random() * 4)] });
   }
-  /* microbes au look « labo » (bacille, amas de coques, virus à spicules) : corps translucide, noyaux, reflet */
-  function corpsGerme(g, r, c, a) {
-    const gr = g.createRadialGradient(-r * .3, -r * .3, r * .1, 0, 0, r * 1.1);
-    gr.addColorStop(0, "rgba(255,255,255,.55)"); gr.addColorStop(.35, c); gr.addColorStop(1, "rgba(10,25,20,.85)");
-    g.globalAlpha = a; g.fillStyle = gr; g.fill(); g.globalAlpha = 1;
-  }
+  /* microbe façon « pub pour savon » : petite boule visqueuse irrégulière, couverte de cils, avec des taches */
   function dessinerGerme(g, m, t) {
-    const r = m.r * m.taille * (m.chef ? 1.4 : 1), c = m.chef ? "#d2365a" : m.couleur, ph = t * 3 + m.ph;
-    g.save(); g.translate(m.x, m.y); g.rotate(Math.atan2(m.vy, m.vx) * .4 + Math.sin(ph * .5) * .2);
-    if (m.chef) {   // halo menaçant qui pulse
+    const r = m.r * m.taille * (m.chef ? 1.35 : 1), c = m.chef ? "#7a3fa0" : m.couleur, ph = t * 3 + m.ph, n = m.forme.length;
+    const ray = a => { const u = (a / (Math.PI * 2) * n + n) % n, k = Math.floor(u), f = u - k;
+      const o = m.forme[k] * (1 - f) + m.forme[(k + 1) % n] * f; return r * (1 + o * .28 + Math.sin(ph + a * 3) * .04); };
+    g.save(); g.translate(m.x, m.y); g.rotate(m.ph + Math.sin(ph * .3) * .3);
+    if (m.chef) {
       const h = g.createRadialGradient(0, 0, r * .8, 0, 0, r * 1.9);
-      h.addColorStop(0, "rgba(210,54,90,.45)"); h.addColorStop(1, "rgba(210,54,90,0)");
+      h.addColorStop(0, "rgba(122,63,160,.45)"); h.addColorStop(1, "rgba(122,63,160,0)");
       g.fillStyle = h; g.beginPath(); g.arc(0, 0, r * (1.8 + Math.sin(ph * 2) * .1), 0, 7); g.fill();
     }
-    g.strokeStyle = m.flash > 0 ? "#fff" : "rgba(5,20,15,.75)"; g.lineWidth = Math.max(1.2, r * (m.flash > 0 ? .14 : .06));
-    if (m.sorte === 0) {          // bacille : capsule allongée avec flagelles
-      g.save(); g.strokeStyle = "rgba(5,20,15,.5)"; g.lineWidth = Math.max(1, r * .05);
-      for (let k = -1; k <= 1; k++) { g.beginPath(); g.moveTo(-r * 1.25, k * r * .2);
-        for (let u = 1; u <= 6; u++) g.lineTo(-r * 1.25 - u * r * .14, k * r * .2 + Math.sin(ph * 2 + u + k) * r * .12); g.stroke(); }
-      g.restore();
-      const L = r * 1.3, e = r * .6 * (1 + Math.sin(ph) * .04);
-      g.beginPath(); g.moveTo(-L + e, -e); g.lineTo(L - e, -e); g.arc(L - e, 0, e, -Math.PI / 2, Math.PI / 2); g.lineTo(-L + e, e); g.arc(-L + e, 0, e, Math.PI / 2, Math.PI * 1.5);
-      corpsGerme(g, r, c, .9); g.stroke();
-      g.fillStyle = "rgba(5,30,20,.45)"; [-.45, .1, .6].forEach((x, k) => { g.beginPath(); g.arc(x * r, (k - 1) * r * .12, r * .13, 0, 7); g.fill(); });
-    } else if (m.sorte === 1) {   // amas de coques
-      [[-.45, -.3], [.4, -.35], [0, .35], [-.15, -.05], [.5, .3]].forEach(([x, y], k) => {
-        const rr = r * (.5 + (k % 2) * .08) * (1 + Math.sin(ph + k) * .05);
-        g.beginPath(); g.arc(x * r, y * r, rr, 0, 7); g.save(); g.translate(x * r, y * r); corpsGerme(g, rr, c, .88); g.restore(); g.stroke();
-      });
-    } else {                      // virus à spicules
-      for (let k = 0; k < 12; k++) {
-        const a = k * Math.PI / 6 + Math.sin(ph * .7) * .1, l = r * (1.35 + Math.sin(ph + k) * .05);
-        g.beginPath(); g.moveTo(Math.cos(a) * r * .9, Math.sin(a) * r * .9); g.lineTo(Math.cos(a) * l, Math.sin(a) * l); g.stroke();
-        g.fillStyle = c; g.beginPath(); g.arc(Math.cos(a) * l, Math.sin(a) * l, r * .12, 0, 7); g.fill(); g.stroke();
-      }
-      g.beginPath(); g.arc(0, 0, r, 0, 7); corpsGerme(g, r, c, .92); g.stroke();
-      g.strokeStyle = "rgba(5,30,20,.35)"; g.lineWidth = Math.max(1, r * .05);
-      g.beginPath(); g.arc(0, 0, r * .55, 0, 7); g.stroke();
+    // cils tout autour
+    g.strokeStyle = c; g.lineWidth = Math.max(1, r * .07); g.lineCap = "round"; g.beginPath();
+    for (let k = 0; k < 26; k++) {
+      const a = k / 26 * Math.PI * 2, R = ray(a), l = r * (.22 + Math.sin(ph * 2 + k) * .06), d = Math.sin(ph * 2 + k * 1.7) * .25;
+      g.moveTo(Math.cos(a) * R * .97, Math.sin(a) * R * .97); g.lineTo(Math.cos(a + d * .3) * (R + l), Math.sin(a + d * .3) * (R + l));
     }
+    g.stroke();
+    // corps
+    g.beginPath();
+    for (let k = 0; k <= 36; k++) { const a = k / 36 * Math.PI * 2, R = ray(a); k ? g.lineTo(Math.cos(a) * R, Math.sin(a) * R) : g.moveTo(Math.cos(a) * R, Math.sin(a) * R); }
+    g.closePath();
+    const gr = g.createRadialGradient(-r * .35, -r * .35, r * .05, 0, 0, r * 1.2);
+    gr.addColorStop(0, "rgba(255,255,230,.9)"); gr.addColorStop(.3, c); gr.addColorStop(1, "rgba(20,40,5,.95)");
+    g.fillStyle = gr; g.fill();
+    g.strokeStyle = m.flash > 0 ? "#fff" : "rgba(15,35,5,.8)"; g.lineWidth = Math.max(1.2, r * (m.flash > 0 ? .16 : .07)); g.stroke();
+    // taches et petites bulles à l'intérieur
+    g.fillStyle = "rgba(25,50,5,.45)";
+    for (const [a, d, s] of m.taches) { g.beginPath(); g.arc(Math.cos(a) * d * r, Math.sin(a) * d * r, s * r, 0, 7); g.fill(); }
+    g.fillStyle = "rgba(255,255,255,.55)"; g.beginPath(); g.ellipse(-r * .35, -r * .4, r * .18, r * .1, -.6, 0, 7); g.fill();
     g.restore();
   }
   function eclater(m) {
     // éclatement : onde de choc + gouttelettes de la couleur du microbe (pas de confettis)
-    const c = m.chef ? "#d2365a" : m.couleur;
+    const c = m.chef ? "#7a3fa0" : m.couleur;
     for (let k = 0; k < (m.chef ? 22 : 12); k++) {
       const a = Math.random() * 7, v = m.r * (3 + Math.random() * 5);
       arene.eclats.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - m.r, r: m.r * (.08 + Math.random() * .12), c, vie: 1 });
