@@ -87,7 +87,7 @@
       main: { x: .137, y: .39, taille: .1353, contact: "poing" } },
     { id: "pouce", nom: "Victoire", contour: true, video: 28, mascotte: "pouce", cote: "droite", emoji: "✌️",
       consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, echelle: .72, colle: true } },
     { id: "cool", nom: "Cool", contour: true, video: 32, mascotte: "pouce", cote: "droite", emoji: "🤙",
       consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
       photo: { tete: [.137, .321, .438], hh: .24, top: .15, dx: .17 } },
@@ -1188,7 +1188,7 @@
       ? (nx, ny) => ({ x: f.x - ol + (1 - (nx - f.rx) / f.t) * f.fw, y: f.y - ot + (ny - f.ry) / f.t * f.fh })
       : (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
     gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
-    if (d.brosse && d.bouche) {
+    if (DEBUG && d.brosse && d.bouche) {          // bulles de mousse : seulement en mode réglage (trop envahissantes)
       const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * (inc ? inc.w * INC.zoom() : f ? f.fw / f.t : dw);
       if (Math.random() < .6) for (let i = 0; i < 1; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
         r: L * (.03 + Math.random() * .06), vx: (Math.random() - .5) * L * .6, vy: -L * (.3 + Math.random() * .5), vie: 1 });
