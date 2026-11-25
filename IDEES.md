@@ -333,4 +333,4 @@ Pas de publication sur le Play Store.
 - [x] **Nouvelle intro animée** (calée sur la chanson) : décors qui défilent en rythme derrière, panneau qui tombe avec
   flash et confettis, Beufa qui saute dans l'image (vidéo ta-da), la brosse Beufa dents qui arrive, « Brosse-toi les
   dents avec Beufa ! » ; bouton pour passer toujours visible ; version immobile si « réduire les animations ».
-
+- [x] Intro : Beufa en double V (au lieu du ta-da), plus grand et collé sous le panneau (`INTRO_POSE` dans `js/app.js` pour essayer une autre pose).

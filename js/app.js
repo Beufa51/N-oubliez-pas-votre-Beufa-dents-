@@ -2052,7 +2052,7 @@
   /* ---------- générique animé, calé sur la chanson (≈ 129 BPM, 2 temps = 0,93 s) ----------
      0 s : les décors défilent derrière ; 0,2 s : le panneau tombe (flash, confettis) ; 1,9 s : Beufa saute dans
      l'image (sa vidéo « ta-da ! ») ; 3,8 s : la brosse Beufa dents arrive ; 4,5 s : la phrase. */
-  const DEUX_TEMPS = 930;
+  const DEUX_TEMPS = 930, INTRO_POSE = "pouce";   // pose de Beufa dans le générique : le double V
   let introT = [], introDecorT = 0;
   function animerIntro() {
     const ec = ecrans.intro, att = (ms, f) => introT.push(setTimeout(f, ms));
@@ -2066,13 +2066,15 @@
     let k = 0; imgs[0].classList.add("vu");
     introDecorT = setInterval(() => { imgs[k].classList.remove("vu"); k = (k + 1) % imgs.length; imgs[k].classList.add("vu"); }, DEUX_TEMPS * 2);
     // Beufa : images de sa vidéo « ta-da » préchargées
-    const N = 20, cadres = Array.from({ length: N }, (_, n) => { const i = new Image(); i.src = `assets/createur/video/tada/${String(n).padStart(2, "0")}.webp`; return i; });
+    // pose du générique (vidéo de Beufa) : changer INTRO_POSE pour essayer une autre pose (« pensif », « tada »…)
+    const p = POSES_BEUFA.find(x => x.id === INTRO_POSE), N = p.video;
+    const cadres = Array.from({ length: N }, (_, n) => { const i = new Image(); i.src = `assets/createur/video/${p.id}/${String(n).padStart(2, "0")}.webp`; return i; });
     const elB = $("#intro-beufa"); elB.removeAttribute("src");
     att(200, () => { ec.classList.add("entre"); rejouer($("#intro-flash"), "go"); confettis($("#intro-confettis")); });
     att(DEUX_TEMPS * 2, () => {
-      ec.classList.add("beufa"); let n = 2;            // les 2 premières images sont vides (avant son entrée)
+      ec.classList.add("beufa"); let n = 0;
       const t = setInterval(() => {
-        if (n >= N) { clearInterval(t); elB.src = "assets/createur/tada.webp"; return; }
+        if (n >= N) { clearInterval(t); elB.src = `assets/createur/${p.id}.webp`; return; }
         if (cadres[n].complete && cadres[n].naturalWidth) elB.src = cadres[n].src; n++;
       }, 1000 / 12);
       introT.push(t);
