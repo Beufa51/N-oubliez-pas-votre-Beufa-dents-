@@ -78,39 +78,39 @@
     { id: "high-five", nom: "High five", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "✋",
       consigne: "Tape dans sa main : high five !", geste: "Lève la main : high five !",
       cible: { x: .153, y: .181, texte: "ta main ici" },
-      photo: { tete: [.058, .277, .637], hh: .24, top: .15, dx: .17 },
+      photo: { tete: [.058, .277, .637], hh: .24, top: .15, dx: .17 }, bouche: [0.582, 0.227, 0.088],
       main: { x: .153, y: .181, taille: .0844, contact: "paume" } },
     { id: "check-poing", nom: "Check", contour: true, video: 37, mascotte: "main-levee", cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
       cible: { x: .137, y: .39, texte: "ton poing ici" },
-      photo: { tete: [.077, .3, .692], hh: .24, top: .15, dx: .17 },
+      photo: { tete: [.077, .3, .692], hh: .24, top: .15, dx: .17 }, bouche: [0.621, 0.248, 0.113],
       main: { x: .137, y: .39, taille: .1353, contact: "poing" } },
     { id: "pouce", nom: "Victoire", contour: true, video: 28, mascotte: "pouce", cote: "droite", emoji: "✌️",
       consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, echelle: .72, colle: true } },
+      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, echelle: .72, colle: true }, bouche: [0.573, 0.354, 0.064] },
     { id: "cool", nom: "Cool", contour: true, video: 32, mascotte: "pouce", cote: "droite", emoji: "🤙",
       consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
-      photo: { tete: [.137, .321, .438], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.137, .321, .438], hh: .24, top: .15, dx: .17 }, bouche: [0.472, 0.275, 0.081] },
     { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
       consigne: "Fais un cœur avec tes mains, comme lui !", geste: "Fais un cœur avec tes mains",
-      photo: { tete: [.184, .353, .338], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.184, .353, .338], hh: .24, top: .15, dx: .17 }, bouche: [0.375, 0.311, 0.084] },
     { id: "pointe", nom: "Montre du doigt", contour: true, video: 34, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
       consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
-      photo: { tete: [.094, .3, .66], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.094, .3, .66], hh: .24, top: .15, dx: .17 }, bouche: [0.607, 0.251, 0.089] },
     { id: "pensif", nom: "Pensif", contour: true, video: 32, mascotte: "pensif", cote: "droite", emoji: "🤔",
       consigne: "Main au menton, l'air pensif, comme lui !", geste: "Prends l'air pensif…",
-      photo: { tete: [.23, .392, .647], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.23, .392, .647], hh: .24, top: .15, dx: .17 }, bouche: [0.613, 0.348, 0.058] },
     { id: "bras-croises", nom: "Bras croisés", contour: true, video: 37, mascotte: "bras-croises", cote: "droite", emoji: "💪",
       consigne: "Croise les bras, l'air sûr de toi, comme lui !", geste: "Croise les bras, l'air sûr de toi",
-      photo: { tete: [.042, .23, .468], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.042, .23, .468], hh: .24, top: .15, dx: .17 }, bouche: [0.473, 0.183, 0.081] },
     { id: "mains-hanches", nom: "Tape dans mes mains", video: 30, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
       cible: { x: .213, y: .58, texte: "tes mains ici" },
-      photo: { tete: [.107, .298, .736], hh: .24, top: .15, dx: .17 },
+      photo: { tete: [.107, .298, .736], hh: .24, top: .15, dx: .17 }, bouche: [0.688, 0.256, 0.063],
       main: { x: .213, y: .638, taille: .0858, contact: "dessous" } },
     { id: "tada", nom: "Ta-da !", contour: true, video: 27, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
       consigne: "Bras grands ouverts : ta-da !", geste: "Bras grands ouverts : ta-da !",
-      photo: { tete: [.269, .429, .445], hh: .24, top: .15, dx: .17, echelle: .62, colle: true } }
+      photo: { tete: [.269, .429, .445], hh: .24, top: .15, dx: .17, echelle: .62, colle: true }, bouche: [0.439, 0.39, 0.076] }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -1548,10 +1548,24 @@
     g.save(); g.globalCompositeOperation = "source-atop"; g.fillStyle = `rgba(${t[0]},${t[1]},${t[2]},${force})`;
     g.fillRect(0, 0, W, H); g.restore();
   }
+  // grosse étoile à 4 branches qui brille (effet pub de dentifrice) + petits éclats autour
+  function eclat(x, cx, cy, r) {
+    x.save(); x.translate(cx, cy); x.fillStyle = "#fff"; x.shadowColor = "rgba(255,255,255,1)"; x.shadowBlur = r * .9;
+    x.beginPath();
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * .16 : r; x.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    x.closePath(); x.fill(); x.fill(); x.restore();
+  }
+  function scintiller(x, cx, cy, l) {
+    eclat(x, cx + l * .4, cy - l * .12, l * .7);
+    eclat(x, cx - l * .35, cy + l * .05, l * .45);
+    eclat(x, cx + l * .02, cy - l * .5, l * .26);
+    eclat(x, cx + l * .7, cy + l * .32, l * .2);
+  }
   // étincelles sur les dents quand l'utilisateur sourit « toutes dents dehors »
   function etincelles(x, b, W, H) {
     if (!b || !b.dents) return;
     const cx = b.x * W, cy = b.y * H, l = b.l * W;
+    scintiller(x, cx, cy, l); return;
     x.save(); x.shadowColor = "rgba(255,255,255,.95)"; x.shadowBlur = l * .25;
     [[-.6, -.15, .32, "#fff"], [.62, -.05, .26, "#fff8c4"], [.08, -.5, .17, "#fff"], [-.2, .38, .14, "#e6fbff"], [.38, .34, .11, "#fff"]]
       .forEach(([dx, dy, r, c]) => etoile(x, cx + dx * l, cy + dy * l, r * l, c));
@@ -1580,8 +1594,11 @@
         g.drawImage(u, 0, 0);
         ph.teinte = teinte;
         ph.perso = u;          // l'utilisateur seul : redessiné DEVANT le créateur (il est un pas derrière lui)
+        // calque du dessus = l'utilisateur + les étincelles des dents (les siennes et celles du créateur)
+        const ds = document.createElement("canvas"); ds.width = W; ds.height = H;
+        ds.getContext("2d").drawImage(u, 0, 0); ph.dessus = ds;
       } else g.drawImage(ph.img, 0, 0, W, H);
-      etincelles(g, ph.visage && ph.visage.bouche, W, H);
+      etincelles(ph.dessus ? ph.dessus.getContext("2d") : g, ph.visage && ph.visage.bouche, W, H);
       ph.base = c;
       if (ph.pose.createur) ph.calque = calqueCreateur(ph);
     }
@@ -1639,10 +1656,16 @@
       }
     } catch (e) {}
     teinter(g, W, H, ph.teinte, .1);                   // même lumière que le décor
+    // dents « méga blanches » : étincelles sur son sourire, sur toutes ses photos
+    if (pose.bouche) {
+      const [bx, by, bl] = pose.bouche, cx = r.x + bx * r.w, cy = r.y + by * r.h, l = bl * r.w;
+      // l'utilisateur est redessiné devant lui : ses étincelles vont sur ce calque du dessus, sinon sur le sien
+      if (ph.dessus) scintiller(ph.dessus.getContext("2d"), cx, cy, l); else scintiller(g, cx, cy, l);
+    }
     return { canvas: c, r };
   }
 
-  function composer({ pose, img, bulle, tampon, visage, calque, base, perso }) {
+  function composer({ pose, img, bulle, tampon, visage, calque, base, dessus }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
@@ -1655,7 +1678,7 @@
       x.shadowColor = "rgba(0,0,0,.3)"; x.shadowBlur = 22; x.shadowOffsetY = 6;
       x.drawImage(cq.canvas, 0, 0, W, H);
       x.restore();
-      if (perso) x.drawImage(perso, 0, 0, W, H);           // l'utilisateur devant : ses bras ne sont pas coupés
+      if (dessus) x.drawImage(dessus, 0, 0, W, H);           // l'utilisateur devant : ses bras ne sont pas coupés
       if (bulle) bulleCanvas(x, bulle, pose.cote === "droite" ? W * .66 : W * .34, Math.max(70, r.ty - 70), pose.cote === "droite" ? 1 : -1);
     } else if (part.naturalWidth) {
       const h = H * PART.mascotteH;
@@ -1806,7 +1829,7 @@
       $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
       const revs = photos.map(ph => ({ url: (ph.base || ph.img).toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon,
         calque: ph.calque ? ph.calque.canvas.toDataURL("image/webp", .9) : null,
-        perso: ph.perso && ph.calque ? ph.perso.toDataURL("image/webp", .9) : null }));
+        perso: ph.dessus && ph.calque ? ph.dessus.toDataURL("image/webp", .9) : null }));
       afficherMontages();
       lancerRevelation(revs, recompense);
     });
