@@ -288,4 +288,7 @@ Pas de publication sur le Play Store.
   « À toi ! » : l'utilisateur se place sur sa pose figée, contact ou 3-2-1, photo ; la photo utilise la dernière image.
   Vidéos : check, double V (sourire brillant), **cool 🤙** (nouvelle pose), **cœur** (enfin avec le créateur), pensif.
   Photos fixes gardées pour high five, montre du doigt, tape dans mes mains, dos à dos.
+- [x] **Que des vidéos** (session 13) : 10 poses filmées (dont **bras croisés** qui surgit du bas et **ta-da** qui saute dans
+  l'image), anciennes photos et ombres animées retirées. Créateur jamais trop zoomé (tête plafonnée à 28 % de la photo,
+  contact sans agrandir de plus de 20 %), tête et visage toujours dans l'image, bords de ses vidéos fondus.
 

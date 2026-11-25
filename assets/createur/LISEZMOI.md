@@ -59,3 +59,9 @@ image en grand comme photo fixe `<id>.webp`. Ensuite : mesurer tête/main sur la
 `python3 tools/contours.py`. Vidéos en place : check, V (double), cool (nouvelle pose), cœur, pensif (le créateur est à droite).
 Filmer : téléphone posé, entrer par la droite, faire le geste, rester figé ~1 s ; éviter la lampe juste derrière la tête.
 
+## Session 13 : que des vidéos
+Toutes les poses sont des vidéos (tournées de plus loin, sans la lampe derrière la tête) : high five, check, double V
+(photo finale), cool, cœur, montre du doigt, pensif, bras croisés (il surgit du bas), tape dans mes mains, ta-da (il saute
+dans l'image). High five, check et montre du doigt : vidéos retournées (`miroir`) ; tape dans mes mains et pensif retournés
+ensuite, pour qu'il soit tourné vers l'utilisateur. Les anciennes photos et ombres animées sont remplacées.
+

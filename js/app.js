@@ -75,40 +75,42 @@
      du créateur et une cible (cible = point de sa photo où l'utilisateur doit mettre la main, en fraction).
      geste = consigne sans le créateur (pauses du mode Classique, ou photo absente). */
   const POSES_BEUFA = [
-    { id: "high-five", nom: "High five", contour: true, mascotte: "main-levee", cote: "droite", emoji: "✋",
+    { id: "high-five", nom: "High five", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "✋",
       consigne: "Tape dans sa main : high five !", geste: "Lève la main : high five !",
-      cible: { x: .095, y: .171, texte: "ta main ici" },
-      photo: { tete: [.05, .407, .77], hh: .24, top: .15, dx: .17 },
-      main: { x: .095, y: .171, taille: .1774, contact: "paume" } },
-    { id: "check-poing", nom: "Check", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "👊",
+      cible: { x: .153, y: .181, texte: "ta main ici" },
+      photo: { tete: [.058, .277, .637], hh: .24, top: .15, dx: .17 },
+      main: { x: .153, y: .181, taille: .0844, contact: "paume" } },
+    { id: "check-poing", nom: "Check", contour: true, video: 37, mascotte: "main-levee", cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
-      cible: { x: .119, y: .473, texte: "ton poing ici" },
-      photo: { tete: [.046, .307, .54], hh: .24, top: .15, dx: .17 },
-      main: { x: .119, y: .473, taille: .0971, contact: "poing" } },
-    { id: "pouce", nom: "Victoire", contour: true, video: 31, mascotte: "pouce", cote: "droite", emoji: "✌️",
+      cible: { x: .137, y: .39, texte: "ton poing ici" },
+      photo: { tete: [.077, .3, .692], hh: .24, top: .15, dx: .17 },
+      main: { x: .137, y: .39, taille: .1353, contact: "poing" } },
+    { id: "pouce", nom: "Victoire", contour: true, video: 28, mascotte: "pouce", cote: "droite", emoji: "✌️",
       consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [.233, .433, .369], hh: .24, top: .15, dx: .17 } },
-    { id: "cool", nom: "Cool", contour: true, video: 25, mascotte: "pouce", cote: "droite", emoji: "🤙",
+      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17 } },
+    { id: "cool", nom: "Cool", contour: true, video: 32, mascotte: "pouce", cote: "droite", emoji: "🤙",
       consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
-      photo: { tete: [.138, .396, .393], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.137, .321, .438], hh: .24, top: .15, dx: .17 } },
     { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
       consigne: "Fais un cœur avec tes mains, comme lui !", geste: "Fais un cœur avec tes mains",
-      photo: { tete: [.216, .398, .222], hh: .24, top: .15, dx: .17 } },
-    { id: "pointe", nom: "Montre du doigt", contour: true, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
+      photo: { tete: [.184, .353, .338], hh: .24, top: .15, dx: .17 } },
+    { id: "pointe", nom: "Montre du doigt", contour: true, video: 34, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
       consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
-      photo: { tete: [.057, .468, .846], hh: .24, top: .15, dx: .17 } },
-    { id: "pensif", nom: "Pensif", contour: true, video: 33, mascotte: "pensif", cote: "droite", emoji: "🤔",
+      photo: { tete: [.094, .3, .66], hh: .24, top: .15, dx: .17 } },
+    { id: "pensif", nom: "Pensif", contour: true, video: 32, mascotte: "pensif", cote: "droite", emoji: "🤔",
       consigne: "Main au menton, l'air pensif, comme lui !", geste: "Prends l'air pensif…",
-      photo: { tete: [.178, .344, .217], hh: .24, top: .15, dx: .17 } },
-    { id: "bras-croises", nom: "Dos à dos", anim: 6, contour: true, mascotte: "bras-croises", cote: "droite", emoji: "👥",
-      consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
-      cible: { x: .03, y: .45, texte: "ton dos ici" },
-      photo: { tete: [.05, .357, .265], hh: .24, top: .15, dx: .17 } },
-    { id: "mains-hanches", nom: "Tape dans mes mains", anim: 8, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
+      photo: { tete: [.23, .392, .647], hh: .24, top: .15, dx: .17 } },
+    { id: "bras-croises", nom: "Bras croisés", contour: true, video: 37, mascotte: "bras-croises", cote: "droite", emoji: "💪",
+      consigne: "Croise les bras, l'air sûr de toi, comme lui !", geste: "Croise les bras, l'air sûr de toi",
+      photo: { tete: [.042, .23, .468], hh: .24, top: .15, dx: .17 } },
+    { id: "mains-hanches", nom: "Tape dans mes mains", video: 30, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
-      cible: { x: .2, y: .44, texte: "tes mains ici" },
-      photo: { tete: [.061, .462, .868], hh: .24, top: .15, dx: .17 },
-      main: { x: .2, y: .526, taille: .2289, contact: "dessous" } }
+      cible: { x: .213, y: .58, texte: "tes mains ici" },
+      photo: { tete: [.107, .298, .736], hh: .24, top: .15, dx: .17 },
+      main: { x: .213, y: .638, taille: .0858, contact: "dessous" } },
+    { id: "tada", nom: "Ta-da !", contour: true, video: 27, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
+      consigne: "Bras grands ouverts : ta-da !", geste: "Bras grands ouverts : ta-da !",
+      photo: { tete: [.269, .429, .445], hh: .24, top: .15, dx: .17 } }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -156,7 +158,7 @@
   const TAILLE_CREATEUR = .9;   // sa tête = 90 % de celle de l'utilisateur (un pas derrière lui)
   function placeCreateur(p, W, H, visage, main) {
     const c = p.createur, [t, m, cx] = p.photo.tete, ratio = c.naturalWidth / c.naturalHeight;
-    const hh = visage ? Math.max(.12, Math.min(.38, visage.h * TAILLE_CREATEUR)) : p.photo.hh;
+    const hh = visage ? Math.max(.12, Math.min(.28, visage.h * TAILLE_CREATEUR)) : p.photo.hh;   // plafond : jamais trop zoomé
     const top = visage ? Math.max(.04, Math.min(.4, visage.haut)) : p.photo.top;
     const dx = Math.min(.3, p.photo.dx * hh / p.photo.hh);   // plus grand = un peu plus loin du bord
     // sa tête à la hauteur de celle de l'utilisateur ; si le bas de sa photo n'atteint pas le bord, il est fondu
@@ -165,17 +167,18 @@
     let x = (p.cote === "droite" ? W - dx * H : dx * H) - cx * w;
     if (p.main && main) {
       const pm = p.main, hv = h;
-      h = Math.max(hv * .7, Math.min(hv * 1.5, main.taille * H / pm.taille));   // même taille de main (sans exagérer)
+      h = Math.max(hv * .8, Math.min(hv * 1.2, main.taille * H / pm.taille));   // même taille de main (sans exagérer)
       const sens = p.cote === "droite" ? 1 : -1, tm = main.taille * H;
       // point de contact visé : à côté du poing, contre la paume, ou juste sous les mains
       const cxv = main.x * W + (pm.contact === "poing" ? sens * tm * .95 : pm.contact === "paume" ? sens * tm * .35 : 0);
       const cyv = main.y * H + (pm.contact === "dessous" ? tm * .9 : 0);
       w = h * ratio; x = cxv - pm.x * w; y = cyv - pm.y * h;
       // sa tête ne doit pas tomber loin sous celle de l'utilisateur : on remonte (contact un peu décalé au pire)
-      const yt = y + t * h, ytMax = (visage ? visage.haut + visage.h * .5 : .3) * H;
+      const yt = y + t * h, ytMax = (visage ? visage.haut + visage.h * .5 : .3) * H, ytMin = .03 * H;
       if (yt > ytMax) y -= yt - ytMax;
+      if (y + t * h < ytMin) y += ytMin - (y + t * h);   // sa tête toujours dans l'image
       // son visage doit rester dans l'image : sinon on le ramène (les mains se chevauchent un peu)
-      const vx = x + cx * w, lim = W * .1;
+      const vx = x + cx * w, lim = W * .2;   // son visage entier dans l'image
       if (p.cote === "droite" && vx > W - lim) x -= vx - (W - lim);
       if (p.cote === "gauche" && vx < lim) x += lim - vx;
     }
@@ -1593,6 +1596,15 @@
     if ("filter" in g) g.filter = "blur(0.7px)";           // un peu moins net, comme une caméra avant
     g.drawImage(part, r.x, r.y, r.w, r.h);
     if ("filter" in g) g.filter = "none";
+    {                                                      // côtés de sa vidéo (bord de l'image filmée) : fondu
+      const l = r.w * .06;
+      g.save(); g.globalCompositeOperation = "destination-out";
+      for (const [x0, x1] of [[r.x, r.x + l], [r.x + r.w, r.x + r.w - l]]) {
+        const gr = g.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = gr; g.fillRect(Math.min(x0, x1), r.y, l, r.h);
+      }
+      g.restore();
+    }
     if (r.flotte) {                                        // bas de sa photo au-dessus du bord : fondu
       const b = r.h * .22, gr = g.createLinearGradient(0, r.y + r.h - b, 0, r.y + r.h);
       gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,1)");

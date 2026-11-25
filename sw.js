@@ -4,7 +4,7 @@
 // - Images, sons, police : copie locale d'abord (lourds et ils changent rarement).
 // - Les fichiers sont toujours téléchargés en contournant le cache du navigateur ({ cache: "reload" }),
 //   sinon une copie vieille de quelques minutes pourrait être gardée par erreur.
-const VERSION = "beufa-v41";
+const VERSION = "beufa-v42";
 // détection du brossage (~18 Mo) : gardée à part, téléchargée seulement au premier brossage avec caméra,
 // et pas re-téléchargée à chaque nouvelle version de l'appli (changer ce nom si on change de modèle)
 const VISION = "beufa-vision-1.2.2";
@@ -21,7 +21,7 @@ const FICHIERS = [
   "assets/mascotte/png/pose-bras-croises.png",
   "assets/createur/high-five.webp", "assets/createur/check-poing.webp", "assets/createur/pouce.webp",
   "assets/createur/pointe.webp", "assets/createur/bras-croises.webp", "assets/createur/mains-hanches.webp",
-  "assets/createur/pensif.webp"
+  "assets/createur/pensif.webp", "assets/createur/cool.webp", "assets/createur/coeur.webp", "assets/createur/tada.webp"
 ];
 const LOURD = /\.(png|jpe?g|webp|mp3|woff2)$/i;
 
