@@ -301,4 +301,6 @@ Pas de publication sur le Play Store.
   **l'utilisateur devant le créateur** sur la photo finale (ses bras ne sont plus coupés), détourage des photos plus souple,
   vérifié sur les 5 décors ; **écran de brossage allégé** : compteur vert de microbes et 3 points retirés (le schéma montre
   déjà tout), pastille de détection seulement quand il faut agir (« Brosse pour avancer », « Je ne vois pas ta bouche »).
+- [x] Double V : créateur un peu plus petit et collé au bord (bras entiers). Bulles de mousse sur la bouche retirées
+  (envahissantes, surtout en brosse électrique) ; visibles seulement avec `?debug=1`.
 
