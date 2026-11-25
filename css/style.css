@@ -1268,3 +1268,8 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 /* studio : l'utilisateur détouré devant Beufa */
 .studio-perso { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .studio-perso[hidden] { display: none; }
+
+/* tirs de la brosse sur le schéma (façon Pokémon Smile) */
+#bouche .tir { fill: #fff; stroke: #2ee6ff; stroke-width: 1.5; filter: drop-shadow(0 0 3px #2ee6ff); }
+#bouche .microbe.touche .m-corps, #bouche .microbe.touche .m-pic { animation: touche .18s ease-out; }
+@keyframes touche { 0% { fill: #fff; } 100% { } }

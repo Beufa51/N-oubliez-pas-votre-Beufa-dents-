@@ -339,8 +339,8 @@ Pas de publication sur le Play Store.
   `tools/dents.js`) : les photos du créateur et de l'utilisateur ne sont pas retouchées (choix du créateur).
 - [x] Étoiles des dents retirées des photos (gardées seulement dans l'intro). Pendant la prise de photo, l'utilisateur est
   détouré en direct et affiché **devant Beufa**, comme sur la photo finale (Beufa ne le gêne plus).
-- [x] **Chasse aux microbes sur la caméra** (façon Pokémon Smile) : les 6 microbes de la zone flottent à côté du visage, du
-  côté de la zone ; quand le brossage avance, des tirs étincelants partent de la bouche, ils clignotent, rapetissent, puis
-  explosent en confettis (« POP ! », « CHEF K.O. ! »). Les dents sont nettoyées l'une après l'autre (un microbe toutes les ~5 s).
+- [x] **Chasse aux microbes sur le schéma** (façon Pokémon Smile ; d'abord essayée sur le visage, retirée : ça le cachait) :
+  la brosse du schéma tire sur le microbe de la dent en cours, il clignote et rapetisse, puis explose en confettis ;
+  pas de tir quand on ne brosse pas. Les dents sont nettoyées l'une après l'autre (un microbe toutes les ~5 s).
 - [x] Intro : « ting » joué une seule fois. Poses sans contact : « Fais comme moi… ou invente ta pose ! ».
 
