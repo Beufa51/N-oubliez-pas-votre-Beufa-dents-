@@ -335,3 +335,8 @@ Pas de publication sur le Play Store.
   dents avec Beufa ! » ; bouton pour passer toujours visible ; version immobile si « réduire les animations ».
 - [x] Intro : Beufa fait le signe « cool » 🤙 (après essais ta-da et double V), plus grand et collé sous le panneau (`INTRO_POSE` dans `js/app.js` pour essayer une autre pose).
 - [x] Intro : « ting ! » (petite étoile + son aigu) au coin du sourire de Beufa quand il s'arrête sur sa pose, puis toutes les 4 s.
+- [x] **Dents blanchies** (`js/dents.js`) : seulement à l'intérieur du contour intérieur des lèvres (resserré), seulement les
+  pixels proches des dents (clairs, pas plus rosés que les dents) ; relief gardé, points isolés effacés. Appliqué sur les
+  photos du créateur où c'est propre (high five, cœur, cool, montre du doigt ; pas ta-da ni check : taches / dents dans l'ombre)
+  et sur la photo de l'utilisateur quand il sourit bouche ouverte.
+

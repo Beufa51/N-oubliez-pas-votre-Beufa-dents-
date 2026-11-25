@@ -1613,6 +1613,12 @@
     return v;
   }
 
+  // dents « méga blanches » de l'utilisateur (js/dents.js), seulement s'il sourit bouche ouverte
+  function blanchirUtilisateur(g, ph, W, H) {
+    const b = ph.visage && ph.visage.bouche;
+    if (b && b.dents && b.levres && window.BeufaDents) try { BeufaDents.blanchir(g, b.levres, W, H, .9); } catch (e) {}
+  }
+
   async function preparerPhotos() {
     const d = decorActuel(), fond = d ? await imageDecor(d) : null, teinte = fond ? teinteDe(fond) : null;
     for (const ph of photos) {
@@ -1632,6 +1638,8 @@
         for (let i = 0; i < m.w * m.h; i++) { id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = 255; id.data[i * 4 + 3] = m.alpha[i]; }
         gm.putImageData(id, 0, 0);
         gu.globalCompositeOperation = "destination-in"; gu.imageSmoothingQuality = "high"; gu.drawImage(mc, 0, 0, W, H);
+        gu.globalCompositeOperation = "source-over";
+        blanchirUtilisateur(gu, ph, W, H);
         teinter(gu, W, H, teinte, .1);
         if (ph.pose.createur) u = decalerUtilisateur(ph, u, m, W, H);   // de la place pour Beufa à droite
         g.drawImage(u, 0, 0);
@@ -1640,7 +1648,7 @@
         // calque du dessus = l'utilisateur + les étincelles des dents (les siennes et celles du créateur)
         const ds = document.createElement("canvas"); ds.width = W; ds.height = H;
         ds.getContext("2d").drawImage(u, 0, 0); ph.dessus = ds;
-      } else g.drawImage(ph.img, 0, 0, W, H);
+      } else { g.drawImage(ph.img, 0, 0, W, H); blanchirUtilisateur(g, ph, W, H); }
       etincelles(ph.dessus ? ph.dessus.getContext("2d") : g, ph.visage && ph.visage.bouche, W, H);
       ph.base = c;
       if (ph.pose.createur) ph.calque = calqueCreateur(ph);
