@@ -2074,13 +2074,31 @@
     att(DEUX_TEMPS * 2, () => {
       ec.classList.add("beufa"); let n = 0;
       const t = setInterval(() => {
-        if (n >= N) { clearInterval(t); elB.src = `assets/createur/${p.id}.webp`; return; }
+        if (n >= N) {
+          clearInterval(t); elB.src = `assets/createur/${p.id}.webp`;
+          // il s'arrête sur sa pose : « ting ! » au coin de son sourire, puis de temps en temps
+          if (p.bouche) {
+            const ting = () => { placerTing(elB, p.bouche); rejouer($("#intro-ting"), "go"); bip(2637, .05); bip(3136, .09, .05); };
+            introT.push(setTimeout(ting, 350)); introT.push(setInterval(ting, 4000));
+          }
+          return;
+        }
         if (cadres[n].complete && cadres[n].naturalWidth) elB.src = cadres[n].src; n++;
       }, 1000 / 12);
       introT.push(t);
     });
     att(DEUX_TEMPS * 4, () => ec.classList.add("brosse"));
     att(DEUX_TEMPS * 4 + 700, () => ec.classList.add("phrase"));
+  }
+  // place l'étoile sur l'image affichée (object-fit: contain, calée en bas) : coin du sourire
+  function placerTing(img, [bx, by, bl]) {
+    const W = img.clientWidth, H = img.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
+    if (!nw || !W) return;
+    const k = Math.min(W / nw, H / nh), dw = nw * k, dh = nh * k, ox = img.offsetLeft + (W - dw) / 2, oy = img.offsetTop + (H - dh);
+    const l = bl * dw, el = $("#intro-ting"), t = Math.max(22, l * .6);
+    el.style.width = el.style.height = t + "px";
+    el.style.left = (ox + bx * dw + l * .4 - t / 2) + "px";
+    el.style.top = (oy + by * dh - l * .02 - t / 2) + "px";
   }
   function arreterIntroAnim() { introT.forEach(t => { clearTimeout(t); clearInterval(t); }); introT = []; clearInterval(introDecorT); }
 
