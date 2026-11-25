@@ -23,9 +23,14 @@ def detourer(im):
     a = np.asarray(remove(im, session=sess)).copy()
     al = a[..., 3].astype(np.float32) / 255
     # garder seulement ce qui touche le bas de l'image (la personne) : pas la fenêtre avant qu'il entre
+    # la personne = le plus grand morceau qui descend dans le bas de l'image (pas la fenêtre ni la rampe)
     lab, n = ndimage.label(al > .5)
-    bas = set(np.unique(lab[-3:, :])) - {0}
-    garde = np.isin(lab, list(bas)) if bas else np.zeros_like(al, bool)
+    garde = np.zeros_like(al, bool)
+    if n:
+        tailles = ndimage.sum(np.ones_like(al), lab, range(1, n + 1))
+        bas = set(np.unique(lab[int(al.shape[0] * .85):, :])) - {0}
+        ok = [k for k in range(1, n + 1) if k in bas and tailles[k - 1] > al.size * .01]
+        if ok: garde = lab == max(ok, key=lambda k: tailles[k - 1])
     al[~ndimage.binary_dilation(garde, iterations=4)] = 0
     al = ndimage.gaussian_filter(ndimage.grey_erosion(al, size=(3, 3)), .8)
     a[..., 3] = (al * 255).clip(0, 255).astype(np.uint8)
