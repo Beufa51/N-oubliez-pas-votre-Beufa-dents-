@@ -87,6 +87,16 @@
           .catch(() => fin(null));
       });
     },
+    // la personne détourée telle quelle (pas de recadrage), en miroir : studio photo, par-dessus Beufa
+    dessinerSeul(c) {
+      if (!etat.image || !video) return;
+      const g = c.getContext("2d"), W = c.width, H = c.height;
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
+      g.translate(W, 0); g.scale(-1, 1);
+      g.drawImage(video, 0, 0, W, H);
+      g.globalCompositeOperation = "destination-in"; g.drawImage(masque, 0, 0, W, H);
+      g.restore();
+    },
     // dessine la personne détourée dans le canvas (appelé à chaque image par l'appli)
     dessiner(c) {
       if (!etat.image || !video) return;

@@ -835,7 +835,17 @@
       }
     }
     majAffichage();
+    majStudioPerso();
     raf = requestAnimationFrame(boucle);
+  }
+  // studio : l'utilisateur détouré, dessiné par-dessus Beufa (Beufa est derrière lui, comme sur la photo finale)
+  function majStudioPerso() {
+    const c = $("#studio-perso");
+    const on = phase === "pause" && etapePose === "photo" && elPartenaire.classList.contains("apparu") && INC.etat.image;
+    c.hidden = !on; if (!on) return;
+    const W = Math.round(Math.min(480, elCadre.clientWidth)), H = Math.round(W * elCadre.clientHeight / Math.max(1, elCadre.clientWidth));
+    if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    INC.dessinerSeul(c);
   }
 
   function indexZone() { return Math.max(0, Math.min(3, Math.floor(ecoule / (duree / 4)))); }
@@ -1273,6 +1283,7 @@
     bip(880, .15); bip(660, .15, .17); vibrer([150, 80, 150]);
     DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
+      INC.demarrer(elStudioVideo);                    // détourage en direct dans le studio : l'utilisateur passe devant Beufa
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
       compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = ""; apparuA = null; visageLive = null; gesteA = 0; videoFinA = null;
       return ouvrirPose(poseActuelle);
@@ -1291,7 +1302,7 @@
 
   function finirPause() {
     const apresPhoto = !!poseActuelle;
-    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); INC.pause(false); attente = 0;
+    phase = "brosse"; fermerPose(); elPause.hidden = true; DET.pause(false); if (flux && decorActuel()) INC.demarrer(elCamera); attente = 0;
     bip(523, .1); bip(784, .15, .12);
     parler(apresPhoto ? `Reprends ta brosse ! On continue ${ZONES_VOIX[indexZone()]}.` : `C'est reparti, ${ZONES_VOIX[indexZone()]} !`);
   }
@@ -1561,28 +1572,6 @@
     g.save(); g.globalCompositeOperation = "source-atop"; g.fillStyle = `rgba(${t[0]},${t[1]},${t[2]},${force})`;
     g.fillRect(0, 0, W, H); g.restore();
   }
-  // grosse étoile à 4 branches qui brille (effet pub de dentifrice) + petits éclats autour
-  function eclat(x, cx, cy, r) {
-    x.save(); x.translate(cx, cy); x.fillStyle = "#fff"; x.shadowColor = "rgba(255,255,255,1)"; x.shadowBlur = r * .9;
-    x.beginPath();
-    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * .16 : r; x.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
-    x.closePath(); x.fill(); x.fill(); x.restore();
-  }
-  function scintiller(x, cx, cy, l) {
-    // un petit « ting ! » au coin du sourire (comme dans les dessins animés), sans cacher la bouche
-    eclat(x, cx + l * .62, cy - l * .28, l * .32);
-    eclat(x, cx + l * .9, cy - l * .02, l * .13);
-  }
-  // étincelles sur les dents quand l'utilisateur sourit « toutes dents dehors »
-  function etincelles(x, b, W, H) {
-    if (!b || !b.dents) return;
-    const cx = b.x * W, cy = b.y * H, l = b.l * W;
-    scintiller(x, cx, cy, l); return;
-    x.save(); x.shadowColor = "rgba(255,255,255,.95)"; x.shadowBlur = l * .25;
-    [[-.6, -.15, .32, "#fff"], [.62, -.05, .26, "#fff8c4"], [.08, -.5, .17, "#fff"], [-.2, .38, .14, "#e6fbff"], [.38, .34, .11, "#fff"]]
-      .forEach(([dx, dy, r, c]) => etoile(x, cx + dx * l, cy + dy * l, r * l, c));
-    x.restore();
-  }
   /* Sur la photo en duo dans le décor : l'utilisateur (détouré) est décalé vers la gauche, et réduit s'il prend trop
      de place, pour laisser la droite à Beufa. Ses mesures (visage, bouche, main) suivent le même déplacement. */
   const UTIL_CENTRE = .33, UTIL_LARGEUR = .6;
@@ -1641,7 +1630,6 @@
         const ds = document.createElement("canvas"); ds.width = W; ds.height = H;
         ds.getContext("2d").drawImage(u, 0, 0); ph.dessus = ds;
       } else g.drawImage(ph.img, 0, 0, W, H);
-      etincelles(ph.dessus ? ph.dessus.getContext("2d") : g, ph.visage && ph.visage.bouche, W, H);
       ph.base = c;
       if (ph.pose.createur) ph.calque = calqueCreateur(ph);
     }
@@ -1699,12 +1687,6 @@
       }
     } catch (e) {}
     teinter(g, W, H, ph.teinte, .1);                   // même lumière que le décor
-    // dents « méga blanches » : étincelles sur son sourire, sur toutes ses photos
-    if (pose.bouche) {
-      const [bx, by, bl] = pose.bouche, cx = r.x + bx * r.w, cy = r.y + by * r.h, l = bl * r.w;
-      // l'utilisateur est redessiné devant lui : ses étincelles vont sur ce calque du dessus, sinon sur le sien
-      if (ph.dessus) scintiller(ph.dessus.getContext("2d"), cx, cy, l); else scintiller(g, cx, cy, l);
-    }
     return { canvas: c, r };
   }
 
@@ -2229,7 +2211,8 @@
   function reprendre() {
     if (!enPauseMenu) return;
     enPauseMenu = false; $("#menu-pause").hidden = true; derniere = performance.now();
-    if (phase === "brosse") { DET.pause(false); INC.pause(false); attente = 0; }
+    INC.pause(false);
+    if (phase === "brosse") { DET.pause(false); attente = 0; }
     if (poseActuelle && etapePose === "photo" && videoFinA === null && poseActuelle.images) jouerVideo(poseActuelle);
     jouerFond();
   }

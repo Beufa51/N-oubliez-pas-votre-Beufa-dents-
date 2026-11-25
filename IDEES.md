@@ -337,3 +337,6 @@ Pas de publication sur le Play Store.
 - [x] Intro : « ting ! » (petite étoile + son aigu) au coin du sourire de Beufa quand il s'arrête sur sa pose, puis toutes les 4 s.
 - [x] **Dents blanchies seulement dans l'intro** (image `assets/createur/intro-cool.webp`, faite une fois avec
   `tools/dents.js`) : les photos du créateur et de l'utilisateur ne sont pas retouchées (choix du créateur).
+- [x] Étoiles des dents retirées des photos (gardées seulement dans l'intro). Pendant la prise de photo, l'utilisateur est
+  détouré en direct et affiché **devant Beufa**, comme sur la photo finale (Beufa ne le gêne plus).
+
