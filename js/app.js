@@ -77,40 +77,40 @@
   const POSES_BEUFA = [
     { id: "high-five", nom: "High five", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "✋",
       consigne: "Tape dans sa main : high five !", geste: "Lève la main : high five !",
-      cible: { x: .153, y: .181, texte: "ta main ici" },
-      photo: { tete: [.058, .277, .637], hh: .24, top: .15, dx: .17 }, bouche: [0.582, 0.227, 0.088],
-      main: { x: .153, y: .181, taille: .0844, contact: "paume" } },
+      cible: { x: .153, y: 0.186, texte: "ta main ici" },
+      photo: { tete: [0.06, 0.285, .637], hh: .24, top: .15, dx: .17 }, bouche: [0.582, 0.234, 0.088],
+      main: { x: .153, y: 0.186, taille: .0844, contact: "paume" } },
     { id: "check-poing", nom: "Check", contour: true, video: 37, mascotte: "main-levee", cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
-      cible: { x: .137, y: .39, texte: "ton poing ici" },
-      photo: { tete: [.077, .3, .692], hh: .24, top: .15, dx: .17 }, bouche: [0.621, 0.248, 0.113],
-      main: { x: .137, y: .39, taille: .1353, contact: "poing" } },
+      cible: { x: .137, y: 0.401, texte: "ton poing ici" },
+      photo: { tete: [0.079, 0.308, .692], hh: .24, top: .15, dx: .17 }, bouche: [0.621, 0.255, 0.113],
+      main: { x: .137, y: 0.401, taille: .1353, contact: "poing" } },
     { id: "pouce", nom: "Victoire", contour: true, video: 28, mascotte: "pouce", cote: "droite", emoji: "✌️",
       consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
       photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, echelle: .72, colle: true }, bouche: [0.573, 0.354, 0.064] },
     { id: "cool", nom: "Cool", contour: true, video: 32, mascotte: "pouce", cote: "droite", emoji: "🤙",
       consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
-      photo: { tete: [.137, .321, .438], hh: .24, top: .15, dx: .17 }, bouche: [0.472, 0.275, 0.081] },
+      photo: { tete: [0.139, 0.326, .438], hh: .24, top: .15, dx: .17 }, bouche: [0.472, 0.279, 0.081] },
     { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
       consigne: "Fais un cœur avec tes mains, comme lui !", geste: "Fais un cœur avec tes mains",
-      photo: { tete: [.184, .353, .338], hh: .24, top: .15, dx: .17 }, bouche: [0.375, 0.311, 0.084] },
+      photo: { tete: [0.189, 0.362, .338], hh: .24, top: .15, dx: .17 }, bouche: [0.375, 0.319, 0.084] },
     { id: "pointe", nom: "Montre du doigt", contour: true, video: 34, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
       consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
-      photo: { tete: [.094, .3, .66], hh: .24, top: .15, dx: .17 }, bouche: [0.607, 0.251, 0.089] },
+      photo: { tete: [0.097, 0.309, .66], hh: .24, top: .15, dx: .17 }, bouche: [0.607, 0.258, 0.089] },
     { id: "pensif", nom: "Pensif", contour: true, video: 32, mascotte: "pensif", cote: "droite", emoji: "🤔",
       consigne: "Main au menton, l'air pensif, comme lui !", geste: "Prends l'air pensif…",
       photo: { tete: [.23, .392, .647], hh: .24, top: .15, dx: .17 }, bouche: [0.613, 0.348, 0.058] },
     { id: "bras-croises", nom: "Bras croisés", contour: true, video: 37, mascotte: "bras-croises", cote: "droite", emoji: "💪",
       consigne: "Croise les bras, l'air sûr de toi, comme lui !", geste: "Croise les bras, l'air sûr de toi",
-      photo: { tete: [.042, .23, .468], hh: .24, top: .15, dx: .17 }, bouche: [0.473, 0.183, 0.081] },
+      photo: { tete: [0.043, 0.236, .468], hh: .24, top: .15, dx: .17 }, bouche: [0.473, 0.188, 0.081] },
     { id: "mains-hanches", nom: "Tape dans mes mains", video: 30, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
-      cible: { x: .213, y: .58, texte: "tes mains ici" },
-      photo: { tete: [.107, .298, .736], hh: .24, top: .15, dx: .17 }, bouche: [0.688, 0.256, 0.063],
-      main: { x: .213, y: .638, taille: .0858, contact: "dessous" } },
-    { id: "tada", nom: "Ta-da !", contour: true, video: 27, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
+      cible: { x: .213, y: 0.597, texte: "tes mains ici" },
+      photo: { tete: [0.11, 0.307, .736], hh: .24, top: .15, dx: .17 }, bouche: [0.688, 0.263, 0.063],
+      main: { x: .213, y: 0.656, taille: .0858, contact: "dessous" } },
+    { id: "tada", nom: "Ta-da !", contour: true, video: 20, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
       consigne: "Bras grands ouverts : ta-da !", geste: "Bras grands ouverts : ta-da !",
-      photo: { tete: [.269, .429, .445], hh: .24, top: .15, dx: .17, echelle: .62, colle: true }, bouche: [0.439, 0.39, 0.076] }
+      photo: { tete: [.32, .486, .544], hh: .24, top: .15, dx: .17, echelle: .78, colle: true }, bouche: [.537, .446, .079] }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -120,7 +120,16 @@
     p.imgMascotte = new Image(); p.imgMascotte.src = IMG(p.mascotte);
     if (!p.photo) return;
     const c = new Image();
-    c.onload = () => { p.createur = c; };
+    c.onload = () => {
+      p.createur = c;
+      // côtés coupés par le bord de sa vidéo (le bras sort de l'image filmée) : seuls ceux-là seront fondus
+      try {
+        const k = document.createElement("canvas"); k.width = 40; k.height = 80;
+        const g = k.getContext("2d", { willReadFrequently: true }); g.drawImage(c, 0, 0, 40, 80);
+        const col = x => { const d = g.getImageData(x, 0, 1, 80).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++; return n > 2; };
+        p.bordG = col(0); p.bordD = col(39);
+      } catch (e) {}
+    };
     c.src = `assets/createur/${p.id}.webp`;
     if (p.contour) { p.imgContour = new Image(); p.imgContour.src = `assets/createur/contour-${p.id}.webp`; }
     // ombre animée (tools/animations.py) : planche de p.anim images, calées sur la tête de la photo fixe
@@ -754,6 +763,8 @@
     const sourire = POSES_BEUFA.find(p => p.id === "pouce");
     const autres = melanger(POSES_BEUFA.filter(p => p.photo && p !== sourire)).concat(melanger(POSES_BEUFA.filter(p => !p.photo)));
     poses = avecPhotos() ? autres.slice(0, Math.max(0, 2 * parBloc - 1)).concat([sourire]) : autres;
+    const imposees = new URLSearchParams(location.search).get("poses");   // test : ?poses=tada,pouce
+    if (imposees && avecPhotos()) poses = imposees.split(",").map(id => POSES_BEUFA.find(p => p.id === id)).filter(Boolean);
     if (avecPhotos()) poses.forEach(chargerVideo);
     elMascotte.src = IMG("mains-hanches");
     fermerPose(); elPause.hidden = true;
@@ -792,6 +803,7 @@
   function boucle(now) {
     const dtR = Math.max(0, Math.min(.25, (now - derniere) / 1000)), dt = dtR * VITESSE;
     derniere = now;
+    if (enPauseMenu) { raf = requestAnimationFrame(boucle); return; }   // menu pause : tout est figé
     suivreDetection(dtR);
     if (phase === "brosse") {
       ecoule += dt * vitesseBrossage();   // façon Pokémon Smile : le temps n'avance que si on brosse
@@ -1342,7 +1354,8 @@
     elStudioCompte.textContent = "";
     // la place du partenaire reste vide : sa photo n'apparaîtra qu'après le brossage (surprise)
     elPartenaire.className = p.createur ? "zone-surprise ombre" : "zone-surprise";
-    elPartenaire.innerHTML = p.createur ? `<img src="${p.createur.src}" alt=""><b>?</b>` : "<span>✨</span>Place gardée<br>pour une surprise";
+    const masque = `linear-gradient(to right, ${p.bordG ? "transparent 0, #000 7%" : "#000 0"}, ${p.bordD ? "#000 93%, transparent 100%" : "#000 100%"})`;
+    elPartenaire.innerHTML = p.createur ? `<img src="${p.createur.src}" alt="" style="-webkit-mask-image:linear-gradient(to bottom,#000 88%,transparent 100%),${masque};mask-image:linear-gradient(to bottom,#000 88%,transparent 100%),${masque}"><b>?</b>` : "<span>✨</span>Place gardée<br>pour une surprise";
     poseStudio = p; placeGardee();
     elBulle.textContent = p.createur ? "Qui est-ce ? Fais la pose avec lui !" : "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
@@ -1615,17 +1628,17 @@
     if ("filter" in g) g.filter = "blur(0.7px)";           // un peu moins net, comme une caméra avant
     g.drawImage(part, r.x, r.y, r.w, r.h);
     if ("filter" in g) g.filter = "none";
-    {                                                      // côtés de sa vidéo (bord de l'image filmée) : fondu
-      const l = r.w * .06;
+    {                                                      // côté coupé par le bord de sa vidéo : fondu (pas les mains tendues)
+      const l = r.w * .07;
       g.save(); g.globalCompositeOperation = "destination-out";
-      for (const [x0, x1] of [[r.x, r.x + l], [r.x + r.w, r.x + r.w - l]]) {
+      for (const [x0, x1] of [pose.bordG && [r.x, r.x + l], pose.bordD && [r.x + r.w, r.x + r.w - l]].filter(Boolean)) {
         const gr = g.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)");
         g.fillStyle = gr; g.fillRect(Math.min(x0, x1), r.y, l, r.h);
       }
       g.restore();
     }
-    if (r.flotte) {                                        // bas de sa photo au-dessus du bord : fondu
-      const b = r.h * .22, gr = g.createLinearGradient(0, r.y + r.h - b, 0, r.y + r.h);
+    {                                                      // bas de son corps (détourage irrégulier) : toujours fondu
+      const b = r.h * (r.flotte ? .22 : .1), gr = g.createLinearGradient(0, r.y + r.h - b, 0, r.y + r.h);
       gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,1)");
       g.save(); g.globalCompositeOperation = "destination-out"; g.fillStyle = gr; g.fillRect(r.x, r.y + r.h - b, r.w, b + 2); g.restore();
     }
@@ -2123,7 +2136,25 @@
   });
 
   $("#btn-demarrer").addEventListener("click", ouvrirChoixDecor);
-  $("#btn-arreter").addEventListener("click", arreter);
+  /* ---------- menu pause pendant le brossage (bouton ⏸, ou l'appli passe en arrière-plan) ---------- */
+  let enPauseMenu = false;
+  function mettrePause() {
+    if (enPauseMenu || (phase !== "brosse" && phase !== "pause")) return;
+    enPauseMenu = true; $("#menu-pause").hidden = false;
+    DET.pause(true); INC.pause(true); clearInterval(videoT); arreterFond(.3); taire();
+  }
+  function reprendre() {
+    if (!enPauseMenu) return;
+    enPauseMenu = false; $("#menu-pause").hidden = true; derniere = performance.now();
+    if (phase === "brosse") { DET.pause(false); INC.pause(false); attente = 0; }
+    if (poseActuelle && etapePose === "photo" && videoFinA === null && poseActuelle.images) jouerVideo(poseActuelle);
+    jouerFond();
+  }
+  $("#btn-pause").addEventListener("click", mettrePause);
+  document.addEventListener("click", e => { if (e.target.closest(".btn-pause-studio")) mettrePause(); });
+  $("#btn-reprendre").addEventListener("click", reprendre);
+  $("#btn-arreter").addEventListener("click", () => { enPauseMenu = false; $("#menu-pause").hidden = true; arreter(); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) mettrePause(); });
   $("#btn-recommencer").addEventListener("click", () => { phase = "accueil"; viderGalerie(); majSuivi(); montrer("accueil"); jouerFond(); });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) taire();
