@@ -1,5 +1,5 @@
 """Vidéos du créateur -> images détourées pour l'appli (il entre, fait le geste, se fige).
-Usage : python3 tools/videos.py <video.mp4> <id> <debut_s> <fin_s>
+Usage : python3 tools/videos.py <video.mp4> <id> <debut_s> <fin_s> [miroir]
 Crée assets/createur/video/<id>/NN.webp (12 images/s, toutes au même cadrage) et assets/createur/<id>.webp
 (la dernière image, en grand : c'est elle qui sert sur la photo).
 Demande : pip install rembg onnxruntime scipy ; ffmpeg.
@@ -12,10 +12,11 @@ from rembg import remove, new_session
 
 FPS, LARGEUR = 12, 540
 src, ident, t0, t1 = sys.argv[1], sys.argv[2], float(sys.argv[3]), float(sys.argv[4])
+MIROIR = ",hflip" if len(sys.argv) > 5 and sys.argv[5] == "miroir" else ""   # geste tourné vers l'utilisateur
 tmp = tempfile.mkdtemp()
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", str(t0), "-to", str(t1), "-i", src,
-                "-vf", f"fps={FPS},scale={LARGEUR}:-2", f"{tmp}/%03d.png"], check=True)
-subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", str(t1 - .02), "-i", src, "-frames:v", "1", f"{tmp}/fin.png"], check=True)
+                "-vf", f"fps={FPS},scale={LARGEUR}:-2{MIROIR}", f"{tmp}/%03d.png"], check=True)
+subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", str(t1 - .02), "-i", src, "-frames:v", "1"] + (["-vf", "hflip"] if MIROIR else []) + [f"{tmp}/fin.png"], check=True)
 sess = new_session("birefnet-general-lite")
 
 def detourer(im):
