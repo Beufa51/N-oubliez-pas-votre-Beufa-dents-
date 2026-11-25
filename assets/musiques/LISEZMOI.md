@@ -12,6 +12,6 @@ Une musique par décor, jouée en boucle pendant le brossage avec ce décor (à 
 
 - Sans paroles, environ 2 min (elle boucle en entier), MP3 ~128 kb/s.
 - Après avoir déposé un fichier, ajouter l'id du décor et ses points de boucle dans `MUSIQUES_DECOR` (`js/app.js`).
-- En place : montagne (Alpine Hike), neige (Magical Snowy Evening), volcan (Volcano Adventure), champignons
-  (Enchanted Forest Party), lagon (Tahiti, -3,5 dB), réencodées en 112 kb/s.
+- En place : montagne (Snow Mountain, +1,5 dB), neige (Magical Snowy Evening), volcan (Volcano Adventure), champignons
+  (Champignon, +3,5 dB, silence final coupé), lagon (Tahiti, -3,5 dB), réencodées en 112 kb/s.
 - Le décor « Plateau télé » et les décors perso gardent la musique de l'interface.
