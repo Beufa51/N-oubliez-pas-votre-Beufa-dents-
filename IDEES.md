@@ -306,4 +306,6 @@ Pas de publication sur le Play Store.
 - [x] **Dents « méga blanches »** : étincelles (grosse étoile qui brille + éclats) sur le sourire du créateur sur toutes ses
   photos (bouche mesurée sur chaque pose, `bouche` dans `POSES_BEUFA`), et sur l'utilisateur quand il sourit ; dessinées
   au-dessus de tout (calque du dessus), photo et révélation.
+- [x] Étincelles réduites à un petit « ting ! » au coin du sourire (la grosse étoile cachait la bouche). Créateur jamais en
+  l'air : si sa vidéo n'atteint pas le bas de la photo, il est descendu (jusqu'à 25 %), sinon le bas est fondu.
 

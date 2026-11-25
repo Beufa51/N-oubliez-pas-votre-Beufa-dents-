@@ -184,6 +184,9 @@
       if (p.cote === "droite" && vx > W - lim) x -= vx - (W - lim);
       if (p.cote === "gauche" && vx < lim) x += lim - vx;
     }
+    // jamais « en l'air » : si le bas de sa vidéo n'atteint pas le bas de la photo, on le descend (jusqu'à 25 %
+    // de la hauteur) ; s'il en reste un peu, le bas est fondu
+    if (y + h < H) y += Math.min(H - (y + h), H * .25);
     return { x, y, w, h, tx: x + cx * w, ty: y + t * h, th: (m - t) * h, flotte: y + h < H - 2 };
   }
   // même place, en % d'une scène au format de la photo (studio, révélation)
@@ -1556,10 +1559,9 @@
     x.closePath(); x.fill(); x.fill(); x.restore();
   }
   function scintiller(x, cx, cy, l) {
-    eclat(x, cx + l * .4, cy - l * .12, l * .7);
-    eclat(x, cx - l * .35, cy + l * .05, l * .45);
-    eclat(x, cx + l * .02, cy - l * .5, l * .26);
-    eclat(x, cx + l * .7, cy + l * .32, l * .2);
+    // un petit « ting ! » au coin du sourire (comme dans les dessins animés), sans cacher la bouche
+    eclat(x, cx + l * .62, cy - l * .28, l * .32);
+    eclat(x, cx + l * .9, cy - l * .02, l * .13);
   }
   // étincelles sur les dents quand l'utilisateur sourit « toutes dents dehors »
   function etincelles(x, b, W, H) {
