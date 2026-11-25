@@ -684,12 +684,14 @@
   function majBouche(z, zp, face) {
     for (let q = 0; q < 4; q++) {
       for (let i = 0; i < 6; i++) {
-        const c = q < z ? 1 : q > z ? 0 : Math.max(0, Math.min(1, zp * 1.3 - i * .06));
+        // les dents de la zone sont nettoyées l'une après l'autre (un microbe éliminé toutes les ~5 s en 2 min)
+        const c = q < z ? 1 : q > z ? 0 : Math.max(0, Math.min(1, zp * 6.2 - i));
         const etat = c >= .98 ? "fait" : q === z ? "actif" : "";
         const d = dents[q][i];
+        if (q === z) { vieMicrobes[i] = 1 - c; const sc = (.45 + .55 * (1 - c)).toFixed(2); if (d.sc !== sc) { d.sc = sc; d.g.setAttribute("transform", `translate(${d.P.x.toFixed(1)} ${d.P.y.toFixed(1)}) scale(${sc})`); } }
         if (d.etat !== etat) {
           d.etat = etat; d.r.setAttribute("class", etat);
-          if (etat === "fait" && (phase === "brosse" || phase === "pause")) tuerMicrobe(d, i === 5);
+          if (etat === "fait" && (phase === "brosse" || phase === "pause")) { tuerMicrobe(d, i === 5); chasse.boom(i, i === 5); }
         }
       }
     }
@@ -787,6 +789,7 @@
     volumeFond(); jouerFond();
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
+    chasse.tirs.length = chasse.eclats.length = chasse.textes.length = 0; vieMicrobes.fill(1);
     if (flux && DETECTION_BROSSAGE) DET.demarrer(elCamera, typeBrosse);
     if (flux && decorActuel()) INC.demarrer(elCamera);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
@@ -1050,7 +1053,7 @@
       elBulle.textContent = hasard(["Coucou, c'est moi, Beufa !", "Surprise, c'est moi !", "Me voilà !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
       bip(784, .1); bip(1047, .12, .1); bip(1319, .16, .2); vibrer([40, 30, 80]);
     } else bip(880, .08);
-    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : p.video ? "😄 À toi, fais comme moi !" : "😄 Prends la pose avec moi !";
+    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : p.video ? "😄 Fais comme moi… ou invente ta pose !" : "😄 Prends la pose avec moi !";
     rejouer(elStudioCompte, "pop");
   }
   function suivreGeste() {
@@ -1200,6 +1203,90 @@
     gF.drawImage(v, recadre.x * vw, recadre.y * vh, recadre.t * vw, recadre.t * vh, 0, 0, W, H);
   }
   // bulles de mousse sur la bouche quand on brosse (+ zones analysées en mode ?debug)
+  /* ---------- chasse aux microbes sur la caméra (façon Pokémon Smile) ----------
+     Les 6 microbes de la zone en cours flottent autour de la bouche, du côté de la zone (en miroir). Quand le
+     brossage avance, des tirs étincelants partent de la bouche vers eux : ils clignotent, rapetissent (leur vie =
+     ce qu'il reste à brosser de leur dent), puis explosent en confettis avec « POP ! ». */
+  const vieMicrobes = [1, 1, 1, 1, 1, 1];
+  const chasse = { tirs: [], eclats: [], textes: [], pos: [], flash: [0, 0, 0, 0, 0, 0], tirA: 0, bouche: null, boucheA: 0,
+    boom(i, chef) {
+      const p = this.pos[i]; if (!p) return;
+      const coul = ["#ffd166", "#ff7aa2", "#8fe3ea", "#fff", "#3ddc84"];
+      for (let k = 0; k < (chef ? 22 : 14); k++) {
+        const a = Math.random() * 7, v = p.r * (3 + Math.random() * 5);
+        this.eclats.push({ x: p.x, y: p.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - p.r * 2, r: p.r * (.18 + Math.random() * .2), c: coul[k % coul.length], vie: 1 });
+      }
+      this.textes.push({ x: p.x, y: p.y - p.r, t: chef ? "CHEF K.O. !" : "POP !", vie: 1, taille: p.r * (chef ? 1.1 : 1.3) });
+    } };
+  function dessinerMicrobe(g, x, y, r, chef, flash, t) {
+    g.save(); g.translate(x, y); g.rotate(Math.sin(t * 6 + x) * .15);
+    g.fillStyle = flash > 0 ? "#fff" : chef ? "#9d4edd" : "#3ddc84";
+    for (let k = 0; k < 7; k++) { const a = k * Math.PI * 2 / 7 + t * 2; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, r * .32, 0, 7); g.fill(); }
+    g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
+    g.fillStyle = "#fff"; [-1, 1].forEach(sx => { g.beginPath(); g.arc(sx * r * .36, -r * .15, r * .28, 0, 7); g.fill(); });
+    g.fillStyle = "#12343b"; [-1, 1].forEach(sx => { g.beginPath(); g.arc(sx * r * .36 + r * .06, -r * .1, r * .13, 0, 7); g.fill(); });
+    g.strokeStyle = "#12343b"; g.lineWidth = Math.max(1.5, r * .12); g.beginPath(); g.arc(0, r * .25, r * .3, .15 * Math.PI, .85 * Math.PI); g.stroke();
+    if (chef) { g.fillStyle = "#ffd166"; g.beginPath(); g.moveTo(-r * .7, -r * .85); g.lineTo(-r * .7, -r * 1.45); g.lineTo(-r * .35, -r * 1.1); g.lineTo(0, -r * 1.6); g.lineTo(r * .35, -r * 1.1); g.lineTo(r * .7, -r * 1.45); g.lineTo(r * .7, -r * .85); g.fill(); }
+    g.restore();
+  }
+  function dessinerChasse(dtR, ecran, Lpx) {
+    const d = DET.etat, maintenant = performance.now() / 1000;
+    if (d.bouche) { chasse.bouche = d.bouche; chasse.boucheA = maintenant; }
+    const b = maintenant - chasse.boucheA < 1.5 ? chasse.bouche : null;
+    if (!b || phase !== "brosse") { chasse.pos = []; return false; }
+    const c = ecran(b.x, b.y), L = Lpx;
+    const z = indexZone(), nom = ZONES[z], sx = nom.includes("gauche") ? -1 : 1, sy = nom.startsWith("Haut") ? -1 : 1;
+    const avance = vitesseBrossage() > 0 && (!detActive() || d.brosse);
+    // microbes vivants de la zone, en arc du côté de la zone
+    chasse.pos = [];
+    for (let i = 0; i < 6; i++) {
+      const vie = vieMicrobes[i]; if (vie <= .02) continue;
+      // à côté du visage (pas dessus) : en arc, du côté et à la hauteur de la zone
+      const a = (-8 + i * 13) * Math.PI / 180, R = L * (i % 2 ? 1.02 : .82), flot = Math.sin(maintenant * 2.4 + i) * L * .04;
+      const p = { x: c.x + Math.cos(a) * R * sx, y: c.y + Math.sin(a) * R * sy * .95 + flot, r: L * (i === 5 ? .2 : .15) * (.5 + .5 * vie) };
+      chasse.pos[i] = p;
+      chasse.flash[i] = Math.max(0, chasse.flash[i] - dtR);
+      dessinerMicrobe(gM, p.x, p.y, p.r, i === 5, chasse.flash[i], maintenant + i);
+    }
+    // tirs vers le microbe en cours (le premier encore vivant)
+    const cible = chasse.pos.findIndex(Boolean);
+    if (avance && cible >= 0 && maintenant - chasse.tirA > .14) {
+      chasse.tirA = maintenant;
+      const dep = { x: c.x + sx * L * .22, y: c.y + (Math.random() - .5) * L * .1 };
+      chasse.tirs.push({ x: dep.x, y: dep.y, x0: dep.x, y0: dep.y, i: cible, t: 0 });
+    }
+    gM.save(); gM.shadowColor = "rgba(143,227,234,1)"; gM.shadowBlur = L * .06;
+    for (let k = chasse.tirs.length - 1; k >= 0; k--) {
+      const tr = chasse.tirs[k], p = chasse.pos[tr.i];
+      tr.t += dtR / .28;
+      if (!p || tr.t >= 1) {
+        if (p) { chasse.flash[tr.i] = .09; for (let e = 0; e < 3; e++) chasse.eclats.push({ x: p.x, y: p.y, vx: (Math.random() - .5) * L * 1.5, vy: (Math.random() - .5) * L * 1.5, r: L * .025, c: "#fff", vie: .5 }); }
+        chasse.tirs.splice(k, 1); continue;
+      }
+      const x = tr.x0 + (p.x - tr.x0) * tr.t, y = tr.y0 + (p.y - tr.y0) * tr.t;
+      gM.fillStyle = "#fff"; gM.beginPath(); gM.arc(x, y, L * .05, 0, 7); gM.fill();
+      gM.fillStyle = "rgba(143,227,234,.6)"; gM.beginPath(); gM.arc(x - (p.x - tr.x0) * .06, y - (p.y - tr.y0) * .06, L * .025, 0, 7); gM.fill();
+    }
+    gM.restore();
+    return true;
+  }
+  function dessinerEclats(dtR) {
+    for (let k = chasse.eclats.length - 1; k >= 0; k--) {
+      const e = chasse.eclats[k]; e.vie -= dtR * 1.6; e.x += e.vx * dtR; e.y += e.vy * dtR; e.vy += 600 * dtR;
+      if (e.vie <= 0) { chasse.eclats.splice(k, 1); continue; }
+      gM.globalAlpha = Math.min(1, e.vie * 2); gM.fillStyle = e.c; gM.beginPath(); gM.arc(e.x, e.y, e.r, 0, 7); gM.fill();
+    }
+    for (let k = chasse.textes.length - 1; k >= 0; k--) {
+      const t = chasse.textes[k]; t.vie -= dtR * 1.1; t.y -= dtR * 40;
+      if (t.vie <= 0) { chasse.textes.splice(k, 1); continue; }
+      gM.globalAlpha = Math.min(1, t.vie * 2); gM.font = `900 ${Math.max(16, t.taille)}px Fredoka, system-ui, sans-serif`; gM.textAlign = "center";
+      gM.lineWidth = 4; gM.strokeStyle = "#ff3fa4"; gM.strokeText(t.t, t.x, t.y); gM.fillStyle = "#fff"; gM.fillText(t.t, t.x, t.y);
+    }
+    gM.globalAlpha = 1;
+    if (chasse.eclats.length > 150) chasse.eclats.splice(0, chasse.eclats.length - 150);
+    return chasse.eclats.length > 0 || chasse.textes.length > 0;
+  }
+
   function dessinerMousse(dtR, actif) {
     const d = DET.etat, v = elCamera, miroir = elScene.classList.contains("vue-miroir");
     const voir = actif && miroir && v.videoWidth;
@@ -1209,7 +1296,8 @@
     if (elMousse.width !== Math.round(ew * k) || elMousse.height !== Math.round(eh * k)) { elMousse.width = Math.round(ew * k); elMousse.height = Math.round(eh * k); }
     const st = `left:${ol}px;top:${ot}px;width:${ew}px;height:${eh}px`;
     if (elMousse.dataset.st !== st) { elMousse.dataset.st = st; elMousse.style.cssText = st; }
-    if (!bulles.length && !(d.brosse && d.bouche) && !DEBUG) {   // rien à dessiner : on ne touche pas au canvas
+    const chasseActive = phase === "brosse" && (d.bouche || performance.now() / 1000 - chasse.boucheA < 1.5) || chasse.eclats.length || chasse.textes.length;
+    if (!bulles.length && !(d.brosse && d.bouche) && !DEBUG && !chasseActive) {   // rien à dessiner : on ne touche pas au canvas
       if (mousseSale) { gM.setTransform(1, 0, 0, 1, 0, 0); gM.clearRect(0, 0, elMousse.width, elMousse.height); mousseSale = false; }
       return;
     }
@@ -1224,6 +1312,12 @@
       ? (nx, ny) => ({ x: f.x - ol + (1 - (nx - f.rx) / f.t) * f.fw, y: f.y - ot + (ny - f.ry) / f.t * f.fh })
       : (nx, ny) => ({ x: ox + (1 - nx) * dw, y: ny * v.videoHeight * sc });
     gM.setTransform(k, 0, 0, k, 0, 0); gM.clearRect(0, 0, ew, eh);
+    {
+      const bq = d.bouche || chasse.bouche;
+      const Lpx = bq ? bq.l * (inc ? inc.w * INC.zoom() : f ? f.fw / f.t : dw) : 0;
+      if (Lpx) dessinerChasse(dtR, ecran, Lpx);
+      dessinerEclats(dtR);
+    }
     if (DEBUG && d.brosse && d.bouche) {          // bulles de mousse : seulement en mode réglage (trop envahissantes)
       const c = ecran(d.bouche.x, d.bouche.y), L = d.bouche.l * (inc ? inc.w * INC.zoom() : f ? f.fw / f.t : dw);
       if (Math.random() < .6) for (let i = 0; i < 1; i++) bulles.push({ x: c.x + (Math.random() - .5) * L * .7, y: c.y + (Math.random() - .3) * L * .25,
@@ -2059,10 +2153,10 @@
         if (n >= N) {
           // image finale du générique : la même pose, dents blanchies (seulement ici)
           clearInterval(t); elB.src = `assets/createur/intro-${p.id}.webp`;
-          // il s'arrête sur sa pose : « ting ! » au coin de son sourire, puis de temps en temps
+          // il s'arrête sur sa pose : « ting ! » au coin de son sourire
           if (p.bouche) {
             const ting = () => { placerTing(elB, p.bouche); rejouer($("#intro-ting"), "go"); bip(2637, .05); bip(3136, .09, .05); };
-            introT.push(setTimeout(ting, 350)); introT.push(setInterval(ting, 4000));
+            introT.push(setTimeout(ting, 350));                       // une seule fois (pas par-dessus la chanson ensuite)
           }
           return;
         }
