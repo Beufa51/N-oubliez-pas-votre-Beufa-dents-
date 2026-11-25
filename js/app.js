@@ -424,25 +424,24 @@
        (IndexedDB), jamais envoyés nulle part. Communs à tous les utilisateurs du téléphone ; le choix, lui,
        est retenu par utilisateur. Appuyer sur un décor perso déjà choisi propose de le supprimer. */
   const DECORS = [
-    { id: "plateau",     nom: "Plateau télé" },     // le décor de base (pas d'image)
     { id: "champignons", nom: "Pays des champignons" },
     { id: "volcan",      nom: "Volcan" },
     { id: "neige",       nom: "Village enneigé" },
     { id: "montagne",    nom: "Montagne" },
     { id: "lagon",       nom: "Lagon" }
   ];
-  let decor = "plateau";
+  const DECOR_DEFAUT = "lagon";   // plus de décor sans image (le « Plateau télé » empêchait la photo côte à côte)
+  let decor = DECOR_DEFAUT;
   const elEcranDecor = $("#ecran-decor"), elGrille = $("#grille-decors"), elFichierDecor = $("#fichier-decor");
   // grandes vignettes : un appui = ce décor + on démarre
   function majDecors() {
     elGrille.innerHTML = "";
-    DECORS.filter(d => d.id === "plateau" || d.src).forEach(d => {
+    DECORS.filter(d => d.src).forEach(d => {
       const b = document.createElement("button");
       b.type = "button"; b.className = "tuile-decor" + (d.id === decor ? " actif" : "");
       b.dataset.decor = d.id; b.setAttribute("aria-label", "Décor : " + d.nom);
-      if (d.src) b.style.backgroundImage = `url("${d.src}")`;
-      else b.classList.add("plateau");
-      b.innerHTML = `${d.src ? "" : "<i>📺</i>"}<span>${d.nom}</span>${d.perso ? '<em class="suppr" role="button" aria-label="Supprimer ce décor">✕</em>' : ""}`;
+      b.style.backgroundImage = `url("${d.src}")`;
+      b.innerHTML = `<span>${d.nom}</span>${d.perso ? '<em class="suppr" role="button" aria-label="Supprimer ce décor">✕</em>' : ""}`;
       elGrille.appendChild(b);
     });
     const plus = document.createElement("button");
@@ -452,7 +451,8 @@
     elGrille.appendChild(plus);
     appliquerDecor();
   }
-  const decorActuel = () => DECORS.find(x => x.id === decor && x.src);
+  // le décor choisi (ou, s'il n'existe plus, le premier disponible)
+  const decorActuel = () => DECORS.find(x => x.id === decor && x.src) || DECORS.find(x => x.id === DECOR_DEFAUT && x.src) || DECORS.find(x => x.src);
   function appliquerDecor() {
     const d = decorActuel();
     ecrans.brossage.style.backgroundImage = d ? `linear-gradient(180deg, rgba(13,18,80,.15), rgba(13,18,80,.35)), url("${d.src}")` : "";
@@ -466,7 +466,6 @@
   }
   $("#decor-retour").addEventListener("click", () => { elEcranDecor.hidden = true; });
   DECORS.forEach(d => {
-    if (d.id === "plateau") return;
     const u = `assets/decors/${d.id}.webp`, i = new Image();
     i.onload = () => { d.src = u; if (!elEcranDecor.hidden) majDecors(); }; i.src = u;
   });
@@ -516,7 +515,7 @@
       if (!confirm("Supprimer ce décor de ton téléphone ?")) return;
       await operation("readwrite", st => st.delete(d.id)).catch(() => {});
       URL.revokeObjectURL(d.src); DECORS.splice(DECORS.indexOf(d), 1);
-      if (decor === d.id) { decor = "plateau"; retenir({ decor }); }
+      if (decor === d.id) { decor = DECOR_DEFAUT; retenir({ decor }); }
       return majDecors();
     }
     decor = d.id; retenir({ decor }); appliquerDecor();
@@ -548,7 +547,7 @@
     cameraChoisie = !!r.camera;
     nbPhotos = r.photos === 2 ? 2 : 4;
     typeBrosse = r.brosse === "electrique" ? "electrique" : "manuelle";
-    decor = r.decor || "plateau"; appliquerDecor();
+    decor = r.decor && r.decor !== "plateau" ? r.decor : DECOR_DEFAUT; appliquerDecor();
     choisir($("#choix-brosse"), $(`#choix-brosse [data-brosse="${typeBrosse}"]`));
     choisir($("#choix-mode"), $(`#choix-mode [data-mode="${mode}"]`));
     choisir($("#choix-duree"), $(`#choix-duree [data-duree="${duree}"]`));
@@ -932,7 +931,7 @@
     elOptions.hidden = true;
     const l = $("#createur-liste"); l.innerHTML = "";
     POSES_BEUFA.forEach(p => {
-      const b = document.createElement("button"); b.type = "button"; b.className = "tuile-decor plateau";
+      const b = document.createElement("button"); b.type = "button"; b.className = "tuile-decor pose";
       b.innerHTML = `<i>${p.emoji || "📸"}</i><span>${p.nom}${p.createur ? " ✓" : ""}</span>`;
       b.addEventListener("click", () => ouvrirCrStudio(p));
       l.appendChild(b);

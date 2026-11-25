@@ -328,4 +328,6 @@ Pas de publication sur le Play Store.
   contre le mien », « Tape dans ma main »… (la brosse Beufa dents, elle, dit « photo avec Beufa »).
 - [x] **Côte à côte** sur la photo en duo dans un décor : l'utilisateur détouré est décalé à gauche (réduit s'il prend
   plus de 60 % de la largeur), Beufa à droite (poses larges dans les 70 % de droite) ; bord de sa caméra adouci.
+- [x] Décor « Plateau télé » retiré (sans image, il empêchait la photo côte à côte) : restent les 5 décors du créateur
+  et « Ma photo » ; lagon par défaut (aussi pour qui avait choisi le plateau).
 
