@@ -318,4 +318,6 @@ Pas de publication sur le Play Store.
 - [x] Ta-da refait avec la vidéo n°14 (il saute dans l'image, mains ouvertes : les deux mains dans le champ). Règle générale :
   ce qu'il tend vers l'utilisateur ne sort jamais de l'image ; poses larges (`entier`) réduites pour tenir en entier
   (double V, cœur, bras croisés, ta-da). Vérifié par simulation sur les 10 poses, deux tailles d'utilisateur.
+- [x] **Code allégé** (sans changer le fonctionnement) : restes des versions abandonnées retirés (ombres animées et
+  `tools/animations.py`, ancienne ligne de choix du décor sur l'accueil, réglage de luminosité inutilisé).
 

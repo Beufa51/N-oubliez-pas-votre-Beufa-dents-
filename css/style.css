@@ -1042,22 +1042,7 @@ body::before {   /* petites étoiles fixes qui scintillent */
 #ecran-fin > .titre { margin-top: auto; }
 
 /* ---------- décor du brossage ---------- */
-.decors { display: flex; gap: 6px; overflow-x: auto; padding: 3px; scrollbar-width: none; }
-#ecran-accueil .decors .option.decor {
-  flex: 0 0 auto; width: 40px; height: 40px; min-height: 0; padding: 0; border-radius: 50%;
-  background: #1a1f8a center / cover no-repeat; border: 2px solid rgba(255,255,255,.35); font-size: 1.1rem;
-}
-#ecran-accueil .decors .option.decor::before, #ecran-accueil .decors .option.decor::after { display: none; }
-#ecran-accueil .decors .option.decor.actif { border-color: var(--or); box-shadow: 0 0 0 2px var(--or), 0 0 12px rgba(255,200,61,.8); }
 #ecran-brossage.avec-decor { background-position: center; background-size: cover; background-repeat: no-repeat; }
-.decor-plus {
-  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.6);
-  background: rgba(255,255,255,.08); color: #fff; font: 800 1.4rem/1 inherit; cursor: pointer;
-}
-/* décor : pastilles sur leur propre ligne, schéma plus transparent pour laisser voir le décor */
-#bloc-decor { flex-wrap: wrap; }
-#bloc-decor .decors { flex: 1 1 auto; justify-content: flex-end; flex-wrap: wrap; overflow: visible; }
-#ecran-accueil .decors .option.decor, .decor-plus { width: 36px; height: 36px; }
 #ecran-brossage.avec-decor #bouche .carte-bouche { fill: rgba(255, 255, 255, .28); }
 #ecran-brossage.avec-decor .scene:not(.avec-camera) #bouche { filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
 #ecran-brossage.avec-decor #bouche .bouche-txt { fill: #fff; paint-order: stroke; stroke: rgba(13,18,80,.75); stroke-width: 3px; }
@@ -1081,7 +1066,6 @@ body::before {   /* petites étoiles fixes qui scintillent */
   margin: 0; text-align: center; font-size: clamp(1.6rem, 7.5vw, 2.2rem); font-weight: 900; color: var(--or-clair);
   text-shadow: 0 0 14px rgba(255,200,61,.7), 0 3px 0 var(--or-fonce);
 }
-.decor-sous { margin: 4px 0 10px; font-weight: 700; opacity: .85; text-align: center; }
 .grille-decors {
   width: 100%; max-width: 520px; flex: 1; min-height: 0; overflow-y: auto; padding: 4px 2px 10px;
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start;
@@ -1208,11 +1192,6 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 /* créateur en direct : le bas de sa photo se fond (photos prises de près) */
 .zone-surprise.ombre img { -webkit-mask-composite: source-in; mask-composite: intersect; }   /* masque par pose (côtés coupés) */
 
-/* ombre animée du créateur sur l'aperçu de la photo à faire (planche d'images, une image après l'autre) */
-.demo-apercu .ap-ombre.anim { position: absolute; background-repeat: no-repeat; background-position: 0 0;
-  animation-name: ombre-geste; animation-duration: 2.6s; animation-iteration-count: infinite; }
-@keyframes ombre-geste { 0% { background-position: 0% 0; } 60% { background-position: 100% 0; } 100% { background-position: 100% 0; } }
-@media (prefers-reduced-motion: reduce) { .demo-apercu .ap-ombre.anim { animation: none; background-position: 100% 0; } }
 
 /* poses en vidéo : pas d'ovale ni de contour, l'utilisateur voit la pose et se place comme il veut */
 .cadre.sans-ovale .cadre-tete, .cadre.sans-ovale ~ .contour-guide, .cadre.sans-ovale .contour-guide { display: none !important; }
