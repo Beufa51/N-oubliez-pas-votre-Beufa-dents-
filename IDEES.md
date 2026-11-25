@@ -334,3 +334,4 @@ Pas de publication sur le Play Store.
   flash et confettis, Beufa qui saute dans l'image (vidéo ta-da), la brosse Beufa dents qui arrive, « Brosse-toi les
   dents avec Beufa ! » ; bouton pour passer toujours visible ; version immobile si « réduire les animations ».
 - [x] Intro : Beufa fait le signe « cool » 🤙 (après essais ta-da et double V), plus grand et collé sous le panneau (`INTRO_POSE` dans `js/app.js` pour essayer une autre pose).
+- [x] Intro : « ting ! » (petite étoile + son aigu) au coin du sourire de Beufa quand il s'arrête sur sa pose, puis toutes les 4 s.
