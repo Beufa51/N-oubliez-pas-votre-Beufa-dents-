@@ -1221,3 +1221,11 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 
 /* poses en vidéo : pas d'ovale ni de contour, l'utilisateur voit la pose et se place comme il veut */
 .cadre.sans-ovale .cadre-tete, .cadre.sans-ovale ~ .contour-guide, .cadre.sans-ovale .contour-guide { display: none !important; }
+
+/* révélation : l'utilisateur redessiné devant le créateur (il arrive derrière lui) */
+.rev-perso { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.rev-perso[hidden] { display: none; }
+.rev-tampon { z-index: 3; }
+
+/* audit de l'écran de brossage : infos en double retirées (le schéma montre déjà la face et les microbes qui éclatent) */
+#ecran-brossage #points, #ecran-brossage #score { display: none; }

@@ -997,7 +997,7 @@
      Bien placé : l'ombre devient le vrai créateur, à la taille de la tête de l'utilisateur (mesurée en direct).
      Poses avec contact : la photo part toute seule quand la main de l'utilisateur touche celle du créateur
      (« CHECK ! ») ; sinon, au bout de ATTENTE_GESTE s, un 3-2-1. Autres poses : 3-2-1 peu après l'apparition. */
-  const ATTENTE_GESTE = 7;
+  const ATTENTE_GESTE = 9;   // s pour toucher sa main avant le 3-2-1
   const TEXTE_GESTE = { poing: "👊 Touche son poing !", paume: "✋ Tape dans sa main !", dessous: "🙌 Tape dans ses mains !" };
   const CRI_GESTE = { poing: "💥 CHECK !", paume: "💥 TOPE LÀ !", dessous: "💥 BIEN JOUÉ !" };
   let apparuA = null, visageLive = null, gesteA = 0;
@@ -1020,7 +1020,7 @@
   function suivreGeste() {
     const p = poseActuelle, t = tPause - apparuA;
     // sans contact : le temps de prendre la pose (plus long après une vidéo), puis 3-2-1
-    if (!p.createur || !p.main || !DET.etat.photos) { if (t >= (p.video ? 2.5 : 1.5)) commencerCompte(); return; }
+    if (!p.createur || !p.main || !DET.etat.photos) { if (t >= (p.video ? 4 : 2)) commencerCompte(); return; }
     if (t >= ATTENTE_GESTE) return commencerCompte();
     const maintenant = performance.now();
     if (maintenant - gesteA < 200) return;
@@ -1085,12 +1085,10 @@
     const montrerPastille = DETECTION_BROSSAGE && flux && phase === "brosse" && d.statut !== "eteint" && d.statut !== "indisponible";
     let txt = "", cls = "detecteur";
     if (montrerPastille) {
-      if (d.statut === "chargement") txt = "👁️ Beufa ouvre l'œil…";
-      else if (performance.now() < conseilJusqua) { txt = conseil; cls += " conseil"; }
+      if (performance.now() < conseilJusqua) { txt = conseil; cls += " conseil"; }
       else if (sansVisage > 1) { txt = "🙈 Je ne vois pas ta bouche"; cls += " perdu"; }
       else if (attente >= 1.2) { txt = "⏸ Brosse pour avancer !"; cls += " attend"; }
-      else if (d.visage) { txt = "🪥 Je te vois brosser !"; cls += " ok"; }
-      else txt = "👁️ Beufa te cherche…";
+      // tout va bien : rien à afficher (moins d'infos à l'écran)
     }
     elDet.hidden = !txt;
     if (elDet.textContent !== txt) elDet.textContent = txt;
@@ -1581,6 +1579,7 @@
         teinter(gu, W, H, teinte, .1);
         g.drawImage(u, 0, 0);
         ph.teinte = teinte;
+        ph.perso = u;          // l'utilisateur seul : redessiné DEVANT le créateur (il est un pas derrière lui)
       } else g.drawImage(ph.img, 0, 0, W, H);
       etincelles(g, ph.visage && ph.visage.bouche, W, H);
       ph.base = c;
@@ -1643,7 +1642,7 @@
     return { canvas: c, r };
   }
 
-  function composer({ pose, img, bulle, tampon, visage, calque, base }) {
+  function composer({ pose, img, bulle, tampon, visage, calque, base, perso }) {
     W = 1080; H = Math.round(W * img.height / img.width);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
@@ -1656,6 +1655,7 @@
       x.shadowColor = "rgba(0,0,0,.3)"; x.shadowBlur = 22; x.shadowOffsetY = 6;
       x.drawImage(cq.canvas, 0, 0, W, H);
       x.restore();
+      if (perso) x.drawImage(perso, 0, 0, W, H);           // l'utilisateur devant : ses bras ne sont pas coupés
       if (bulle) bulleCanvas(x, bulle, pose.cote === "droite" ? W * .66 : W * .34, Math.max(70, r.ty - 70), pose.cote === "droite" ? 1 : -1);
     } else if (part.naturalWidth) {
       const h = H * PART.mascotteH;
@@ -1805,7 +1805,8 @@
     preparerPhotos().catch(() => {}).then(() => {
       $("#fin-titre").textContent = avecPrenom("Bravo", "\u00a0!");
       const revs = photos.map(ph => ({ url: (ph.base || ph.img).toDataURL("image/jpeg", .85), ratio: ph.img.width / ph.img.height, pose: ph.pose, tampon: !!ph.tampon,
-        calque: ph.calque ? ph.calque.canvas.toDataURL("image/webp", .9) : null }));
+        calque: ph.calque ? ph.calque.canvas.toDataURL("image/webp", .9) : null,
+        perso: ph.perso && ph.calque ? ph.perso.toDataURL("image/webp", .9) : null }));
       afficherMontages();
       lancerRevelation(revs, recompense);
     });
@@ -1831,6 +1832,7 @@
     elRevScene.style.aspectRatio = String(r.ratio);
     elRevScene.style.width = `min(92vw, 470px, calc(58dvh * ${r.ratio}))`;
     elRevUser.src = r.url;
+    const elPerso = $("#rev-perso"); elPerso.hidden = !r.perso; if (r.perso) elPerso.src = r.perso;
     elRevPart.src = r.calque || part.src;
     elRevPart.style.cssText = r.calque ? "left:0;top:0;width:100%;height:100%;right:auto;bottom:auto" : `height:${PART.mascotteH * 100}%;bottom:${PART.bas * 100}%`;
     elRevPart.className = `rev-part cote-${r.pose.cote}${r.calque ? " createur" : ""}`;

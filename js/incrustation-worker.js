@@ -56,8 +56,9 @@ function detourerPhoto(bmp, ts, id) {
   const res = seg.segmentForVideo(bmp, ts), ms = res && res.confidenceMasks;
   if (!ms || !ms.length) return null;
   const mk = ms[0], w = mk.width, h = mk.height, d = mk.getAsFloat32Array(), alpha = new Uint8ClampedArray(w * h);
+  // photo : seuil plus souple qu'en direct, pour ne pas perdre les bras et les mains
   for (let i = 0; i < w * h; i++) {
-    const a = (d[i] - SEUIL_BAS) / (SEUIL_HAUT - SEUIL_BAS);
+    const a = (d[i] - .32) / (.68 - .32);
     alpha[i] = a <= 0 ? 0 : a >= 1 ? 255 : a * 255;
   }
   if (res.close) res.close();
