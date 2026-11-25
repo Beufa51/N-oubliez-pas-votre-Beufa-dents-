@@ -1277,3 +1277,6 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
 /* l'arène aux microbes : par-dessus la caméra, sous le schéma, la bulle et Beufa dents */
 .arene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .arene.dessus { z-index: 2; }   /* sans caméra : les microbes dans l'anneau du schéma */
+/* fin : « Recommencer » arrive seulement après les photos */
+#btn-recommencer[hidden] { display: none; }
+#btn-recommencer.apparait { animation: pop .5s cubic-bezier(.3,1.5,.5,1) both; }

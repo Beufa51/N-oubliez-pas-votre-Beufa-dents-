@@ -1312,7 +1312,7 @@
     const brosse = actif && vitesseBrossage() > 0 && (!detActive() || DET.etat.brosse) && attente < 1.2;
     if (actif) {
       // naissances : rares quand on brosse, de plus en plus quand on ne brosse pas
-      const cadence = brosse ? 3 : Math.max(.45, 1 - arene.rires * .1);
+      const cadence = brosse ? 3 : Math.max(1.1, 2 - arene.rires * .06);
       if (t - arene.naissA > cadence && arene.microbes.length < AR.max) {
         const Z = zoneArene(W, H), cam = elScene.classList.contains("avec-camera");
         arene.naissA = t; nouveauMicrobe(W, H, cam ? (Math.random() < .5 ? -W * .05 : W * 1.05) : Z.x0 + Math.random() * (Z.x1 - Z.x0));
@@ -2014,7 +2014,12 @@
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
     const avecPh = photos.length > 0;
     if (avecPh) photos[photos.length - 1].tampon = true;   // le tampon du jour, sur la dernière photo
-    const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
+    // « Recommencer » n'apparaît qu'une fois les photos vues (sinon on l'appuie par réflexe pendant le développement)
+    const elRecom = $("#btn-recommencer"); elRecom.hidden = true; clearTimeout(terminer.recomT);
+    const recompense = () => {
+      montrerCarteGagnee(res); feter(avecPh, res); confettis();
+      terminer.recomT = setTimeout(() => { elRecom.hidden = false; rejouer(elRecom, "apparait"); }, 1500);
+    };
     montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
     montrer("fin");
     if (!avecPh) return recompense();
