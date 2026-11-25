@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image, ImageOps
 from scipy import ndimage
 
-IDS = ["high-five", "check-poing", "pouce", "pointe", "pensif", "bras-croises"]
+IDS = ["high-five", "check-poing", "pouce", "cool", "coeur", "pointe", "pensif", "bras-croises"]
 TRAIT = 11  # épaisseur du trait (px, pour une image de 1400 px de haut)
 
 for i in IDS:

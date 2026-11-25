@@ -80,21 +80,26 @@
       cible: { x: .095, y: .171, texte: "ta main ici" },
       photo: { tete: [.05, .407, .77], hh: .24, top: .15, dx: .17 },
       main: { x: .095, y: .171, taille: .1774, contact: "paume" } },
-    { id: "check-poing", nom: "Check", anim: 8, contour: true, mascotte: "main-levee", cote: "droite", emoji: "👊",
+    { id: "check-poing", nom: "Check", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
-      cible: { x: .132, y: .421, texte: "ton poing ici" },
-      photo: { tete: [.069, .476, .691], hh: .24, top: .15, dx: .17 },
-      main: { x: .132, y: .421, taille: .2902, contact: "poing" } },
-    { id: "pouce", nom: "Victoire", anim: 7, contour: true, mascotte: "pouce", cote: "droite", emoji: "✌️",
-      consigne: "Fais le V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [.028, .406, .781], hh: .24, top: .15, dx: .17 } },
-    { id: "coeur", nom: "Cœur", mascotte: "coeur", cote: "droite", consigne: "Fais un cœur avec tes mains" },
+      cible: { x: .119, y: .473, texte: "ton poing ici" },
+      photo: { tete: [.046, .307, .54], hh: .24, top: .15, dx: .17 },
+      main: { x: .119, y: .473, taille: .0971, contact: "poing" } },
+    { id: "pouce", nom: "Victoire", contour: true, video: 31, mascotte: "pouce", cote: "droite", emoji: "✌️",
+      consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
+      photo: { tete: [.233, .433, .369], hh: .24, top: .15, dx: .17 } },
+    { id: "cool", nom: "Cool", contour: true, video: 25, mascotte: "pouce", cote: "droite", emoji: "🤙",
+      consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
+      photo: { tete: [.138, .396, .393], hh: .24, top: .15, dx: .17 } },
+    { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
+      consigne: "Fais un cœur avec tes mains, comme lui !", geste: "Fais un cœur avec tes mains",
+      photo: { tete: [.216, .398, .222], hh: .24, top: .15, dx: .17 } },
     { id: "pointe", nom: "Montre du doigt", contour: true, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
       consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
       photo: { tete: [.057, .468, .846], hh: .24, top: .15, dx: .17 } },
-    { id: "pensif", nom: "Pensif", anim: 8, contour: true, mascotte: "pensif", cote: "gauche", emoji: "🤔",
+    { id: "pensif", nom: "Pensif", contour: true, video: 33, mascotte: "pensif", cote: "droite", emoji: "🤔",
       consigne: "Main au menton, l'air pensif, comme lui !", geste: "Prends l'air pensif…",
-      photo: { tete: [.05, .397, .265], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.178, .344, .217], hh: .24, top: .15, dx: .17 } },
     { id: "bras-croises", nom: "Dos à dos", anim: 6, contour: true, mascotte: "bras-croises", cote: "droite", emoji: "👥",
       consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
       cible: { x: .03, y: .45, texte: "ton dos ici" },
@@ -117,8 +122,15 @@
     c.src = `assets/createur/${p.id}.webp`;
     if (p.contour) { p.imgContour = new Image(); p.imgContour.src = `assets/createur/contour-${p.id}.webp`; }
     // ombre animée (tools/animations.py) : planche de p.anim images, calées sur la tête de la photo fixe
-    if (p.anim) { const a = new Image(); a.onload = () => { p.imgAnim = a; }; a.src = `assets/createur/anim-${p.id}.webp`; }
+    if (p.anim && !p.video) { const a = new Image(); a.onload = () => { p.imgAnim = a; }; a.src = `assets/createur/anim-${p.id}.webp`; }
   });
+  /* vidéos du créateur (tools/videos.py) : p.video images (12/s) au même cadrage que sa photo fixe, qui est la
+     dernière image. Chargées au début du brossage, seulement pour les poses tirées. */
+  const VIDEO_FPS = 12;
+  function chargerVideo(p) {
+    if (!p.video || p.images) return;
+    p.images = Array.from({ length: p.video }, (_, k) => { const i = new Image(); i.src = `assets/createur/video/${p.id}/${String(k).padStart(2, "0")}.webp`; return i; });
+  }
   /* contour de la pose de l'utilisateur (= photo du créateur en miroir), calé sur l'ovale de la tête.
      OVALE = le même ovale que le CSS (.cadre.avec-createur .cadre-tete) ; ratio = largeur / hauteur de la photo.
      Renvoie des fractions : x, w de la largeur ; y, h de la hauteur. */
@@ -734,6 +746,7 @@
     const sourire = POSES_BEUFA.find(p => p.id === "pouce");
     const autres = melanger(POSES_BEUFA.filter(p => p.photo && p !== sourire)).concat(melanger(POSES_BEUFA.filter(p => !p.photo)));
     poses = avecPhotos() ? autres.slice(0, Math.max(0, 2 * parBloc - 1)).concat([sourire]) : autres;
+    if (avecPhotos()) poses.forEach(chargerVideo);
     elMascotte.src = IMG("mains-hanches");
     fermerPose(); elPause.hidden = true;
     phase = "brosse";
@@ -944,7 +957,8 @@
   /* ---------- placement guidé dans le studio photo ---------- */
   let compteA = null, clicA = 0, okDepuis = 0, dernierePlace = 0, placeMsg = "";
   function placement() {
-    const t = tPause - POSE_PREP;
+    if (videoFinA === null) return;                 // la vidéo du créateur joue encore
+    const t = tPause - videoFinA;
     if (!DET.etat.photos) {                       // pas de détection : temps fixe
       if (t >= PLACE_SANS) apparaitre();
       return;
@@ -989,10 +1003,12 @@
     elCadre.classList.remove("placement", "bien-place");
     if (!p.createur) return commencerCompte();       // Beufa (pas de photo du créateur) : 3-2-1 direct
     elCadre.classList.add("geste");                  // consignes de geste en texte (pas en gros chiffres)
-    elPartenaire.classList.add("apparu"); rejouer(elPartenaire, "surgit");
     $("#contour").hidden = true;
-    elBulle.textContent = hasard(["Coucou, c'est moi !", "Surprise !", "Me voilà !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
-    bip(784, .1); bip(1047, .12, .1); bip(1319, .16, .2); vibrer([40, 30, 80]);
+    if (!p.video || !p.images) {                     // photo fixe : il apparaît maintenant
+      elPartenaire.classList.add("apparu"); rejouer(elPartenaire, "surgit");
+      elBulle.textContent = hasard(["Coucou, c'est moi !", "Surprise !", "Me voilà !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
+      bip(784, .1); bip(1047, .12, .1); bip(1319, .16, .2); vibrer([40, 30, 80]);
+    } else bip(880, .08);
     elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : "😄 Prends la pose avec lui !";
     rejouer(elStudioCompte, "pop");
   }
@@ -1228,7 +1244,7 @@
     DET.pause(true); INC.pause(true);
     if (avecPhotos()) {
       poseActuelle = poses[poseIdx++ % poses.length]; cliche = false; dernierCompte = 0;
-      compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = ""; apparuA = null; visageLive = null; gesteA = 0;
+      compteA = null; clicA = 0; okDepuis = 0; dernierePlace = 0; placeMsg = ""; apparuA = null; visageLive = null; gesteA = 0; videoFinA = null;
       return ouvrirPose(poseActuelle);
     }
     elPause.querySelectorAll(".pause-img").forEach(n => n.remove());
@@ -1356,8 +1372,36 @@
     ap.innerHTML = html;
   }
 
+  /* vidéo du créateur dans le studio : il entre, fait son geste, se fige ; ensuite seulement l'utilisateur se place */
+  let videoT = 0, videoFinA = null;
+  function jouerVideo(p) {
+    clearInterval(videoT); videoFinA = null;
+    const img = elPartenaire.querySelector("img"); if (!img) { videoFinA = tPause; return; }
+    elPartenaire.classList.add("apparu"); $("#contour").hidden = true;
+    elBulle.textContent = "Regarde bien !"; elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
+    elCadre.classList.add("geste"); elStudioCompte.textContent = "👀 Regarde bien…";
+    let k = 0;
+    const suite = () => {
+      const im = p.images[k];
+      if (im && im.complete && im.naturalWidth) img.src = im.src;
+      if (++k >= p.images.length) {
+        clearInterval(videoT); img.src = p.createur.src;      // figé sur sa pose (la photo fixe = dernière image)
+        videoFinA = tPause; bip(784, .1); bip(1047, .12, .1); vibrer([40, 30, 80]);
+        elBulle.textContent = "À toi !"; rejouer(elBulle, "pop");
+        if (avecContour(p)) $("#contour").hidden = false;
+        elCadre.classList.remove("geste"); elCadre.classList.add("placement");
+        elStudioCompte.textContent = "Mets ta tête dans l'ovale"; rejouer(elStudioCompte, "pop");
+      }
+    };
+    suite(); videoT = setInterval(suite, 1000 / VIDEO_FPS);
+  }
+
   function passerEnPhoto() {
     etapePose = "photo"; elStudio.className = "studio etape-photo"; placerCadre();
+    if (poseActuelle.video && poseActuelle.images && poseActuelle.createur) {
+      rejouer(elPartenaire, "entre"); return jouerVideo(poseActuelle);
+    }
+    videoFinA = POSE_PREP;
     rejouer(elPartenaire, "entre"); rejouer(elBulle, "pop");
     // d'abord le temps de se placer (ovale qui clignote), ensuite seulement le 3-2-1
     elCadre.classList.add("placement");
@@ -1367,6 +1411,7 @@
   }
 
   function fermerPose() {
+    clearInterval(videoT);
     elStudio.hidden = true; elStudioVideo.srcObject = null; etapePose = ""; poseActuelle = null;
   }
 
