@@ -7,28 +7,28 @@
      Beufa + un chapeau (sur la tête de la brosse) + un objet + un fond.
      Les cartes rares se gagnent tous les 7 jours d'affilée. */
   const CARTES = [
-    { id: "magicien",   nom: "Beufa Magicien",        pose: "pointe-du-doigt", chapeau: "🎩", objet: "🪄", deco: "✨", c1: "#7c4dff", c2: "#d1b3ff" },
-    { id: "roi",        nom: "Roi Beufa",             pose: "mains-hanches",   chapeau: "👑", objet: "💎", deco: "✨", c1: "#f5a623", c2: "#ffe39a" },
-    { id: "pirate",     nom: "Beufa le Pirate",       pose: "pointe-du-doigt", chapeau: "🏴‍☠️", objet: "🦜", deco: "🌊", c1: "#1e6091", c2: "#8fd3ff" },
-    { id: "astronaute", nom: "Beufa Astronaute",      pose: "main-levee",      chapeau: "",   objet: "🚀", deco: "🪐", c1: "#1b1f5e", c2: "#5b6cff" },
-    { id: "rockstar",   nom: "Beufa Rockstar",        pose: "main-levee",      chapeau: "🕶️", objet: "🎸", deco: "⚡", c1: "#e0457a", c2: "#ffb0c8" },
-    { id: "foot",       nom: "Beufa Footballeur",     pose: "pouce",           chapeau: "🧢", objet: "⚽", deco: "🏆", c1: "#2e9d4f", c2: "#a6eab8" },
-    { id: "dino",       nom: "Beufa et le Dino",      pose: "pensif",          chapeau: "",   objet: "🦖", deco: "🌋", c1: "#5a8f29", c2: "#cdeb8b" },
-    { id: "licorne",    nom: "Beufa Licorne",         pose: "coeur",           chapeau: "🦄", objet: "🌈", deco: "💖", c1: "#ff7aa2", c2: "#c9b6ff" },
-    { id: "cuisinier",  nom: "Chef Beufa",            pose: "mains-hanches",   chapeau: "",   objet: "🍕", deco: "🧁", c1: "#ff8c42", c2: "#ffd6a5" },
-    { id: "pompier",    nom: "Beufa Pompier",         pose: "bras-croises",    chapeau: "⛑️", objet: "🚒", deco: "💧", c1: "#d62828", c2: "#ff9b9b" },
-    { id: "plongeur",   nom: "Beufa Plongeur",        pose: "main-levee",      chapeau: "🤿", objet: "🐠", deco: "🐙", c1: "#0077b6", c2: "#90e0ef" },
-    { id: "heros",      nom: "Super Beufa",           pose: "mains-hanches",   chapeau: "",   objet: "⚡", deco: "💥", c1: "#e63946", c2: "#ffd166" },
-    { id: "explorateur",nom: "Beufa Explorateur",     pose: "pointe-du-doigt", chapeau: "👒", objet: "🧭", deco: "🗺️", c1: "#8d6e3f", c2: "#e9d5a7" },
-    { id: "savant",     nom: "Professeur Beufa",      pose: "pensif",          chapeau: "🎓", objet: "📚", deco: "💡", c1: "#3a506b", c2: "#b8c7da" },
-    { id: "musicien",   nom: "Beufa Musicien",        pose: "coeur",           chapeau: "",   objet: "🎺", deco: "🎵", c1: "#9d4edd", c2: "#e0aaff" },
+    { id: "magicien",   nom: "Beufa dents Magicien",        pose: "pointe-du-doigt", chapeau: "🎩", objet: "🪄", deco: "✨", c1: "#7c4dff", c2: "#d1b3ff" },
+    { id: "roi",        nom: "Roi Beufa dents",             pose: "mains-hanches",   chapeau: "👑", objet: "💎", deco: "✨", c1: "#f5a623", c2: "#ffe39a" },
+    { id: "pirate",     nom: "Beufa dents le Pirate",       pose: "pointe-du-doigt", chapeau: "🏴‍☠️", objet: "🦜", deco: "🌊", c1: "#1e6091", c2: "#8fd3ff" },
+    { id: "astronaute", nom: "Beufa dents Astronaute",      pose: "main-levee",      chapeau: "",   objet: "🚀", deco: "🪐", c1: "#1b1f5e", c2: "#5b6cff" },
+    { id: "rockstar",   nom: "Beufa dents Rockstar",        pose: "main-levee",      chapeau: "🕶️", objet: "🎸", deco: "⚡", c1: "#e0457a", c2: "#ffb0c8" },
+    { id: "foot",       nom: "Beufa dents Footballeur",     pose: "pouce",           chapeau: "🧢", objet: "⚽", deco: "🏆", c1: "#2e9d4f", c2: "#a6eab8" },
+    { id: "dino",       nom: "Beufa dents et le Dino",      pose: "pensif",          chapeau: "",   objet: "🦖", deco: "🌋", c1: "#5a8f29", c2: "#cdeb8b" },
+    { id: "licorne",    nom: "Beufa dents Licorne",         pose: "coeur",           chapeau: "🦄", objet: "🌈", deco: "💖", c1: "#ff7aa2", c2: "#c9b6ff" },
+    { id: "cuisinier",  nom: "Chef Beufa dents",            pose: "mains-hanches",   chapeau: "",   objet: "🍕", deco: "🧁", c1: "#ff8c42", c2: "#ffd6a5" },
+    { id: "pompier",    nom: "Beufa dents Pompier",         pose: "bras-croises",    chapeau: "⛑️", objet: "🚒", deco: "💧", c1: "#d62828", c2: "#ff9b9b" },
+    { id: "plongeur",   nom: "Beufa dents Plongeur",        pose: "main-levee",      chapeau: "🤿", objet: "🐠", deco: "🐙", c1: "#0077b6", c2: "#90e0ef" },
+    { id: "heros",      nom: "Super Beufa dents",           pose: "mains-hanches",   chapeau: "",   objet: "⚡", deco: "💥", c1: "#e63946", c2: "#ffd166" },
+    { id: "explorateur",nom: "Beufa dents Explorateur",     pose: "pointe-du-doigt", chapeau: "👒", objet: "🧭", deco: "🗺️", c1: "#8d6e3f", c2: "#e9d5a7" },
+    { id: "savant",     nom: "Professeur Beufa dents",      pose: "pensif",          chapeau: "🎓", objet: "📚", deco: "💡", c1: "#3a506b", c2: "#b8c7da" },
+    { id: "musicien",   nom: "Beufa dents Musicien",        pose: "coeur",           chapeau: "",   objet: "🎺", deco: "🎵", c1: "#9d4edd", c2: "#e0aaff" },
     { id: "dragon",     nom: "Dompteur de Dragon",    pose: "bras-croises",    chapeau: "",   objet: "🐉", deco: "🔥", c1: "#bc3908", c2: "#ffb703" },
-    { id: "neige",      nom: "Beufa des Neiges",      pose: "pouce",           chapeau: "🎅", objet: "⛄", deco: "❄️", c1: "#48cae4", c2: "#e0fbfc" },
-    { id: "jardinier",  nom: "Beufa Jardinier",       pose: "coeur",           chapeau: "",   objet: "🌻", deco: "🐝", c1: "#4f772d", c2: "#d8f3a6" },
+    { id: "neige",      nom: "Beufa dents des Neiges",      pose: "pouce",           chapeau: "🎅", objet: "⛄", deco: "❄️", c1: "#48cae4", c2: "#e0fbfc" },
+    { id: "jardinier",  nom: "Beufa dents Jardinier",       pose: "coeur",           chapeau: "",   objet: "🌻", deco: "🐝", c1: "#4f772d", c2: "#d8f3a6" },
     // rares : 7 jours d'affilée
-    { id: "or",         nom: "Beufa d'Or",            pose: "pouce",           chapeau: "👑", objet: "🏆", deco: "🌟", c1: "#b8860b", c2: "#fff1a8", rare: true },
-    { id: "arcenciel",  nom: "Beufa Arc-en-ciel",     pose: "main-levee",      chapeau: "🌈", objet: "🦄", deco: "⭐", c1: "#ff5c8a", c2: "#7bdff2", rare: true },
-    { id: "galaxie",    nom: "Beufa Galactique",      pose: "mains-hanches",   chapeau: "🪐", objet: "🌠", deco: "✨", c1: "#240046", c2: "#9d4edd", rare: true }
+    { id: "or",         nom: "Beufa dents d'Or",            pose: "pouce",           chapeau: "👑", objet: "🏆", deco: "🌟", c1: "#b8860b", c2: "#fff1a8", rare: true },
+    { id: "arcenciel",  nom: "Beufa dents Arc-en-ciel",     pose: "main-levee",      chapeau: "🌈", objet: "🦄", deco: "⭐", c1: "#ff5c8a", c2: "#7bdff2", rare: true },
+    { id: "galaxie",    nom: "Beufa dents Galactique",      pose: "mains-hanches",   chapeau: "🪐", objet: "🌠", deco: "✨", c1: "#240046", c2: "#9d4edd", rare: true }
   ];
   const IMG = p => `assets/mascotte/png/pose-${p}.png`;
 

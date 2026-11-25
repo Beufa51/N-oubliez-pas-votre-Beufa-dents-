@@ -357,7 +357,7 @@
   let ficheId = null, apresFiche = null;
   function majTon() {
     const a = parseInt(elFicheAge.value, 10);
-    $("#fiche-ton").textContent = !a ? "" : a > 16 ? "🎩 Beufa prendra un ton adulte." : "🎈 Beufa prendra un ton rigolo pour enfant.";
+    $("#fiche-ton").textContent = !a ? "" : a > 16 ? "🎩 Beufa dents prendra un ton adulte." : "🎈 Beufa dents prendra un ton rigolo pour enfant.";
   }
   function ouvrirFiche(x, suite = null) {
     ficheId = x ? x.id : null; apresFiche = suite;
@@ -1881,7 +1881,7 @@
     revT = setTimeout(() => {
       elRevPart.classList.add("arrive");
       bip(784, .12); bip(1047, .12, .12); bip(1319, .2, .24); vibrer([60, 40, 120]);
-      if (revI === 0) parler(createur ? "Surprise ! On s'est brossé les dents ensemble !" : "Surprise ! C'est moi, Beufa !");
+      if (revI === 0) parler(createur ? "Surprise ! On s'est brossé les dents ensemble !" : "Surprise ! C'est moi, Beufa dents !");
       if (r.tampon) revT = setTimeout(() => {
         const elT = $("#rev-tampon"); elT.hidden = false; rejouer(elT, "pan");
         bip(90, .18); bip(140, .1, .02); vibrer(90);
