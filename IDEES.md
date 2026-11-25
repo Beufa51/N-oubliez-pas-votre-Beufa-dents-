@@ -322,4 +322,6 @@ Pas de publication sur le Play Store.
   `tools/animations.py`, ancienne ligne de choix du décor sur l'accueil, réglage de luminosité inutilisé).
 - [x] **Le créateur s'appelle Beufa** dans toutes les poses : « Ton poing contre celui de Beufa », « comme Beufa »,
   étiquette « Beufa » au lieu de « ? », « Regarde Beufa… », « Beufa est venu compléter ta photo… ».
+- [x] Noms : le créateur = **Beufa** (dans les poses), la brosse mascotte = **Beufa dents** (comme dans le titre) :
+  cartes de l'album (« Beufa dents Musicien »…), textes et descriptions d'images.
 
