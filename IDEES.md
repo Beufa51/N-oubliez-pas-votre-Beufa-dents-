@@ -344,7 +344,8 @@ Pas de publication sur le Play Store.
   dans l'anneau des dents). Quand on brosse, Beufa dents leur tire dessus : 3 coups (5 pour un chef), ils
   s'illuminent puis éclatent. Quand on ne brosse pas, ils reviennent de plus en plus vite
   (16 au maximum) et grossissent en ricanant. Le schéma ne tire plus, il nettoie juste les dents une à une.
-  Look moins enfantin (retour d'usage) : bacilles, amas de coques et virus à spicules translucides, sans yeux ;
-  le chef est un gros virus rouge qui pulse. Éclatement : onde de choc + gouttelettes, sons plus graves, plus de « POP ! ».
+  Look moins enfantin (retours d'usage ; la version bacilles/virus faisait « extraterrestres ») : petites boules
+  vertes visqueuses et irrégulières, couvertes de cils, avec des taches, façon pub pour savon. Le chef est violet
+  avec un halo qui pulse. Éclatement : onde de choc + gouttelettes, sons plus graves, plus de « POP ! ».
 - [x] Intro : « ting » joué une seule fois. Poses sans contact : « Fais comme moi… ou invente ta pose ! ».
 
