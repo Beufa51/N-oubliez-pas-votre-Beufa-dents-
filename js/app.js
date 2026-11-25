@@ -1251,32 +1251,59 @@
     const Z = zoneArene(W, H), r = Z.r * (.045 + Math.random() * .025);
     arene.microbes.push({ x: x ?? Z.x0 + Math.random() * (Z.x1 - Z.x0), y: y ?? Z.y0 + Math.random() * (Z.y1 - Z.y0),
       vx: (Math.random() - .5) * W * .25, vy: (Math.random() - .5) * H * .08, r, taille: 0, coups: 0, flash: 0, ph: Math.random() * 7,
-      chef: Math.random() < .12, couleur: ["#3ddc84", "#7bd85a", "#2ec4b6", "#a259ff"][Math.floor(Math.random() * 4)] });
+      chef: Math.random() < .12, sorte: Math.floor(Math.random() * 3),
+      couleur: ["#7fd14a", "#3fbfa8", "#9b6bd6", "#c7c94a"][Math.floor(Math.random() * 4)] });
+  }
+  /* microbes au look « labo » (bacille, amas de coques, virus à spicules) : corps translucide, noyaux, reflet */
+  function corpsGerme(g, r, c, a) {
+    const gr = g.createRadialGradient(-r * .3, -r * .3, r * .1, 0, 0, r * 1.1);
+    gr.addColorStop(0, "rgba(255,255,255,.55)"); gr.addColorStop(.35, c); gr.addColorStop(1, "rgba(10,25,20,.85)");
+    g.globalAlpha = a; g.fillStyle = gr; g.fill(); g.globalAlpha = 1;
   }
   function dessinerGerme(g, m, t) {
-    const r = m.r * m.taille * (m.chef ? 1.35 : 1);
-    g.save(); g.translate(m.x, m.y); g.rotate(Math.sin(t * 5 + m.ph) * .18);
-    g.fillStyle = m.flash > 0 ? "#fff" : m.chef ? "#a259ff" : m.couleur;
-    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + t * 1.5 + m.ph; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, r * .3, 0, 7); g.fill(); }
-    g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
-    g.strokeStyle = "rgba(0,0,0,.25)"; g.lineWidth = Math.max(1, r * .08); g.stroke();
-    g.fillStyle = "#fff"; [-1, 1].forEach(sx => { g.beginPath(); g.arc(sx * r * .36, -r * .15, r * .27, 0, 7); g.fill(); });
-    g.fillStyle = "#12343b"; [-1, 1].forEach(sx => { g.beginPath(); g.arc(sx * r * .36 + Math.sin(t * 2 + m.ph) * r * .07, -r * .1, r * .13, 0, 7); g.fill(); });
-    // bouche : ricane quand on ne brosse pas, grimace quand il prend des coups
-    g.strokeStyle = "#12343b"; g.lineWidth = Math.max(1.5, r * .1); g.beginPath();
-    if (m.coups) g.arc(0, r * .45, r * .25, 1.15 * Math.PI, 1.85 * Math.PI); else g.arc(0, r * .2, r * .32, .1 * Math.PI, .9 * Math.PI);
-    g.stroke();
-    if (m.chef) { g.fillStyle = "#ffd166"; g.beginPath(); g.moveTo(-r * .7, -r * .85); g.lineTo(-r * .7, -r * 1.45); g.lineTo(-r * .35, -r * 1.1); g.lineTo(0, -r * 1.6); g.lineTo(r * .35, -r * 1.1); g.lineTo(r * .7, -r * 1.45); g.lineTo(r * .7, -r * .85); g.fill(); }
+    const r = m.r * m.taille * (m.chef ? 1.4 : 1), c = m.chef ? "#d2365a" : m.couleur, ph = t * 3 + m.ph;
+    g.save(); g.translate(m.x, m.y); g.rotate(Math.atan2(m.vy, m.vx) * .4 + Math.sin(ph * .5) * .2);
+    if (m.chef) {   // halo menaçant qui pulse
+      const h = g.createRadialGradient(0, 0, r * .8, 0, 0, r * 1.9);
+      h.addColorStop(0, "rgba(210,54,90,.45)"); h.addColorStop(1, "rgba(210,54,90,0)");
+      g.fillStyle = h; g.beginPath(); g.arc(0, 0, r * (1.8 + Math.sin(ph * 2) * .1), 0, 7); g.fill();
+    }
+    g.strokeStyle = m.flash > 0 ? "#fff" : "rgba(5,20,15,.75)"; g.lineWidth = Math.max(1.2, r * (m.flash > 0 ? .14 : .06));
+    if (m.sorte === 0) {          // bacille : capsule allongée avec flagelles
+      g.save(); g.strokeStyle = "rgba(5,20,15,.5)"; g.lineWidth = Math.max(1, r * .05);
+      for (let k = -1; k <= 1; k++) { g.beginPath(); g.moveTo(-r * 1.25, k * r * .2);
+        for (let u = 1; u <= 6; u++) g.lineTo(-r * 1.25 - u * r * .14, k * r * .2 + Math.sin(ph * 2 + u + k) * r * .12); g.stroke(); }
+      g.restore();
+      const L = r * 1.3, e = r * .6 * (1 + Math.sin(ph) * .04);
+      g.beginPath(); g.moveTo(-L + e, -e); g.lineTo(L - e, -e); g.arc(L - e, 0, e, -Math.PI / 2, Math.PI / 2); g.lineTo(-L + e, e); g.arc(-L + e, 0, e, Math.PI / 2, Math.PI * 1.5);
+      corpsGerme(g, r, c, .9); g.stroke();
+      g.fillStyle = "rgba(5,30,20,.45)"; [-.45, .1, .6].forEach((x, k) => { g.beginPath(); g.arc(x * r, (k - 1) * r * .12, r * .13, 0, 7); g.fill(); });
+    } else if (m.sorte === 1) {   // amas de coques
+      [[-.45, -.3], [.4, -.35], [0, .35], [-.15, -.05], [.5, .3]].forEach(([x, y], k) => {
+        const rr = r * (.5 + (k % 2) * .08) * (1 + Math.sin(ph + k) * .05);
+        g.beginPath(); g.arc(x * r, y * r, rr, 0, 7); g.save(); g.translate(x * r, y * r); corpsGerme(g, rr, c, .88); g.restore(); g.stroke();
+      });
+    } else {                      // virus à spicules
+      for (let k = 0; k < 12; k++) {
+        const a = k * Math.PI / 6 + Math.sin(ph * .7) * .1, l = r * (1.35 + Math.sin(ph + k) * .05);
+        g.beginPath(); g.moveTo(Math.cos(a) * r * .9, Math.sin(a) * r * .9); g.lineTo(Math.cos(a) * l, Math.sin(a) * l); g.stroke();
+        g.fillStyle = c; g.beginPath(); g.arc(Math.cos(a) * l, Math.sin(a) * l, r * .12, 0, 7); g.fill(); g.stroke();
+      }
+      g.beginPath(); g.arc(0, 0, r, 0, 7); corpsGerme(g, r, c, .92); g.stroke();
+      g.strokeStyle = "rgba(5,30,20,.35)"; g.lineWidth = Math.max(1, r * .05);
+      g.beginPath(); g.arc(0, 0, r * .55, 0, 7); g.stroke();
+    }
     g.restore();
   }
   function eclater(m) {
-    const coul = ["#ffd166", "#ff7aa2", "#8fe3ea", "#fff", m.couleur];
-    for (let k = 0; k < (m.chef ? 24 : 14); k++) {
-      const a = Math.random() * 7, v = m.r * (4 + Math.random() * 6);
-      arene.eclats.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - m.r * 3, r: m.r * (.12 + Math.random() * .15), c: coul[k % coul.length], vie: 1 });
+    // éclatement : onde de choc + gouttelettes de la couleur du microbe (pas de confettis)
+    const c = m.chef ? "#d2365a" : m.couleur;
+    for (let k = 0; k < (m.chef ? 22 : 12); k++) {
+      const a = Math.random() * 7, v = m.r * (3 + Math.random() * 5);
+      arene.eclats.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - m.r, r: m.r * (.08 + Math.random() * .12), c, vie: 1 });
     }
-    arene.textes.push({ x: m.x, y: m.y - m.r, t: m.chef ? "CHEF K.O. !" : "POP !", vie: 1, taille: Math.max(16, m.r * 1.1) });
-    bip(m.chef ? 1568 : 1300, .04); bip(650, .05, .03);
+    arene.textes.push({ x: m.x, y: m.y, onde: true, r: m.r * (m.chef ? 1.4 : 1), vie: 1 });
+    bip(m.chef ? 220 : 320, .06); bip(160, .08, .04);
   }
   function majArene(dtR) {
     const actif = phase === "brosse";
@@ -1336,17 +1363,17 @@
       gA.fillStyle = "#fff"; gA.beginPath(); gA.arc(x, y, Math.max(4, W * .012), 0, 7); gA.fill();
     }
     gA.restore();
-    // confettis et « POP ! »
+    // gouttelettes et ondes de choc
     for (let i = arene.eclats.length - 1; i >= 0; i--) {
-      const e = arene.eclats[i]; e.vie -= dtR * 1.5; e.x += e.vx * dtR; e.y += e.vy * dtR; e.vy += H * .9 * dtR;
+      const e = arene.eclats[i]; e.vie -= dtR * 1.6; e.x += e.vx * dtR; e.y += e.vy * dtR; e.vy += H * .6 * dtR;
       if (e.vie <= 0) { arene.eclats.splice(i, 1); continue; }
-      gA.globalAlpha = Math.min(1, e.vie * 2); gA.fillStyle = e.c; gA.beginPath(); gA.arc(e.x, e.y, e.r, 0, 7); gA.fill();
+      gA.globalAlpha = Math.min(.9, e.vie * 1.5); gA.fillStyle = e.c; gA.beginPath(); gA.arc(e.x, e.y, e.r * (.6 + e.vie * .4), 0, 7); gA.fill();
     }
     for (let i = arene.textes.length - 1; i >= 0; i--) {
-      const tx = arene.textes[i]; tx.vie -= dtR * 1.1; tx.y -= dtR * 40;
-      if (tx.vie <= 0) { arene.textes.splice(i, 1); continue; }
-      gA.globalAlpha = Math.min(1, tx.vie * 2); gA.font = `900 ${tx.taille}px Fredoka, system-ui, sans-serif`; gA.textAlign = "center";
-      gA.lineWidth = 4; gA.strokeStyle = "#ff3fa4"; gA.strokeText(tx.t, tx.x, tx.y); gA.fillStyle = "#fff"; gA.fillText(tx.t, tx.x, tx.y);
+      const o = arene.textes[i]; o.vie -= dtR * 2.2;
+      if (o.vie <= 0) { arene.textes.splice(i, 1); continue; }
+      gA.globalAlpha = o.vie * .8; gA.strokeStyle = "#e8fbff"; gA.lineWidth = Math.max(1.5, o.r * .12 * o.vie);
+      gA.beginPath(); gA.arc(o.x, o.y, o.r * (1 + (1 - o.vie) * 1.8), 0, 7); gA.stroke();
     }
     gA.globalAlpha = 1;
   }
