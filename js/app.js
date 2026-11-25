@@ -705,33 +705,15 @@
     const bx = P.n.x * sgn, by = P.n.y * sgn;
     const a = Math.atan2(bx, -by) * 180 / Math.PI + Math.sin(ecoule * 45) * 3;
     brosse.setAttribute("transform", `translate(${P.x.toFixed(1)} ${P.y.toFixed(1)}) rotate(${a.toFixed(1)})`);
-    tirerSchema(z, P);
+    tirerSchema();
   }
 
-  /* ---------- façon Pokémon Smile, sur le schéma : la brosse tire sur le microbe de la dent en cours ----------
-     à chaque tir il clignote et rapetisse ; quand sa dent est propre, il explose en confettis. */
+  /* le schéma garde juste ses petits confettis quand une dent est propre (les tirs sont dans l'arène) */
   const tirsSchema = [], eclatsSchema = [];
-  let tirA = 0, derniereImage = 0, calqueTirs = null;
-  function tirerSchema(z, P) {
-    if (!calqueTirs) calqueTirs = el("g", { class: "tirs" }, elBouche);
+  let derniereImage = 0, calqueTirs = null;
+  function tirerSchema() {
     const maintenant = performance.now() / 1000, dt = Math.min(.1, derniereImage ? maintenant - derniereImage : 0);
     derniereImage = maintenant;
-    const avance = phase === "brosse" && vitesseBrossage() > 0 && (!detActive() || DET.etat.brosse);
-    const i = vieMicrobes.findIndex(v => v > .02), cible = i >= 0 && dents[z] && dents[z][i];
-    if (avance && cible && maintenant - tirA > .16) {
-      tirA = maintenant;
-      tirsSchema.push({ el: el("circle", { r: 3.2, class: "tir" }, calqueTirs), x0: P.x, y0: P.y, d: cible, t: 0 });
-    }
-    for (let k = tirsSchema.length - 1; k >= 0; k--) {
-      const t = tirsSchema[k]; t.t += dt / .22;
-      if (t.t >= 1) {                                   // touché : flash blanc
-        t.el.remove(); tirsSchema.splice(k, 1);
-        const m = t.d.m; if (m && !m.classList.contains("mort")) { m.classList.remove("touche"); void m.getBBox(); m.classList.add("touche"); }
-        continue;
-      }
-      t.el.setAttribute("cx", (t.x0 + (t.d.P.x - t.x0) * t.t).toFixed(1));
-      t.el.setAttribute("cy", (t.y0 + (t.d.P.y - t.y0) * t.t).toFixed(1));
-    }
     for (let k = eclatsSchema.length - 1; k >= 0; k--) {
       const e = eclatsSchema[k]; e.vie -= dt * 1.8; e.x += e.vx * dt; e.y += e.vy * dt; e.vy += 220 * dt;
       if (e.vie <= 0) { e.el.remove(); eclatsSchema.splice(k, 1); continue; }
@@ -831,6 +813,8 @@
     defiJusqua = 0; elMascotte.classList.remove("saute");
     remettreMicrobes(); preparerMystere();
     vieMicrobes.fill(1); tirsSchema.splice(0).forEach(t => t.el.remove());
+    arene.microbes.length = arene.tirs.length = arene.eclats.length = arene.textes.length = 0; arene.rires = 0;
+    { const W = elScene.clientWidth || 360, H = elScene.clientHeight || 600; for (let n = 0; n < 5; n++) nouveauMicrobe(W, H); }
     if (flux && DETECTION_BROSSAGE) DET.demarrer(elCamera, typeBrosse);
     if (flux && decorActuel()) INC.demarrer(elCamera);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
@@ -880,6 +864,7 @@
     }
     majAffichage();
     majStudioPerso();
+    majArene(dtR);
     raf = requestAnimationFrame(boucle);
   }
   // studio : l'utilisateur détouré, dessiné par-dessus Beufa (Beufa est derrière lui, comme sur la photo finale)
@@ -1245,6 +1230,126 @@
   }
   // bulles de mousse sur la bouche quand on brosse (+ zones analysées en mode ?debug)
   const vieMicrobes = [1, 1, 1, 1, 1, 1];   // vie des microbes de la zone en cours (taille sur le schéma)
+
+  /* ---------- l'arène aux microbes (façon Pokémon Smile) ----------
+     Des microbes se baladent au milieu de l'écran (pas sur le visage). Quand on brosse, Beufa dents leur tire
+     dessus : ils clignotent puis éclatent en confettis (« POP ! »). Quand on ne brosse pas, ils reviennent de
+     plus en plus nombreux et grossissent en ricanant. */
+  const elArene = $("#arene"), gA = elArene.getContext("2d");
+  const arene = { microbes: [], tirs: [], eclats: [], textes: [], tirA: 0, naissA: 0, sale: false, rires: 0 };
+  const AR = { max: 16, tirToutes: .22, coups: 3 };
+  /* zone de balade : avec la caméra, la bande du milieu de l'écran (sous le visage, au-dessus du schéma) ;
+     sans caméra, l'intérieur de l'anneau des dents du grand schéma */
+  function zoneArene(W, H) {
+    if (elScene.classList.contains("avec-camera")) return { x0: W * .1, x1: W * .9, y0: H * .4, y1: H * .63, r: Math.min(W, H) };
+    const b = $("#bouche").getBoundingClientRect(), sr = elScene.getBoundingClientRect();
+    if (!b.width) return { x0: W * .25, x1: W * .75, y0: H * .3, y1: H * .55, r: Math.min(W, H) * .8 };
+    const x = b.left - sr.left, y = b.top - sr.top;
+    return { x0: x + b.width * .3, x1: x + b.width * .7, y0: y + b.height * .32, y1: y + b.height * .68, r: b.width * .75 };
+  }
+  function nouveauMicrobe(W, H, x, y) {
+    const Z = zoneArene(W, H), r = Z.r * (.045 + Math.random() * .025);
+    arene.microbes.push({ x: x ?? Z.x0 + Math.random() * (Z.x1 - Z.x0), y: y ?? Z.y0 + Math.random() * (Z.y1 - Z.y0),
+      vx: (Math.random() - .5) * W * .25, vy: (Math.random() - .5) * H * .08, r, taille: 0, coups: 0, flash: 0, ph: Math.random() * 7,
+      chef: Math.random() < .12, couleur: ["#3ddc84", "#7bd85a", "#2ec4b6", "#a259ff"][Math.floor(Math.random() * 4)] });
+  }
+  function dessinerGerme(g, m, t) {
+    const r = m.r * m.taille * (m.chef ? 1.35 : 1);
+    g.save(); g.translate(m.x, m.y); g.rotate(Math.sin(t * 5 + m.ph) * .18);
+    g.fillStyle = m.flash > 0 ? "#fff" : m.chef ? "#a259ff" : m.couleur;
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + t * 1.5 + m.ph; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, r * .3, 0, 7); g.fill(); }
+    g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
+    g.strokeStyle = "rgba(0,0,0,.25)"; g.lineWidth = Math.max(1, r * .08); g.stroke();
+    g.fillStyle = "#fff"; [-1, 1].forEach(sx => { g.beginPath(); g.arc(sx * r * .36, -r * .15, r * .27, 0, 7); g.fill(); });
+    g.fillStyle = "#12343b"; [-1, 1].forEach(sx => { g.beginPath(); g.arc(sx * r * .36 + Math.sin(t * 2 + m.ph) * r * .07, -r * .1, r * .13, 0, 7); g.fill(); });
+    // bouche : ricane quand on ne brosse pas, grimace quand il prend des coups
+    g.strokeStyle = "#12343b"; g.lineWidth = Math.max(1.5, r * .1); g.beginPath();
+    if (m.coups) g.arc(0, r * .45, r * .25, 1.15 * Math.PI, 1.85 * Math.PI); else g.arc(0, r * .2, r * .32, .1 * Math.PI, .9 * Math.PI);
+    g.stroke();
+    if (m.chef) { g.fillStyle = "#ffd166"; g.beginPath(); g.moveTo(-r * .7, -r * .85); g.lineTo(-r * .7, -r * 1.45); g.lineTo(-r * .35, -r * 1.1); g.lineTo(0, -r * 1.6); g.lineTo(r * .35, -r * 1.1); g.lineTo(r * .7, -r * 1.45); g.lineTo(r * .7, -r * .85); g.fill(); }
+    g.restore();
+  }
+  function eclater(m) {
+    const coul = ["#ffd166", "#ff7aa2", "#8fe3ea", "#fff", m.couleur];
+    for (let k = 0; k < (m.chef ? 24 : 14); k++) {
+      const a = Math.random() * 7, v = m.r * (4 + Math.random() * 6);
+      arene.eclats.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - m.r * 3, r: m.r * (.12 + Math.random() * .15), c: coul[k % coul.length], vie: 1 });
+    }
+    arene.textes.push({ x: m.x, y: m.y - m.r, t: m.chef ? "CHEF K.O. !" : "POP !", vie: 1, taille: Math.max(16, m.r * 1.1) });
+    bip(m.chef ? 1568 : 1300, .04); bip(650, .05, .03);
+  }
+  function majArene(dtR) {
+    const actif = phase === "brosse";
+    if (!actif && !arene.eclats.length && !arene.textes.length) {
+      if (arene.sale) { gA.setTransform(1, 0, 0, 1, 0, 0); gA.clearRect(0, 0, elArene.width, elArene.height); arene.sale = false; }
+      if (phase !== "brosse" && phase !== "pause") arene.microbes.length = arene.tirs.length = 0;
+      return;
+    }
+    arene.sale = true;
+    const W = elScene.clientWidth, H = elScene.clientHeight, k = Math.min(2, window.devicePixelRatio || 1);
+    if (elArene.width !== Math.round(W * k) || elArene.height !== Math.round(H * k)) { elArene.width = Math.round(W * k); elArene.height = Math.round(H * k); }
+    gA.setTransform(k, 0, 0, k, 0, 0); gA.clearRect(0, 0, W, H);
+    const t = performance.now() / 1000;
+    const brosse = actif && vitesseBrossage() > 0 && (!detActive() || DET.etat.brosse) && attente < 1.2;
+    if (actif) {
+      // naissances : rares quand on brosse, de plus en plus quand on ne brosse pas
+      const cadence = brosse ? 2.4 : Math.max(.5, 1.4 - arene.rires * .08);
+      if (t - arene.naissA > cadence && arene.microbes.length < AR.max) {
+        const Z = zoneArene(W, H), cam = elScene.classList.contains("avec-camera");
+        arene.naissA = t; nouveauMicrobe(W, H, cam ? (Math.random() < .5 ? -W * .05 : W * 1.05) : Z.x0 + Math.random() * (Z.x1 - Z.x0));
+        if (!brosse) arene.rires++;
+      }
+      if (brosse) arene.rires = 0;
+      // tirs de Beufa dents (en bas à droite) vers le microbe le plus proche
+      if (brosse && arene.microbes.length && t - arene.tirA > AR.tirToutes) {
+        arene.tirA = t;
+        const mr = elMascotte.getBoundingClientRect(), sr = elScene.getBoundingClientRect();
+        const ox = mr.width ? mr.left - sr.left + mr.width * .45 : W * .85, oy = mr.height ? mr.top - sr.top + mr.height * .08 : H * .8;
+        const cible = arene.microbes.filter(m => m.taille > .6).sort((a, b) => b.coups - a.coups)[0];
+        if (cible) arene.tirs.push({ x0: ox, y0: oy, m: cible, t: 0 });
+      }
+    }
+    // microbes : balade dans la zone, grossissent si on ne brosse pas
+    const Z = zoneArene(W, H), lx = Z.x1 - Z.x0;
+    elArene.classList.toggle("dessus", !elScene.classList.contains("avec-camera"));
+    for (const m of arene.microbes) {
+      m.taille = Math.min(brosse ? 1 : 1.35, m.taille + dtR * (m.taille < 1 ? 2.5 : .08));
+      m.flash = Math.max(0, m.flash - dtR);
+      m.vx += (Math.random() - .5) * W * .6 * dtR; m.vy += (Math.random() - .5) * H * .2 * dtR;
+      m.vx = Math.max(-lx * .4, Math.min(lx * .4, m.vx)); m.vy = Math.max(-H * .1, Math.min(H * .1, m.vy));
+      m.x += m.vx * dtR; m.y += m.vy * dtR;
+      if (m.x < Z.x0 && m.vx < 0 || m.x > Z.x1 && m.vx > 0) m.vx = -m.vx * .8 + (m.x < Z.x0 ? 1 : -1) * lx * .05;
+      if (m.y < Z.y0 && m.vy < 0 || m.y > Z.y1 && m.vy > 0) m.vy = -m.vy * .8 + (m.y < Z.y0 ? 1 : -1) * H * .02;
+      dessinerGerme(gA, m, t);
+    }
+    // tirs : étoiles lumineuses
+    gA.save(); gA.shadowColor = "#2ee6ff"; gA.shadowBlur = 10;
+    for (let i = arene.tirs.length - 1; i >= 0; i--) {
+      const s = arene.tirs[i]; s.t += dtR / .3;
+      if (!arene.microbes.includes(s.m)) { arene.tirs.splice(i, 1); continue; }
+      if (s.t >= 1) {
+        arene.tirs.splice(i, 1); s.m.flash = .1; s.m.coups++;
+        if (s.m.coups >= (s.m.chef ? AR.coups + 2 : AR.coups)) { eclater(s.m); arene.microbes.splice(arene.microbes.indexOf(s.m), 1); }
+        continue;
+      }
+      const x = s.x0 + (s.m.x - s.x0) * s.t, y = s.y0 + (s.m.y - s.y0) * s.t - Math.sin(s.t * Math.PI) * H * .05;
+      gA.fillStyle = "#fff"; gA.beginPath(); gA.arc(x, y, Math.max(4, W * .012), 0, 7); gA.fill();
+    }
+    gA.restore();
+    // confettis et « POP ! »
+    for (let i = arene.eclats.length - 1; i >= 0; i--) {
+      const e = arene.eclats[i]; e.vie -= dtR * 1.5; e.x += e.vx * dtR; e.y += e.vy * dtR; e.vy += H * .9 * dtR;
+      if (e.vie <= 0) { arene.eclats.splice(i, 1); continue; }
+      gA.globalAlpha = Math.min(1, e.vie * 2); gA.fillStyle = e.c; gA.beginPath(); gA.arc(e.x, e.y, e.r, 0, 7); gA.fill();
+    }
+    for (let i = arene.textes.length - 1; i >= 0; i--) {
+      const tx = arene.textes[i]; tx.vie -= dtR * 1.1; tx.y -= dtR * 40;
+      if (tx.vie <= 0) { arene.textes.splice(i, 1); continue; }
+      gA.globalAlpha = Math.min(1, tx.vie * 2); gA.font = `900 ${tx.taille}px Fredoka, system-ui, sans-serif`; gA.textAlign = "center";
+      gA.lineWidth = 4; gA.strokeStyle = "#ff3fa4"; gA.strokeText(tx.t, tx.x, tx.y); gA.fillStyle = "#fff"; gA.fillText(tx.t, tx.x, tx.y);
+    }
+    gA.globalAlpha = 1;
+  }
 
   function dessinerMousse(dtR, actif) {
     const d = DET.etat, v = elCamera, miroir = elScene.classList.contains("vue-miroir");
