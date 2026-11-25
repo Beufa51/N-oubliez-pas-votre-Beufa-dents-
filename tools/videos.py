@@ -21,10 +21,11 @@ sess = new_session("birefnet-general-lite")
 def detourer(im):
     a = np.asarray(remove(im, session=sess)).copy()
     al = a[..., 3].astype(np.float32) / 255
-    lab, n = ndimage.label(al > .5)                       # garder la personne seule
-    if n > 1:
-        t = ndimage.sum(np.ones_like(al), lab, range(1, n + 1))
-        al[~ndimage.binary_dilation(lab == 1 + int(np.argmax(t)), iterations=4)] = 0
+    # garder seulement ce qui touche le bas de l'image (la personne) : pas la fenêtre avant qu'il entre
+    lab, n = ndimage.label(al > .5)
+    bas = set(np.unique(lab[-3:, :])) - {0}
+    garde = np.isin(lab, list(bas)) if bas else np.zeros_like(al, bool)
+    al[~ndimage.binary_dilation(garde, iterations=4)] = 0
     al = ndimage.gaussian_filter(ndimage.grey_erosion(al, size=(3, 3)), .8)
     a[..., 3] = (al * 255).clip(0, 255).astype(np.uint8)
     return Image.fromarray(a, "RGBA")
