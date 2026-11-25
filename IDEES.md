@@ -330,4 +330,7 @@ Pas de publication sur le Play Store.
   plus de 60 % de la largeur), Beufa à droite (poses larges dans les 70 % de droite) ; bord de sa caméra adouci.
 - [x] Décor « Plateau télé » retiré (sans image, il empêchait la photo côte à côte) : restent les 5 décors du créateur
   et « Ma photo » ; lagon par défaut (aussi pour qui avait choisi le plateau).
+- [x] **Nouvelle intro animée** (calée sur la chanson) : décors qui défilent en rythme derrière, panneau qui tombe avec
+  flash et confettis, Beufa qui saute dans l'image (vidéo ta-da), la brosse Beufa dents qui arrive, « Brosse-toi les
+  dents avec Beufa ! » ; bouton pour passer toujours visible ; version immobile si « réduire les animations ».
 

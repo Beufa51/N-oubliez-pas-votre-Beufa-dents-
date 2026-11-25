@@ -25,8 +25,16 @@
   <!-- INTRO : panneau-titre + générique en musique -->
   <section id="ecran-intro" class="ecran">
     <button class="btn-son coin" type="button" aria-label="Couper le son" aria-pressed="true">🔊</button>
+    <div id="intro-decors" class="intro-decors" aria-hidden="true"></div>
+    <div id="intro-flash" class="intro-flash" aria-hidden="true"></div>
+    <div id="intro-confettis" class="confettis intro-confettis" aria-hidden="true"></div>
     <div class="intro-scene">
       <img class="intro-titre" src="assets/titre.webp" width="800" height="495" alt="N'oubliez pas votre brosse… Beufa dents !">
+      <div class="intro-duo" aria-hidden="true">
+        <img id="intro-beufa" class="intro-beufa" alt="">
+        <img id="intro-brosse" class="intro-brosse" src="assets/mascotte/png/pose-main-levee.png" alt="">
+      </div>
+      <p id="intro-phrase" class="intro-phrase">Brosse-toi les dents avec Beufa&nbsp;!</p>
     </div>
     <p id="intro-son" class="intro-son" hidden>🔊 Touche l'écran pour lancer la musique</p>
     <button id="btn-intro" class="gros-bouton intro-bouton" type="button">Appuie pour continuer&nbsp;▶</button>

@@ -1957,8 +1957,8 @@
     }, 650);
   }
 
-  function confettis() {
-    const c = $("#confettis"); c.innerHTML = "";
+  function confettis(c = $("#confettis")) {
+    c.innerHTML = "";
     const couleurs = ["#14b8c4", "#ff7aa2", "#ffd166", "#8fe3ea", "#ffffff"];
     for (let i = 0; i < 40; i++) {
       const s = document.createElement("i");
@@ -2049,11 +2049,44 @@
   // la chanson se charge pendant l'écran « Appuie sur l'écran », puis la musique de fond
   chargerMusique().then(() => chargerFond());
   // l'appui autorise le son (règle des téléphones) : on passe à l'intro et la musique démarre
+  /* ---------- générique animé, calé sur la chanson (≈ 129 BPM, 2 temps = 0,93 s) ----------
+     0 s : les décors défilent derrière ; 0,2 s : le panneau tombe (flash, confettis) ; 1,9 s : Beufa saute dans
+     l'image (sa vidéo « ta-da ! ») ; 3,8 s : la brosse Beufa dents arrive ; 4,5 s : la phrase. */
+  const DEUX_TEMPS = 930;
+  let introT = [], introDecorT = 0;
+  function animerIntro() {
+    const ec = ecrans.intro, att = (ms, f) => introT.push(setTimeout(f, ms));
+    introT.forEach(clearTimeout); introT = []; clearInterval(introDecorT);
+    ec.classList.remove("entre", "beufa", "brosse", "phrase");
+    // décors qui défilent en rythme (ceux qui sont chargés)
+    const boite = $("#intro-decors"); boite.innerHTML = "";
+    const imgs = ["lagon", "volcan", "neige", "montagne", "champignons"].map(id => {
+      const i = new Image(); i.src = `assets/decors/${id}.webp`; i.alt = ""; boite.appendChild(i); return i;
+    });
+    let k = 0; imgs[0].classList.add("vu");
+    introDecorT = setInterval(() => { imgs[k].classList.remove("vu"); k = (k + 1) % imgs.length; imgs[k].classList.add("vu"); }, DEUX_TEMPS * 2);
+    // Beufa : images de sa vidéo « ta-da » préchargées
+    const N = 20, cadres = Array.from({ length: N }, (_, n) => { const i = new Image(); i.src = `assets/createur/video/tada/${String(n).padStart(2, "0")}.webp`; return i; });
+    const elB = $("#intro-beufa"); elB.removeAttribute("src");
+    att(200, () => { ec.classList.add("entre"); rejouer($("#intro-flash"), "go"); confettis($("#intro-confettis")); });
+    att(DEUX_TEMPS * 2, () => {
+      ec.classList.add("beufa"); let n = 2;            // les 2 premières images sont vides (avant son entrée)
+      const t = setInterval(() => {
+        if (n >= N) { clearInterval(t); elB.src = "assets/createur/tada.webp"; return; }
+        if (cadres[n].complete && cadres[n].naturalWidth) elB.src = cadres[n].src; n++;
+      }, 1000 / 12);
+      introT.push(t);
+    });
+    att(DEUX_TEMPS * 4, () => ec.classList.add("brosse"));
+    att(DEUX_TEMPS * 4 + 700, () => ec.classList.add("phrase"));
+  }
+  function arreterIntroAnim() { introT.forEach(t => { clearTimeout(t); clearInterval(t); }); introT = []; clearInterval(introDecorT); }
+
   function lancerIntro() {
     if (phase !== "demarrage") return;
     debloquerSon();
     try { localStorage.removeItem("beufa-intro-vue"); } catch (e) {}   // ancien réglage « une fois par jour », plus utilisé
-    phase = "intro"; montrer("intro");
+    phase = "intro"; montrer("intro"); animerIntro();
     if (!sonActif) return;
     Promise.all([audio.resume().catch(() => {}), chargerMusique()]).then(() => {
       if (phase !== "intro") return;
@@ -2143,7 +2176,7 @@
   }
 
   function quitterIntro() {
-    arreterMusique(); phase = "accueil"; montrer("accueil");
+    arreterIntroAnim(); arreterMusique(); phase = "accueil"; montrer("accueil");
     jouerFond();
     if (!window.BeufaJeu.profils().liste.length) ouvrirFiche(null);
   }
