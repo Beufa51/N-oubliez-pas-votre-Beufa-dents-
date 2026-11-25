@@ -2033,8 +2033,15 @@
      (si le fichier existe ; sinon la musique de l'interface, tout bas) */
   const URL_FOND = "assets/fond.mp3";
   // décors qui ont leur musique (fichier présent dans assets/musiques/) : ajouter l'id ici
-  const MUSIQUES_DECOR = [];
-  const urlTheme = () => { const d = decorActuel(); return d && MUSIQUES_DECOR.includes(d.id) ? `assets/musiques/${d.id}.mp3` : null; };
+  // id du décor -> [début, fin] de la boucle (s) : l'intro joue une fois, puis la musique tourne de début à fin
+  // (points trouvés par ressemblance du son, sur un temps : la boucle ne s'entend pas)
+  const MUSIQUES_DECOR = {
+    montagne: [10.704, 104.072],      // « Alpine Hike »
+    neige: [5.108, 147.563],          // « Magical Snowy Evening »
+    volcan: [15.673, 143.197],        // « Volcano Adventure »
+    champignons: [14.211, 102.191]    // « Enchanted Forest Party »
+  };
+  const urlTheme = () => { const d = decorActuel(); return d && MUSIQUES_DECOR[d.id] ? `assets/musiques/${d.id}.mp3` : null; };
   const pistes = {};                     // url -> { tampon, pos, absent }
   function urlVoulue() {
     const t = phase !== "accueil" && urlTheme();
@@ -2057,7 +2064,11 @@
   }
   const chargerFond = () => chargerPiste(URL_FOND);
   // boucle : l'interface rejoue ses 85 mesures de groove ; un thème boucle en entier
-  const boucleDe = (url, t) => url === URL_FOND ? [FOND.debut, FOND.fin] : [0, t.duration];
+  const boucleDe = (url, t) => {
+    if (url === URL_FOND) return [FOND.debut, FOND.fin];
+    const id = (url.match(/musiques\/(.+)\.mp3$/) || [])[1];
+    return MUSIQUES_DECOR[id] || [0, t.duration];
+  };
   function positionFond() {
     const pi = pistes[fond.url], [a, b] = boucleDe(fond.url, pi.tampon);
     let p = audio.currentTime - fond.depart;
