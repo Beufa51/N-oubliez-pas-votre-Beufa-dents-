@@ -324,4 +324,8 @@ Pas de publication sur le Play Store.
   étiquette « Beufa » au lieu de « ? », « Regarde Beufa… », « Beufa est venu compléter ta photo… ».
 - [x] Noms : le créateur = **Beufa** (dans les poses), la brosse mascotte = **Beufa dents** (comme dans le titre) :
   cartes de l'album (« Beufa dents Musicien »…), textes et descriptions d'images.
+- [x] Bulles et consignes des poses **à la première personne** (c'est Beufa qui parle) : « Fais comme moi ! », « Ton poing
+  contre le mien », « Tape dans ma main »… (la brosse Beufa dents, elle, dit « photo avec Beufa »).
+- [x] **Côte à côte** sur la photo en duo dans un décor : l'utilisateur détouré est décalé à gauche (réduit s'il prend
+  plus de 60 % de la largeur), Beufa à droite (poses larges dans les 70 % de droite) ; bord de sa caméra adouci.
 
