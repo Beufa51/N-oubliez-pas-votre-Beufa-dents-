@@ -2014,7 +2014,12 @@
     const res = carteSession ? JEU.enregistrer({ carte: carteSession, microbes }) : null;
     const avecPh = photos.length > 0;
     if (avecPh) photos[photos.length - 1].tampon = true;   // le tampon du jour, sur la dernière photo
-    const recompense = () => { montrerCarteGagnee(res); feter(avecPh, res); confettis(); };
+    // « Recommencer » n'apparaît qu'une fois les photos vues (sinon on l'appuie par réflexe pendant le développement)
+    const elRecom = $("#btn-recommencer"); elRecom.hidden = true; clearTimeout(terminer.recomT);
+    const recompense = () => {
+      montrerCarteGagnee(res); feter(avecPh, res); confettis();
+      terminer.recomT = setTimeout(() => { elRecom.hidden = false; rejouer(elRecom, "apparait"); }, 1500);
+    };
     montrerCarteGagnee(null); $("#fin-zones").innerHTML = "";
     montrer("fin");
     if (!avecPh) return recompense();

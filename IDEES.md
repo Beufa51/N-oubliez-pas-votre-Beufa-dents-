@@ -349,3 +349,5 @@ Pas de publication sur le Play Store.
   avec un halo qui pulse. Éclatement : onde de choc + gouttelettes, sons plus graves, plus de « POP ! ».
 - [x] Intro : « ting » joué une seule fois. Poses sans contact : « Fais comme moi… ou invente ta pose ! ».
 
+- [x] Fin : « Recommencer » n'apparaît qu'une fois les photos vues (1,5 s après la récompense), pour ne pas
+  l'appuyer par réflexe pendant le développement.
