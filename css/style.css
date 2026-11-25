@@ -1218,3 +1218,6 @@ body.en-brossage .scene.avec-camera #bouche .dent rect.actif { animation: none; 
   animation-name: ombre-geste; animation-duration: 2.6s; animation-iteration-count: infinite; }
 @keyframes ombre-geste { 0% { background-position: 0% 0; } 60% { background-position: 100% 0; } 100% { background-position: 100% 0; } }
 @media (prefers-reduced-motion: reduce) { .demo-apercu .ap-ombre.anim { animation: none; background-position: 100% 0; } }
+
+/* poses en vidéo : pas d'ovale ni de contour, l'utilisateur voit la pose et se place comme il veut */
+.cadre.sans-ovale .cadre-tete, .cadre.sans-ovale ~ .contour-guide, .cadre.sans-ovale .contour-guide { display: none !important; }

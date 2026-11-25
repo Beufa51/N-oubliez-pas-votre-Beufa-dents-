@@ -291,4 +291,10 @@ Pas de publication sur le Play Store.
 - [x] **Que des vidéos** (session 13) : 10 poses filmées (dont **bras croisés** qui surgit du bas et **ta-da** qui saute dans
   l'image), anciennes photos et ombres animées retirées. Créateur jamais trop zoomé (tête plafonnée à 28 % de la photo,
   contact sans agrandir de plus de 20 %), tête et visage toujours dans l'image, bords de ses vidéos fondus.
+- [x] Retours du test (session 13) : **ta-da** dézoomé (bras entiers visibles), **plus d'ovale** pendant les poses en vidéo
+  (« À toi ! » : l'utilisateur voit la pose et se place comme il veut, contact ou 3-2-1 après 2,5 s).
+- [x] Audit des parcours (classique, miroir + décor, album, options, Beufa dents 2 photos) : pas d'erreur ; consigne
+  écrasée corrigée ; « Brossage vu » masqué sous 10 % (détection peu fiable).
+- [x] **Musique par décor** prête : `assets/musiques/<décor>.mp3` + id dans `MUSIQUES_DECOR` (voir son LISEZMOI).
+- [ ] Musiques des 5 décors (à composer par le créateur).
 

@@ -110,7 +110,7 @@
       main: { x: .213, y: .638, taille: .0858, contact: "dessous" } },
     { id: "tada", nom: "Ta-da !", contour: true, video: 27, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
       consigne: "Bras grands ouverts : ta-da !", geste: "Bras grands ouverts : ta-da !",
-      photo: { tete: [.269, .429, .445], hh: .24, top: .15, dx: .17 } }
+      photo: { tete: [.269, .429, .445], hh: .24, top: .15, dx: .17, echelle: .62, colle: true } }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -162,9 +162,11 @@
     const top = visage ? Math.max(.04, Math.min(.4, visage.haut)) : p.photo.top;
     const dx = Math.min(.3, p.photo.dx * hh / p.photo.hh);   // plus grand = un peu plus loin du bord
     // sa tête à la hauteur de celle de l'utilisateur ; si le bas de sa photo n'atteint pas le bord, il est fondu
-    let h = hh * H / (m - t), y = top * H - t * h;
+    // echelle < 1 : pose large (bras ouverts) montrée plus petite pour tenir dans l'image
+    let h = hh * H / (m - t) * (p.photo.echelle || 1), y = top * H - t * h;
     let w = h * ratio;
     let x = (p.cote === "droite" ? W - dx * H : dx * H) - cx * w;
+    if (p.photo.colle) x = p.cote === "droite" ? W - w : 0;   // toute la largeur de sa vidéo visible
     if (p.main && main) {
       const pm = p.main, hv = h;
       h = Math.max(hv * .8, Math.min(hv * 1.2, main.taille * H / pm.taille));   // même taille de main (sans exagérer)
@@ -779,7 +781,7 @@
   function arreter() {
     pleinEcran(false);
     cancelAnimationFrame(raf); lacherEcran(); stopperCamera(); phase = "accueil"; taire();
-    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil"); volumeFond(); jouerFond();
+    fermerPose(); fermerPrepa(); elPause.hidden = true; montrer("accueil"); jouerFond();
   }
 
   const avecPhotos = () => mode === "beufa" && !!flux;
@@ -1012,12 +1014,13 @@
       elBulle.textContent = hasard(["Coucou, c'est moi !", "Surprise !", "Me voilà !"]); elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
       bip(784, .1); bip(1047, .12, .1); bip(1319, .16, .2); vibrer([40, 30, 80]);
     } else bip(880, .08);
-    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : "😄 Prends la pose avec lui !";
+    elStudioCompte.textContent = p.main ? TEXTE_GESTE[p.main.contact] : p.video ? "😄 À toi, fais la même !" : "😄 Prends la pose avec lui !";
     rejouer(elStudioCompte, "pop");
   }
   function suivreGeste() {
     const p = poseActuelle, t = tPause - apparuA;
-    if (!p.createur || !p.main || !DET.etat.photos) { if (t >= 1.5) commencerCompte(); return; }
+    // sans contact : le temps de prendre la pose (plus long après une vidéo), puis 3-2-1
+    if (!p.createur || !p.main || !DET.etat.photos) { if (t >= (p.video ? 2.5 : 1.5)) commencerCompte(); return; }
     if (t >= ATTENTE_GESTE) return commencerCompte();
     const maintenant = performance.now();
     if (maintenant - gesteA < 200) return;
@@ -1342,7 +1345,7 @@
     poseStudio = p; placeGardee();
     elBulle.textContent = p.createur ? "Qui est-ce ? Fais la pose avec lui !" : "Laisse cette place libre !"; elBulle.classList.remove("reaction");
     elApercu.hidden = true;
-    elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}`;
+    elCadre.className = `cadre cote-${p.cote}${p.createur ? " avec-createur" : ""}${p.video && p.createur ? " sans-ovale" : ""}`;
     etapePose = "demo"; elStudio.className = "studio etape-demo"; elStudio.hidden = false;
     placerCadre();
     rejouer(elDemoImg, "montre"); rejouer(elDemoTitre, "pop"); rejouer(elDemoConsigne, "pop");
@@ -1391,9 +1394,7 @@
         clearInterval(videoT); img.src = p.createur.src;      // figé sur sa pose (la photo fixe = dernière image)
         videoFinA = tPause; bip(784, .1); bip(1047, .12, .1); vibrer([40, 30, 80]);
         elBulle.textContent = "À toi !"; rejouer(elBulle, "pop");
-        if (avecContour(p)) $("#contour").hidden = false;
-        elCadre.classList.remove("geste"); elCadre.classList.add("placement");
-        elStudioCompte.textContent = "Mets ta tête dans l'ovale"; rejouer(elStudioCompte, "pop");
+        apparaitre();                                         // pas d'ovale : il voit la pose et se place comme il veut
       }
     };
     suite(); videoT = setInterval(suite, 1000 / VIDEO_FPS);
@@ -1865,7 +1866,7 @@
     const c = JEU.carteEl(carteSession); c.classList.add("retourne"); boite.appendChild(c);
     [`🦠 ${microbes} ${ton().microbes}`, `🔥 ${res.serie} jour${res.serie > 1 ? "s" : ""} d'affilée`]
       .concat(res.deuxFois ? ["☀️🌙 Matin et soir !"] : [])
-      .concat(DET.etat.tempsVisible > 10 ? [`🪥 Brossage vu : ${Math.round(100 * Math.min(1, DET.etat.tempsBrosse / DET.etat.tempsVisible))} %`] : [])
+      .concat(DET.etat.tempsVisible > 10 && DET.etat.tempsBrosse / DET.etat.tempsVisible >= .1 ? [`🪥 Brossage vu : ${Math.round(100 * Math.min(1, DET.etat.tempsBrosse / DET.etat.tempsVisible))} %`] : [])
       .forEach((t, i) => { const b = document.createElement("span"); b.textContent = t; b.style.animationDelay = (.6 + i * .25) + "s"; st.appendChild(b); });
   }
 
@@ -1999,44 +2000,65 @@
      Elle démarre avec son intro, puis tourne en boucle sur 85 mesures de groove (129 BPM),
      de 3,516 s à 161,652 s : on ne rejoue jamais l'intro ni la coupure de la fin.
      Elle joue sur l'accueil et l'album, s'arrête pendant le brossage et reprend où elle en était. */
-  const FOND = { debut: 3.516, fin: 161.652, volume: .38, volumeBrossage: .13 };
+  const FOND = { debut: 3.516, fin: 161.652, volume: .38, volumeBrossage: .13, volumeTheme: .3 };
   const PHASES_FOND = ["accueil", "prepa", "brosse", "pause"];
-  const volumeVoulu = () => (phase === "accueil" ? FOND.volume : FOND.volumeBrossage);
-  // pendant le brossage, la musique continue tout bas (sous la voix de Beufa)
+  /* musique par décor : assets/musiques/<id du décor>.mp3, jouée en boucle pendant le brossage avec ce décor
+     (si le fichier existe ; sinon la musique de l'interface, tout bas) */
+  const URL_FOND = "assets/fond.mp3";
+  // décors qui ont leur musique (fichier présent dans assets/musiques/) : ajouter l'id ici
+  const MUSIQUES_DECOR = [];
+  const urlTheme = () => { const d = decorActuel(); return d && MUSIQUES_DECOR.includes(d.id) ? `assets/musiques/${d.id}.mp3` : null; };
+  const pistes = {};                     // url -> { tampon, pos, absent }
+  function urlVoulue() {
+    const t = phase !== "accueil" && urlTheme();
+    return t && !(pistes[t] && pistes[t].absent) ? t : URL_FOND;
+  }
+  const volumeVoulu = () => phase === "accueil" ? FOND.volume : fond.url !== URL_FOND ? FOND.volumeTheme : FOND.volumeBrossage;
   function volumeFond() { if (fond.gain && fond.source) fond.gain.gain.setTargetAtTime(volumeVoulu(), audio.currentTime, .5); }
-  const fond = { tampon: null, source: null, gain: null, depart: 0, pos: 0 };
-  let chargementFond = null;
-  function chargerFond() {
-    if (!chargementFond) chargementFond = fetch("assets/fond.mp3")
-      .then(r => r.arrayBuffer())
+  const fond = { source: null, gain: null, depart: 0, url: null };
+  function chargerPiste(url) {
+    const pi = pistes[url] || (pistes[url] = { tampon: null, pos: url === URL_FOND ? 0 : 0, chargement: null });
+    if (!pi.chargement) pi.chargement = fetch(url)
+      .then(r => { if (!r.ok) throw new Error("absente"); return r.arrayBuffer(); })
       .then(ab => {
         audio = audio || new (window.AudioContext || window.webkitAudioContext)();
         return new Promise((ok, ko) => audio.decodeAudioData(ab, ok, ko));
       })
-      .then(t => (fond.tampon = t))
-      .catch(() => null);
-    return chargementFond;
+      .then(t => (pi.tampon = t))
+      .catch(() => { pi.absent = true; return null; });
+    return pi.chargement;
   }
+  const chargerFond = () => chargerPiste(URL_FOND);
+  // boucle : l'interface rejoue ses 85 mesures de groove ; un thème boucle en entier
+  const boucleDe = (url, t) => url === URL_FOND ? [FOND.debut, FOND.fin] : [0, t.duration];
   function positionFond() {
+    const pi = pistes[fond.url], [a, b] = boucleDe(fond.url, pi.tampon);
     let p = audio.currentTime - fond.depart;
-    if (p > FOND.fin) p = FOND.debut + ((p - FOND.debut) % (FOND.fin - FOND.debut));
+    if (p > b) p = a + ((p - a) % (b - a));
     return p;
   }
   function jouerFond() {
-    if (!sonActif || !PHASES_FOND.includes(phase) || fond.source || !audio) return;
-    if (!fond.tampon) { chargerFond().then(() => { if (fond.tampon) jouerFond(); }); return; }
+    if (!sonActif || !PHASES_FOND.includes(phase) || !audio) return;
+    const url = urlVoulue();
+    if (fond.source && fond.url === url) return volumeFond();
+    const pi = pistes[url];
+    if (!pi || !pi.tampon) { chargerPiste(url).then(() => jouerFond()); return; }
     if (audio.state !== "running") { audio.resume().then(() => { if (audio.state === "running") jouerFond(); }).catch(() => {}); return; }
+    if (fond.source) arreterFond(.5);                                   // on change de musique (décor)
+    fond.url = url;
     const g = audio.createGain(); g.gain.value = 0; g.connect(audio.destination);
     g.gain.setTargetAtTime(volumeVoulu(), audio.currentTime, .4);        // fondu d'entrée
-    const src = audio.createBufferSource(); src.buffer = fond.tampon;
-    src.loop = true; src.loopStart = FOND.debut; src.loopEnd = FOND.fin;
-    src.connect(g); src.start(0, fond.pos);
-    fond.depart = audio.currentTime - fond.pos; fond.source = src; fond.gain = g;
+    const src = audio.createBufferSource(); src.buffer = pi.tampon;
+    const [a, b] = boucleDe(url, pi.tampon);
+    src.loop = true; src.loopStart = a; src.loopEnd = b;
+    src.connect(g); src.start(0, pi.pos || 0);
+    fond.depart = audio.currentTime - (pi.pos || 0); fond.source = src; fond.gain = g;
   }
   function arreterFond(fondu = .6) {
     const src = fond.source, g = fond.gain;
     if (!src) return;
-    fond.pos = positionFond(); fond.source = null;
+    pistes[fond.url].pos = fond.url === URL_FOND ? positionFond() : 0;   // un thème repart du début la fois suivante
+    fond.source = null;
     try { g.gain.setTargetAtTime(0, audio.currentTime, fondu / 3); src.stop(audio.currentTime + fondu); } catch (e) {}
   }
 
