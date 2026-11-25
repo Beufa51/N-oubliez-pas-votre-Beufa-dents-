@@ -80,21 +80,26 @@
       cible: { x: .095, y: .171, texte: "ta main ici" },
       photo: { tete: [.05, .407, .77], hh: .24, top: .15, dx: .17 },
       main: { x: .095, y: .171, taille: .1774, contact: "paume" } },
-    { id: "check-poing", nom: "Check", anim: 8, contour: true, mascotte: "main-levee", cote: "droite", emoji: "👊",
+    { id: "check-poing", nom: "Check", contour: true, video: 34, mascotte: "main-levee", cote: "droite", emoji: "👊",
       consigne: "Ton poing contre le sien : check !", geste: "Tends ton poing : check !",
-      cible: { x: .132, y: .421, texte: "ton poing ici" },
-      photo: { tete: [.069, .476, .691], hh: .24, top: .15, dx: .17 },
-      main: { x: .132, y: .421, taille: .2902, contact: "poing" } },
-    { id: "pouce", nom: "Victoire", anim: 7, contour: true, mascotte: "pouce", cote: "droite", emoji: "✌️",
-      consigne: "Fais le V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [.028, .406, .781], hh: .24, top: .15, dx: .17 } },
-    { id: "coeur", nom: "Cœur", mascotte: "coeur", cote: "droite", consigne: "Fais un cœur avec tes mains" },
+      cible: { x: .119, y: .473, texte: "ton poing ici" },
+      photo: { tete: [.046, .307, .54], hh: .24, top: .15, dx: .17 },
+      main: { x: .119, y: .473, taille: .0971, contact: "poing" } },
+    { id: "pouce", nom: "Victoire", contour: true, video: 31, mascotte: "pouce", cote: "droite", emoji: "✌️",
+      consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
+      photo: { tete: [.233, .433, .369], hh: .24, top: .15, dx: .17 } },
+    { id: "cool", nom: "Cool", contour: true, video: 25, mascotte: "pouce", cote: "droite", emoji: "🤙",
+      consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
+      photo: { tete: [.138, .396, .393], hh: .24, top: .15, dx: .17 } },
+    { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
+      consigne: "Fais un cœur avec tes mains, comme lui !", geste: "Fais un cœur avec tes mains",
+      photo: { tete: [.216, .398, .222], hh: .24, top: .15, dx: .17 } },
     { id: "pointe", nom: "Montre du doigt", contour: true, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
       consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
       photo: { tete: [.057, .468, .846], hh: .24, top: .15, dx: .17 } },
-    { id: "pensif", nom: "Pensif", anim: 8, contour: true, mascotte: "pensif", cote: "gauche", emoji: "🤔",
+    { id: "pensif", nom: "Pensif", contour: true, video: 33, mascotte: "pensif", cote: "droite", emoji: "🤔",
       consigne: "Main au menton, l'air pensif, comme lui !", geste: "Prends l'air pensif…",
-      photo: { tete: [.05, .397, .265], hh: .24, top: .15, dx: .17 } },
+      photo: { tete: [.178, .344, .217], hh: .24, top: .15, dx: .17 } },
     { id: "bras-croises", nom: "Dos à dos", anim: 6, contour: true, mascotte: "bras-croises", cote: "droite", emoji: "👥",
       consigne: "De profil, bras croisés, ton dos contre son dos !", geste: "Croise les bras, l'air sûr de toi",
       cible: { x: .03, y: .45, texte: "ton dos ici" },
@@ -1374,7 +1379,7 @@
     const img = elPartenaire.querySelector("img"); if (!img) { videoFinA = tPause; return; }
     elPartenaire.classList.add("apparu"); $("#contour").hidden = true;
     elBulle.textContent = "Regarde bien !"; elBulle.classList.remove("reaction"); rejouer(elBulle, "pop");
-    elStudioCompte.textContent = "👀 Regarde bien…";
+    elCadre.classList.add("geste"); elStudioCompte.textContent = "👀 Regarde bien…";
     let k = 0;
     const suite = () => {
       const im = p.images[k];
@@ -1384,7 +1389,7 @@
         videoFinA = tPause; bip(784, .1); bip(1047, .12, .1); vibrer([40, 30, 80]);
         elBulle.textContent = "À toi !"; rejouer(elBulle, "pop");
         if (avecContour(p)) $("#contour").hidden = false;
-        elCadre.classList.add("placement");
+        elCadre.classList.remove("geste"); elCadre.classList.add("placement");
         elStudioCompte.textContent = "Mets ta tête dans l'ovale"; rejouer(elStudioCompte, "pop");
       }
     };

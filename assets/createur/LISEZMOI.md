@@ -53,3 +53,9 @@ tête dans l'ovale doré (ton côté), l'ovale gris = la place de l'utilisateur.
 La photo est en miroir, comme celles de l'utilisateur. L'envoyer à Claude : détourage (`tools/createur.py`), mesures
 (visage, main) et mise à jour de `POSES_BEUFA`.
 
+## Vidéos (il entre, fait le geste, se fige)
+`python3 tools/videos.py <video.mp4> <id> <début_s> <fin_s>` : images détourées (12/s) dans `video/<id>/`, et la dernière
+image en grand comme photo fixe `<id>.webp`. Ensuite : mesurer tête/main sur la photo fixe, `video: N` dans `POSES_BEUFA`,
+`python3 tools/contours.py`. Vidéos en place : check, V (double), cool (nouvelle pose), cœur, pensif (le créateur est à droite).
+Filmer : téléphone posé, entrer par la droite, faire le geste, rester figé ~1 s ; éviter la lampe juste derrière la tête.
+

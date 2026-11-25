@@ -284,4 +284,8 @@ Pas de publication sur le Play Store.
   Pas dans la photo finale : vidéos filmées de loin, gestes trop petits par rapport aux photos (le raccord se verrait).
 - [x] Photos (choix du créateur) : la moitié à mi-brossage (une seule pause), l'autre à la fin (« 2 photos » = 1 + 1,
   « 4 photos » = 2 + 2), la dernière toujours le sourire brillant.
+- [x] **Le créateur en vidéo** (session 13) : pendant la pose, sa vidéo joue (il entre, fait le geste, se fige) puis
+  « À toi ! » : l'utilisateur se place sur sa pose figée, contact ou 3-2-1, photo ; la photo utilise la dernière image.
+  Vidéos : check, double V (sourire brillant), **cool 🤙** (nouvelle pose), **cœur** (enfin avec le créateur), pensif.
+  Photos fixes gardées pour high five, montre du doigt, tape dans mes mains, dos à dos.
 
