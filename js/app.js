@@ -87,13 +87,13 @@
       main: { x: .137, y: 0.401, taille: .1353, contact: "poing" } },
     { id: "pouce", nom: "Victoire", contour: true, video: 28, mascotte: "pouce", cote: "droite", emoji: "✌️",
       consigne: "Double V et ton plus beau sourire, toutes dents dehors !", geste: "Pouce en l'air !",
-      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, echelle: .72, colle: true }, bouche: [0.573, 0.354, 0.064] },
+      photo: { tete: [.239, .394, .57], hh: .24, top: .15, dx: .17, entier: true }, bouche: [0.573, 0.354, 0.064] },
     { id: "cool", nom: "Cool", contour: true, video: 32, mascotte: "pouce", cote: "droite", emoji: "🤙",
       consigne: "Fais le signe « cool » comme lui !", geste: "Fais le signe cool !",
       photo: { tete: [0.139, 0.326, .438], hh: .24, top: .15, dx: .17 }, bouche: [0.472, 0.279, 0.081] },
     { id: "coeur", nom: "Cœur", contour: true, video: 33, mascotte: "coeur", cote: "droite", emoji: "🫶",
       consigne: "Fais un cœur avec tes mains, comme lui !", geste: "Fais un cœur avec tes mains",
-      photo: { tete: [0.189, 0.362, .338], hh: .24, top: .15, dx: .17 }, bouche: [0.375, 0.319, 0.084] },
+      photo: { tete: [0.189, 0.362, .338], hh: .24, top: .15, dx: .17, entier: true }, bouche: [0.375, 0.319, 0.084] },
     { id: "pointe", nom: "Montre du doigt", contour: true, video: 34, mascotte: "pointe-du-doigt", cote: "droite", emoji: "👉",
       consigne: "Montre-le du doigt, comme lui !", geste: "Montre-moi du doigt !",
       photo: { tete: [0.097, 0.309, .66], hh: .24, top: .15, dx: .17 }, bouche: [0.607, 0.258, 0.089] },
@@ -102,15 +102,15 @@
       photo: { tete: [.23, .392, .647], hh: .24, top: .15, dx: .17 }, bouche: [0.613, 0.348, 0.058] },
     { id: "bras-croises", nom: "Bras croisés", contour: true, video: 37, mascotte: "bras-croises", cote: "droite", emoji: "💪",
       consigne: "Croise les bras, l'air sûr de toi, comme lui !", geste: "Croise les bras, l'air sûr de toi",
-      photo: { tete: [0.043, 0.236, .468], hh: .24, top: .15, dx: .17 }, bouche: [0.473, 0.188, 0.081] },
+      photo: { tete: [0.043, 0.236, .468], hh: .24, top: .15, dx: .17, entier: true }, bouche: [0.473, 0.188, 0.081] },
     { id: "mains-hanches", nom: "Tape dans mes mains", video: 30, mascotte: "mains-hanches", cote: "droite", emoji: "🙌",
       consigne: "Mains à plat au-dessus des siennes : tape dedans !", geste: "Mains sur les hanches, en champion !",
       cible: { x: .213, y: 0.597, texte: "tes mains ici" },
       photo: { tete: [0.11, 0.307, .736], hh: .24, top: .15, dx: .17 }, bouche: [0.688, 0.263, 0.063],
       main: { x: .213, y: 0.656, taille: .0858, contact: "dessous" } },
     { id: "tada", nom: "Ta-da !", contour: true, video: 20, mascotte: "mains-hanches", cote: "droite", emoji: "🎉",
-      consigne: "Bras grands ouverts : ta-da !", geste: "Bras grands ouverts : ta-da !",
-      photo: { tete: [.32, .486, .544], hh: .24, top: .15, dx: .17, echelle: .78, colle: true }, bouche: [.537, .446, .079] }
+      consigne: "Mains ouvertes, grand sourire : ta-da !", geste: "Mains ouvertes : ta-da !",
+      photo: { tete: [.324, .481, .425], hh: .24, top: .15, dx: .17, entier: true }, bouche: [.431, .441, .064] }
   ];
   // la consigne à donner : l'autre moitié du geste s'il y a la photo du créateur, sinon le geste simple
   const consigneDe = p => p.createur ? p.consigne : (p.geste || p.consigne);
@@ -128,6 +128,10 @@
         const g = k.getContext("2d", { willReadFrequently: true }); g.drawImage(c, 0, 0, 40, 80);
         const col = x => { const d = g.getImageData(x, 0, 1, 80).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++; return n > 2; };
         p.bordG = col(0); p.bordD = col(39);
+        // largeur réelle de son corps dans l'image (pour ne jamais couper ses mains)
+        let x0 = 40, x1 = 0;
+        for (let x = 0; x < 40; x++) if (col(x)) { x0 = Math.min(x0, x); x1 = x + 1; }
+        p.corps = x1 > x0 ? [x0 / 40, x1 / 40] : [0, 1];
       } catch (e) {}
     };
     c.src = `assets/createur/${p.id}.webp`;
@@ -176,6 +180,16 @@
     let w = h * ratio;
     let x = (p.cote === "droite" ? W - dx * H : dx * H) - cx * w;
     if (p.photo.colle) x = p.cote === "droite" ? W - w : 0;   // toute la largeur de sa vidéo visible
+    const [b0, b1] = p.corps || [0, 1];
+    if (p.photo.entier) {                                    // pose large : il tient en entier dans la largeur
+      const bw = (b1 - b0) * w, lim = W * .96;
+      if (bw > lim) { const k = lim / bw, yt = y + t * h; h *= k; w *= k; y = yt - t * h; }
+      x = W * .98 - b1 * w;                                  // collé à droite, sans rien couper
+    }
+    // ce qui est tendu vers l'utilisateur (main, poing, doigt) ne sort jamais de l'image
+    const bord = W * .02;
+    if (p.cote === "droite" && x + b0 * w < bord) x = bord - b0 * w;
+    if (p.cote === "gauche" && x + b1 * w > W - bord) x = W - bord - b1 * w;
     if (p.main && main) {
       const pm = p.main, hv = h;
       h = Math.max(hv * .8, Math.min(hv * 1.2, main.taille * H / pm.taille));   // même taille de main (sans exagérer)

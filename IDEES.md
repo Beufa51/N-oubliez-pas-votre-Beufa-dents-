@@ -315,4 +315,7 @@ Pas de publication sur le Play Store.
   du corps et toujours adouci. Vérifié pose par pose sur le décor.
 - [x] **Menu pause** pendant le brossage : bouton ⏸ (et ⏸ dans le studio photo), « Reprendre » / « Arrêter le brossage » ;
   pause automatique si l'appli passe en arrière-plan. Test : `?poses=tada,pouce` impose les poses des photos.
+- [x] Ta-da refait avec la vidéo n°14 (il saute dans l'image, mains ouvertes : les deux mains dans le champ). Règle générale :
+  ce qu'il tend vers l'utilisateur ne sort jamais de l'image ; poses larges (`entier`) réduites pour tenir en entier
+  (double V, cœur, bras croisés, ta-da). Vérifié par simulation sur les 10 poses, deux tailles d'utilisateur.
 
