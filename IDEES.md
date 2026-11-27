@@ -351,3 +351,6 @@ Pas de publication sur le Play Store.
 
 - [x] Fin : « Recommencer » n'apparaît qu'une fois les photos vues (1,5 s après la récompense), pour ne pas
   l'appuyer par réflexe pendant le développement.
+- [x] Retour d'essai réel : **2 photos par séance** (une au milieu, une à la fin ; plus de choix 2/4), et
+  **zoom arrière plus fort** pendant le brossage quand le téléphone est tenu près (au-dessus du lavabo) :
+  la tête ne dépasse plus ~30 % de la largeur de l'écran (zoom arrière jusqu'à ×0,45).

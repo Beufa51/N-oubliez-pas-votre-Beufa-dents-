@@ -237,7 +237,7 @@
   /* ---------- état ---------- */
   let duree = 120;
   let phase = "demarrage";         // demarrage | intro | accueil | prepa | brosse | pause | fin
-  let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 4, typeBrosse = "manuelle";
+  let ecoule = 0, tPause = 0, pauses = [], iPause = 0, nbPhotos = 2, typeBrosse = "manuelle";
   let derniereZone = -1, dernierPoint = -1, derniere = 0, raf = 0, verrou = null, poseIdx = 0;
   let mode = "classique", poses = [], photos = [], poseActuelle = null, cliche = false, finale = false, seance = false, restePhotos = 0;
   let parBloc = 1, debutBloc = false, premiere = false;   // photos par moment (milieu / fin), première pose du moment
@@ -527,15 +527,11 @@
     const b = e.target.closest(".option"); if (!b) return;
     choisir($("#choix-brosse"), b); typeBrosse = b.dataset.brosse; retenir({ brosse: typeBrosse });
   });
-  $("#choix-photos").addEventListener("click", e => {
-    const b = e.target.closest(".option"); if (!b) return;
-    choisir($("#choix-photos"), b); nbPhotos = Number(b.dataset.photos); retenir({ photos: nbPhotos });
-  });
-  // le mode Beufa dents a toujours besoin de la caméra : la rubrique Caméra laisse place au nombre de photos
+  // le mode Beufa dents a toujours besoin de la caméra (2 photos par séance : une pendant, une à la fin)
   let cameraChoisie = false;
   function majModeCamera() {
     const beufa = mode === "beufa";
-    $("#bloc-camera").hidden = beufa; $("#bloc-photos").hidden = !beufa;
+    $("#bloc-camera").hidden = beufa;
     cameraVoulue = beufa || cameraChoisie;
     $("#bloc-brosse").hidden = !(DETECTION_BROSSAGE && cameraVoulue);   // « Ma brosse » ne sert qu'à la détection
   }
@@ -545,14 +541,12 @@
     mode = r.mode === "beufa" ? "beufa" : "classique";
     duree = r.duree === 60 ? 60 : 120;
     cameraChoisie = !!r.camera;
-    nbPhotos = r.photos === 2 ? 2 : 4;
     typeBrosse = r.brosse === "electrique" ? "electrique" : "manuelle";
     decor = r.decor && r.decor !== "plateau" ? r.decor : DECOR_DEFAUT; appliquerDecor();
     choisir($("#choix-brosse"), $(`#choix-brosse [data-brosse="${typeBrosse}"]`));
     choisir($("#choix-mode"), $(`#choix-mode [data-mode="${mode}"]`));
     choisir($("#choix-duree"), $(`#choix-duree [data-duree="${duree}"]`));
     choisir($("#choix-camera"), $(`#choix-camera [data-camera="${cameraChoisie ? 1 : 0}"]`));
-    choisir($("#choix-photos"), $(`#choix-photos [data-photos="${nbPhotos}"]`));
     majModeCamera();
   }
 
