@@ -5,7 +5,7 @@
 const BASE = new URL("../assets/vision/", self.location.href).href;
 const SEUIL_BAS = .55, SEUIL_HAUT = .85;   // confiance « personne » : en dessous transparent, au-dessus opaque
 const LISSAGE = .55;                       // part de la nouvelle image dans le masque (bords qui ne clignotent pas)
-const LARGEUR_MAX = .42;                   // largeur max de la tête en haut de l'image : au-delà, zoom arrière
+const LARGEUR_MAX = .3;                    // largeur max de la tête à l'écran : au-delà, zoom arrière (téléphone tenu près, au-dessus du lavabo)
 let seg = null, conf = null, dernierTs = 0;
 
 self.onmessage = async e => {
@@ -83,5 +83,5 @@ function cadrer(px, w, h) {
   let g = w, d = -1;
   for (let x = 0; x < w; x++) if (px[yl * w + x] > 128) { if (x < g) g = x; d = x; }
   const larg = d >= g ? (d - g + 1) / w : 0;
-  return { personne: true, cx: 1 - sx / n / w, haut: y0 / h, z: larg > LARGEUR_MAX ? Math.max(.55, LARGEUR_MAX / larg) : 1 };
+  return { personne: true, cx: 1 - sx / n / w, haut: y0 / h, z: larg > LARGEUR_MAX ? Math.max(.45, LARGEUR_MAX / larg) : 1 };
 }
