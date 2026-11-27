@@ -354,3 +354,6 @@ Pas de publication sur le Play Store.
 - [x] Retour d'essai réel : **2 photos par séance** (une au milieu, une à la fin ; plus de choix 2/4), et
   **zoom arrière plus fort** pendant le brossage quand le téléphone est tenu près (au-dessus du lavabo) :
   la tête ne dépasse plus ~30 % de la largeur de l'écran (zoom arrière jusqu'à ×0,45).
+- [x] Microbes moins vite éliminés (surtout en électrique) : 5 tirs pour éclater (8 pour le chef), un tir toutes
+  les 0,3 s, 5 au départ, et pendant le brossage un nouveau toutes les 1,5 s (0,7 s s'il en reste moins de 3) :
+  on a toujours quelques microbes à voir et à viser.

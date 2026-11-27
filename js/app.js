@@ -808,7 +808,7 @@
     remettreMicrobes(); preparerMystere();
     vieMicrobes.fill(1); tirsSchema.splice(0).forEach(t => t.el.remove());
     arene.microbes.length = arene.tirs.length = arene.eclats.length = arene.textes.length = 0; arene.rires = 0;
-    { const W = elScene.clientWidth || 360, H = elScene.clientHeight || 600; for (let n = 0; n < 3; n++) nouveauMicrobe(W, H); }
+    { const W = elScene.clientWidth || 360, H = elScene.clientHeight || 600; for (let n = 0; n < 5; n++) nouveauMicrobe(W, H); }
     if (flux && DETECTION_BROSSAGE) DET.demarrer(elCamera, typeBrosse);
     if (flux && decorActuel()) INC.demarrer(elCamera);
     attente = sansVisage = mauvaisCote = 0; coteDit = -1; relanceA = 2; visageA = 3;
@@ -1231,7 +1231,7 @@
      plus en plus nombreux et grossissent en ricanant. */
   const elArene = $("#arene"), gA = elArene.getContext("2d");
   const arene = { microbes: [], tirs: [], eclats: [], textes: [], tirA: 0, naissA: 0, sale: false, rires: 0 };
-  const AR = { max: 10, tirToutes: .22, coups: 3 };
+  const AR = { max: 10, tirToutes: .3, coups: 5 };
   /* zone de balade : avec la caméra, la bande du milieu de l'écran (sous le visage, au-dessus du schéma) ;
      sans caméra, l'intérieur de l'anneau des dents du grand schéma */
   function zoneArene(W, H) {
@@ -1306,7 +1306,8 @@
     const brosse = actif && vitesseBrossage() > 0 && (!detActive() || DET.etat.brosse) && attente < 1.2;
     if (actif) {
       // naissances : rares quand on brosse, de plus en plus quand on ne brosse pas
-      const cadence = brosse ? 3 : Math.max(1.1, 2 - arene.rires * .06);
+      // en brossant : toujours quelques microbes à viser (on a le temps de les voir avant qu'ils éclatent)
+      const cadence = brosse ? (arene.microbes.length < 3 ? .7 : 1.5) : Math.max(1.1, 2 - arene.rires * .06);
       if (t - arene.naissA > cadence && arene.microbes.length < AR.max) {
         const Z = zoneArene(W, H), cam = elScene.classList.contains("avec-camera");
         arene.naissA = t; nouveauMicrobe(W, H, cam ? (Math.random() < .5 ? -W * .05 : W * 1.05) : Z.x0 + Math.random() * (Z.x1 - Z.x0));
@@ -1342,7 +1343,7 @@
       if (!arene.microbes.includes(s.m)) { arene.tirs.splice(i, 1); continue; }
       if (s.t >= 1) {
         arene.tirs.splice(i, 1); s.m.flash = .1; s.m.coups++;
-        if (s.m.coups >= (s.m.chef ? AR.coups + 2 : AR.coups)) { eclater(s.m); arene.microbes.splice(arene.microbes.indexOf(s.m), 1); }
+        if (s.m.coups >= (s.m.chef ? AR.coups + 3 : AR.coups)) { eclater(s.m); arene.microbes.splice(arene.microbes.indexOf(s.m), 1); }
         continue;
       }
       const x = s.x0 + (s.m.x - s.x0) * s.t, y = s.y0 + (s.m.y - s.y0) * s.t - Math.sin(s.t * Math.PI) * H * .05;
